@@ -13,7 +13,7 @@
 
         // IAttributes
 
-        public Hashtable attributes { get; set; 
+        public Hashtable attributes { get; set; }
 
 
 
