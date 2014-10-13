@@ -11,6 +11,3 @@ The library is far from being finished, with a handfull of fully working example
 
 Download the library and open it in Visual Studio (the project includes both Library and Demos) and should run straight out of the box.
 
-### Screenshot ###
-
-![example.PNG](http://lathoub.github.com/three.cs/example.PNG)
