@@ -54,7 +54,7 @@
         {
             this.Color1 = colorCenterLine ;
             this.Color1 = colorGrid;
-            this.Geometry.ColorsNeedUpdate = true;
+   //         this.Geometry.ColorsNeedUpdate = true;
         }
 
     }

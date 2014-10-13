@@ -803,28 +803,7 @@
         /// <param name="objlist"></param>
         /// <param name="buffer"></param>
         /// <param name="object3D"></param>
-        private void AddBuffer(Dictionary<int, List<WebGlObject>> objlist, Geometry buffer, Object3D object3D)
-        {
-            var id = object3D.id;
-
-            List<WebGlObject> webGlObjects = null;
-            if (!objlist.TryGetValue(id, out webGlObjects))
-            {
-                webGlObjects = new List<WebGlObject>();
-                objlist.Add(id, webGlObjects);
-            }
-
-            var webGlObject = new WebGlObject { id = id, buffer = buffer, object3D = object3D, material = null, z = 0 };
-
-            webGlObjects.Add(webGlObject);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="objlist"></param>
-        /// <param name="buffer"></param>
-        /// <param name="object3D"></param>
-        private void AddBuffer(IDictionary<int, List<WebGlObject>> objlist, GeometryGroup buffer, Object3D object3D)
+        private void AddBuffer(Dictionary<int, List<WebGlObject>> objlist, BaseGeometry buffer, Object3D object3D)
         {
             var id = object3D.id;
 
@@ -940,19 +919,17 @@
                 object3D.NormalMatrix = new Matrix3().Identity();
             }
 
-            var geometry = object3D.Geometry;
-
-            if (null == geometry) //  geometry is er al in
+            if (null == object3D.Geometry) //  geometry is er al in
             {
                 // ImmediateRenderObject
             }
-            else if (geometry.__webglInit == false)
+            else if (object3D.Geometry.__webglInit == false)
             {
-                geometry.__webglInit = true;
+                object3D.Geometry.__webglInit = true;
 
-                if (geometry is BufferGeometry)
+                if (object3D.Geometry is BufferGeometry)
                 {
-                    InitDirectBuffers(geometry as BufferGeometry);
+                    InitDirectBuffers(object3D.Geometry as BufferGeometry);
                 }
                 else if (object3D is Mesh)
                 {
@@ -960,13 +937,16 @@
                     {
                         this.RemoveObject(object3D, scene);
                     }
-                    this.InitGeometryGroups(scene, object3D, geometry);
+
+                    this.InitGeometryGroups(scene, object3D, object3D.Geometry as Geometry);
                 }
                 else if (object3D is Line)
                 {
-				    if ( null == geometry.__webglVertexBuffer ) {
+                    if (null == object3D.Geometry.__webglVertexBuffer)
+                    {
+                        var geometry = object3D.Geometry as Geometry;
 
-					    this.CreateLineBuffers( geometry );
+                        this.CreateLineBuffers(geometry);
                         InitLineBuffers(geometry, object3D);
 
 					    geometry.VerticesNeedUpdate = true;
@@ -977,7 +957,9 @@
                 }
                 else if (object3D is PointCloud)
                 {
-				    if ( null != geometry.__webglVertexBuffer ) {
+                    if (null != object3D.Geometry.__webglVertexBuffer)
+                    {
+                        var geometry = object3D.Geometry as Geometry;
 
 					    this.CreateParticleBuffers( geometry );
                         InitParticleBuffers(geometry, object3D);
@@ -994,14 +976,14 @@
                 if (object3D is Mesh)
                 {
                     var mesh = object3D as Mesh;
-                    geometry = mesh.Geometry;
 
-                    if (geometry is BufferGeometry)
+                    if (object3D.Geometry is BufferGeometry)
                     {
-                        this.AddBuffer(scene.__webglObjects, geometry, object3D);
+                        this.AddBuffer(scene.__webglObjects, object3D.Geometry as BufferGeometry, object3D);
                     }
-                    else if (geometry is Geometry)
+                    else if (object3D.Geometry is Geometry)
                     {
+                        var geometry = object3D.Geometry as Geometry;
                         foreach (var geometryGroup in geometry.GeometryGroupsList)
                         {
                             this.AddBuffer(scene.__webglObjects, geometryGroup, object3D);
@@ -1010,7 +992,7 @@
                 }
                 else if (object3D is Line || object3D is PointCloud)
                 {
-                    this.AddBuffer(scene.__webglObjects, geometry, object3D);
+                    this.AddBuffer(scene.__webglObjects, object3D.Geometry, object3D);
                 }
                 else if (object3D is ImmediateRenderObject /*|| object3D is immediateRenderCallback*/)
                 {
@@ -1187,7 +1169,8 @@
 
             if (geometry.GeometryGroups == null || geometry.GroupsNeedUpdate)
             {
-                //		    delete scene.__webglObjects[object.id];
+     //     	    delete scene.__webglObjects[object3D.id].;
+
                 scene.__webglObjects.Remove(object3D.id);
                 geometry.MakeGroups(material is MeshFaceMaterial, this.glExtensionElementIndexUint ? uint.MaxValue : ushort.MaxValue);
                 geometry.GroupsNeedUpdate = false;
@@ -1201,7 +1184,7 @@
 
                 if (null != geometryGroup.__webglVertexBuffer)
                 {
-                    this.createMeshBuffers(geometryGroup);
+                    this.CreateMeshBuffers(geometryGroup);
                     this.InitMeshBuffers(geometryGroup, object3D);
 
                     geometry.VerticesNeedUpdate = true;
@@ -1328,6 +1311,11 @@
         /// <param name="object3D"></param>
         private void RenderBuffer(Camera camera, IEnumerable<Light> lights, Fog fog, Material material, GeometryGroup geometryGroup, Object3D object3D)
         {
+            Debug.Assert(null != camera, "");
+            Debug.Assert(null != lights, "");
+            Debug.Assert(null != material, "");
+            Debug.Assert(null != geometryGroup, "");
+
             if (material.visible == false)
             {
                 return;
@@ -1344,7 +1332,7 @@
             if (frameable != null)
                 wireframeBit = frameable.wireframe ? 1 : 0;
 
-            var geometryGroupHash = (geometryGroup.id * 0xffffff) + (program.Id * 2) + wireframeBit;
+            var geometryGroupHash = (geometryGroup.Id * 0xffffff) + (program.Id * 2) + wireframeBit;
 
             if (geometryGroupHash != this._currentGeometryGroupHash)
             {
@@ -1409,10 +1397,13 @@
 
                 // colors
 
+                var geometry = object3D.Geometry as Geometry;
+                Debug.Assert(null != geometry, "object3D.Geometry is not Geometry");
+
                 attributeLocation = attributesLocation["color"];
                 if (null != attributeLocation)
                 {
-                    if ( object3D.Geometry.Colors.Count > 0 || object3D.Geometry.Faces.Count > 0 )
+                    if (geometry.Colors.Count > 0 || geometry.Faces.Count > 0)
                     {
                         GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglColorBuffer);
                         this.enableAttribute((int)attributeLocation);
@@ -1447,7 +1438,7 @@
                 attributeLocation = attributesLocation["uv"];
                 if (null != attributeLocation)
                 {
-                    if (object3D.Geometry.FaceVertexUvs[0].Count > 0)
+                    if (geometry.FaceVertexUvs[0].Count > 0)
                     {
                         GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglUVBuffer);
                         this.enableAttribute((int)attributeLocation);
@@ -1462,7 +1453,7 @@
                 attributeLocation = attributesLocation["uv2"];
                 if (null != attributeLocation)
                 {
-                    if (object3D.Geometry.FaceVertexUvs[1].Count > 0)
+                    if (geometry.FaceVertexUvs[1].Count > 0)
                     {
                         GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglUV2Buffer);
                         this.enableAttribute((int)attributeLocation);
@@ -1627,7 +1618,7 @@
 
             var updateBuffers = false;
             var wireframeBit = 0;//material.wireframe ? 1 : 0;
-			var geometryHash = ( geometry.id * 0xffffff ) + ( program.Id * 2 ) + wireframeBit;
+			var geometryHash = ( geometry.Id * 0xffffff ) + ( program.Id * 2 ) + wireframeBit;
 
 		    if ( geometryHash != this._currentGeometryGroupHash ) {
 
@@ -1667,7 +1658,7 @@
 					    size = 2;
 				    }
 
-				    var offsets = geometry.offsets;
+				    var offsets = geometry.Offsets;
 
 				    if ( offsets.Count == 0 ) {
 
@@ -1777,7 +1768,7 @@
 					    size = 2;
 				    }
 
-				    var offsets = geometry.offsets;
+				    var offsets = geometry.Offsets;
 
 				    if ( offsets.Count == 0 ) {
 
@@ -2253,7 +2244,7 @@
         /// 
         /// </summary>
         /// <param name="geometryGroup"></param>
-        private void createMeshBuffers(GeometryGroup geometryGroup)
+        private void CreateMeshBuffers(GeometryGroup geometryGroup)
         {
             GL.GenBuffers(1, out geometryGroup.__webglVertexBuffer);
             GL.GenBuffers(1, out geometryGroup.__webglNormalBuffer);
@@ -2268,22 +2259,22 @@
             GL.GenBuffers(1, out geometryGroup.__webglFaceBuffer);
             GL.GenBuffers(1, out geometryGroup.__webglLineBuffer);
 
-            if (geometryGroup.numMorphTargets > 0)
+            if (geometryGroup.NumMorphTargets > 0)
             {
                 geometryGroup.__webglMorphTargetsBuffers = null;
 
-                for (var i = 0; i < geometryGroup.numMorphTargets; i++)
+                for (var i = 0; i < geometryGroup.NumMorphTargets; i++)
                 {
                     throw new NotImplementedException();
                     //   geometryGroup.__webglMorphTargetsBuffers.Add(null);
                 }
             }
 
-            if (geometryGroup.numMorphNormals > 0)
+            if (geometryGroup.NumMorphNormals > 0)
             {
                 geometryGroup.__webglMorphNormalsBuffers = null;
 
-                for (var i = 0; i < geometryGroup.numMorphNormals; i++)
+                for (var i = 0; i < geometryGroup.NumMorphNormals; i++)
                 {
                     throw new NotImplementedException();
                     //   geometryGroup.__webglMorphNormalsBuffers.Add(null);
@@ -2800,8 +2791,10 @@
         /// <param name="object3D"></param>
         private void InitMeshBuffers(GeometryGroup geometryGroup, Object3D object3D)
         {
-            var geometry = object3D.Geometry;
-            var faces3 = geometryGroup.faces3;
+            var geometry = object3D.Geometry as Geometry;
+            Debug.Assert(null != geometry, "object3D.Geometry is not Geometry");
+
+            var faces3 = geometryGroup.Faces3;
 
             var nvertices = faces3.Count * 3;
             var ntris = faces3.Count * 1;
@@ -2843,7 +2836,7 @@
                 }
             }
 
-            if (object3D.Geometry.SkinWeights.Count > 0 && object3D.Geometry.SkinIndices.Count > 0)
+            if (geometry.SkinWeights.Count > 0 && geometry.SkinIndices.Count > 0)
             {
                 geometryGroup.__skinIndexArray = new float[nvertices * 4];
                 geometryGroup.__skinWeightArray = new float[nvertices * 4];
@@ -2855,19 +2848,19 @@
             geometryGroup.__faceArray = new ushort[ntris * 3];
             geometryGroup.__lineArray = new ushort[nlines * 2];
 
-            if (geometryGroup.numMorphTargets > 0)
+            if (geometryGroup.NumMorphTargets > 0)
             {
                 geometryGroup.__morphTargetsArrays = new List<float[]>();
-                for (var i = 0; i < geometryGroup.numMorphTargets; i++)
+                for (var i = 0; i < geometryGroup.NumMorphTargets; i++)
                 {
                     geometryGroup.__morphTargetsArrays.Add(new float[nvertices * 3]);
                 }
             }
 
-            if (geometryGroup.numMorphNormals > 0)
+            if (geometryGroup.NumMorphNormals > 0)
             {
                 geometryGroup.__morphNormalsArrays = new List<float[]>();
-                for (var i = 0; i < geometryGroup.numMorphNormals; i++)
+                for (var i = 0; i < geometryGroup.NumMorphNormals; i++)
                 {
                     geometryGroup.__morphNormalsArrays.Add(new float[nvertices * 3]);
                 }
@@ -3642,7 +3635,8 @@
             var faceArray = geometryGroup.__faceArray;
             var lineArray = geometryGroup.__lineArray;
 
-            var geometry = object3D.Geometry; // this is shared for all chunks
+            var geometry = object3D.Geometry as Geometry; // this is shared for all chunks
+            Debug.Assert(null != geometry, "object3D.Geometry is not Geometry");
 
             var dirtyVertices = geometry.VerticesNeedUpdate;
             var dirtyElements = geometry.ElementsNeedUpdate;
@@ -3653,7 +3647,7 @@
             var dirtyMorphTargets = geometry.MorphTargetsNeedUpdate;
 
             var vertices = geometry.Vertices;
-            var chunk_faces3 = geometryGroup.faces3;
+            var chunk_faces3 = geometryGroup.Faces3;
             var obj_faces = geometry.Faces;
 
             var obj_uvs = geometry.FaceVertexUvs[0];
@@ -5058,7 +5052,7 @@
         /// <param name="material"></param>
         /// <param name="geometryGroup"></param>
         /// <param name="object3D"></param>
-        private void setupMorphTargets(Material material, GeometryGroup geometryGroup, Object3D object3D)
+        private void SetupMorphTargets(Material material, GeometryGroup geometryGroup, Object3D object3D)
         {
         }
 
@@ -5108,7 +5102,7 @@
 
                 var buffer = webglObject.buffer as GeometryGroup;
   
-                var materialIndex = geometry is BufferGeometry ? 0 : buffer.materialIndex;
+                var materialIndex = geometry is BufferGeometry ? 0 : buffer.MaterialIndex;
 
                 //    material = material.materials[ materialIndex ];
 
@@ -5151,8 +5145,6 @@
         /// <param name="object3D"></param>
         private void setParticleBuffers(Geometry geometry, BufferUsageHint hint, PointCloud object3D)
         {
-            throw new NotImplementedException();
-
 		    var vertices = geometry.Vertices;
 		    var vl = vertices.Count;
             
@@ -5171,302 +5163,307 @@
 		    var customAttributes = geometry.__webglCustomAttributesList;
 
             var offset = 0;
-            /*
-                        if ( object3D.sortParticles ) {
+            
+            if ( object3D.sortParticles ) {
 
-                            _projScreenMatrixPS.Copy( _projScreenMatrix );
-                            _projScreenMatrixPS.multiply( object3D.MatrixWorld );
+                throw new NotImplementedException();
 
-                            for (int v = 0; v < vl; v ++ ) {
+                _projScreenMatrixPS.Copy( _projScreenMatrix );
+                _projScreenMatrixPS.Multiply( object3D.MatrixWorld );
 
-                                var vertex = vertices[ v ];
+                for (int v = 0; v < vl; v ++ ) 
+                {
 
-                                _vector3.copy( vertex );
-                                _vector3.applyProjection( _projScreenMatrixPS );
+                    var vertex = vertices[ v ];
 
-                                sortArray[ v ] = [ _vector3.Z, v ];
+                    var _vector3 = new Vector3();
+                    _vector3.Copy(vertex);
+                    _vector3.ApplyProjection(_projScreenMatrixPS);
+
+     //               sortArray[ v ] = [ _vector3.Z, v ];
+                }
+
+   //             sortArray.sort(numericalSort);
+
+                for (int v = 0; v < vl; v ++ )
+                {
+
+    //                var vertex = vertices[sortArray[v][1]];
+
+                    offset = v * 3;
+
+                    //vertexArray[ offset ]     = vertex.X;
+                    //vertexArray[ offset + 1 ] = vertex.Y;
+                    //vertexArray[ offset + 2 ] = vertex.Z;
+
+                }
+
+                for (int c = 0; c < cl; c ++ ) {
+
+                    offset = c * 3;
+
+    //                var color = colors[sortArray[c][1]];
+
+                    //colorArray[ offset ]     = color.R;
+                    //colorArray[ offset + 1 ] = color.G;
+                    //colorArray[ offset + 2 ] = color.B;
+
+                }
+
+                if (null != customAttributes ) {
+/*
+                    for (int i = 0, il = customAttributes.Count; i < il; i ++ ) {
+
+                        var customAttribute = customAttributes[ i ];
+
+                        if ( ! ( customAttribute.boundTo == null || customAttribute.boundTo == "vertices" ) ) continue;
+
+                        offset = 0;
+
+                        var cal = customAttribute.value.length;
+
+                        if ( customAttribute.size == 1 ) {
+
+                            for (int ca = 0; ca < cal; ca ++ ) {
+
+                                var index = sortArray[ ca ][ 1 ];
+
+                                customAttribute.array[ ca ] = customAttribute.value[ index ];
 
                             }
 
-                            sortArray.sort( numericalSort );
+                        } else if ( customAttribute.size == 2 ) {
 
-                            for (int v = 0; v < vl; v ++ ) {
+                            for (int ca = 0; ca < cal; ca ++ ) {
 
-                                var vertex = vertices[ sortArray[ v ][ 1 ] ];
+                                var index = sortArray[ ca ][ 1 ];
 
-                                offset = v * 3;
+                                var value = customAttribute.value[ index ];
 
-                                vertexArray[ offset ]     = vertex.X;
-                                vertexArray[ offset + 1 ] = vertex.Y;
-                                vertexArray[ offset + 2 ] = vertex.Z;
+                                customAttribute.array[ offset ]   = value.X;
+                                customAttribute.array[ offset + 1 ] = value.Y;
 
-                            }
-
-                            for (int c = 0; c < cl; c ++ ) {
-
-                                offset = c * 3;
-
-                                var color = colors[ sortArray[ c ][ 1 ] ];
-
-                                colorArray[ offset ]     = color.R;
-                                colorArray[ offset + 1 ] = color.G;
-                                colorArray[ offset + 2 ] = color.B;
+                                offset += 2;
 
                             }
 
-                            if (null != customAttributes ) {
+                        } else if ( customAttribute.size == 3 ) {
 
-                                for (int i = 0, il = customAttributes.Count; i < il; i ++ ) {
+                            if ( customAttribute.type == "c" ) {
 
-                                    var customAttribute = customAttributes[ i ];
+                                for (int ca = 0; ca < cal; ca ++ ) {
 
-                                    if ( ! ( customAttribute.boundTo == null || customAttribute.boundTo == "vertices" ) ) continue;
+                                    var index = sortArray[ ca ][ 1 ];
 
-                                    offset = 0;
+                                    var value = customAttribute.value[ index ];
 
-                                    var cal = customAttribute.value.length;
+                                    customAttribute.array[ offset ]     = value.R;
+                                    customAttribute.array[ offset + 1 ] = value.G;
+                                    customAttribute.array[ offset + 2 ] = value.B;
 
-                                    if ( customAttribute.size == 1 ) {
+                                    offset += 3;
 
-                                        for (int ca = 0; ca < cal; ca ++ ) {
+                                }
 
-                                            var index = sortArray[ ca ][ 1 ];
+                            } else {
 
-                                            customAttribute.array[ ca ] = customAttribute.value[ index ];
+                                for (int ca = 0; ca < cal; ca ++ ) {
 
-                                        }
+                                    var index = sortArray[ ca ][ 1 ];
 
-                                    } else if ( customAttribute.size == 2 ) {
+                                    var value = customAttribute.value[ index ];
 
-                                        for (int ca = 0; ca < cal; ca ++ ) {
+                                    customAttribute.array[ offset ]   = value.X;
+                                    customAttribute.array[ offset + 1 ] = value.Y;
+                                    customAttribute.array[ offset + 2 ] = value.Z;
 
-                                            var index = sortArray[ ca ][ 1 ];
+                                    offset += 3;
 
-                                            var value = customAttribute.value[ index ];
+                                }
 
-                                            customAttribute.array[ offset ]   = value.X;
-                                            customAttribute.array[ offset + 1 ] = value.Y;
+                            }
 
-                                            offset += 2;
+                        } else if ( customAttribute.size == 4 ) {
 
-                                        }
+                            for (int ca = 0; ca < cal; ca ++ ) {
 
-                                    } else if ( customAttribute.size == 3 ) {
+                                var index = sortArray[ ca ][ 1 ];
 
-                                        if ( customAttribute.type == "c" ) {
+                                var value = customAttribute.value[ index ];
 
-                                            for (int ca = 0; ca < cal; ca ++ ) {
+                                customAttribute.array[ offset ]      = value.X;
+                                customAttribute.array[ offset + 1  ] = value.Y;
+                                customAttribute.array[ offset + 2  ] = value.Z;
+                                customAttribute.array[ offset + 3  ] = value.w;
 
-                                                var index = sortArray[ ca ][ 1 ];
+                                offset += 4;
 
-                                                var value = customAttribute.value[ index ];
+                            }
 
-                                                customAttribute.array[ offset ]     = value.R;
-                                                customAttribute.array[ offset + 1 ] = value.G;
-                                                customAttribute.array[ offset + 2 ] = value.B;
+                        }
 
-                                                offset += 3;
+                    }
+*/
+                }
 
-                                            }
+            } else {
 
-                                        } else {
+                if ( dirtyVertices ) {
 
-                                            for (int ca = 0; ca < cal; ca ++ ) {
+                    for (int v = 0; v < vl; v ++ ) {
 
-                                                var index = sortArray[ ca ][ 1 ];
+                        var vertex = vertices[ v ];
 
-                                                var value = customAttribute.value[ index ];
+                        offset = v * 3;
 
-                                                customAttribute.array[ offset ]   = value.X;
-                                                customAttribute.array[ offset + 1 ] = value.Y;
-                                                customAttribute.array[ offset + 2 ] = value.Z;
+                        vertexArray[ offset ]     = vertex.X;
+                        vertexArray[ offset + 1 ] = vertex.Y;
+                        vertexArray[ offset + 2 ] = vertex.Z;
 
-                                                offset += 3;
+                    }
 
-                                            }
+                }
 
-                                        }
+                if ( dirtyColors ) {
 
-                                    } else if ( customAttribute.size == 4 ) {
+                    for (int c = 0; c < cl; c ++ ) {
 
-                                        for (int ca = 0; ca < cal; ca ++ ) {
+                        var color = colors[ c ];
 
-                                            var index = sortArray[ ca ][ 1 ];
+                        offset = c * 3;
 
-                                            var value = customAttribute.value[ index ];
+                        colorArray[ offset ]     = color.R;
+                        colorArray[ offset + 1 ] = color.G;
+                        colorArray[ offset + 2 ] = color.B;
 
-                                            customAttribute.array[ offset ]      = value.X;
-                                            customAttribute.array[ offset + 1  ] = value.Y;
-                                            customAttribute.array[ offset + 2  ] = value.Z;
-                                            customAttribute.array[ offset + 3  ] = value.w;
+                    }
 
-                                            offset += 4;
+                }
 
-                                        }
+                if (null != customAttributes ) {
+/*
+                    for (int i = 0, il = customAttributes.Count; i < il; i ++ ) {
+
+                        var customAttribute = customAttributes[ i ];
+
+                        if ( customAttribute.needsUpdate &&
+                                ( customAttribute.boundTo == undefined ||
+                                    customAttribute.boundTo == "vertices" ) ) {
+
+                            var cal = customAttribute.value.length;
+
+                            offset = 0;
+
+                            if ( customAttribute.size == 1 ) {
+
+                                for (int ca = 0; ca < cal; ca ++ ) {
+
+                                    customAttribute.array[ ca ] = customAttribute.value[ ca ];
+
+                                }
+
+                            } else if ( customAttribute.size == 2 ) {
+
+                                for (int ca = 0; ca < cal; ca ++ ) {
+
+                                    value = customAttribute.value[ ca ];
+
+                                    customAttribute.array[ offset ]   = value.X;
+                                    customAttribute.array[ offset + 1 ] = value.Y;
+
+                                    offset += 2;
+
+                                }
+
+                            } else if ( customAttribute.size == 3 ) {
+
+                                if ( customAttribute.type == "c" ) {
+
+                                    for (int ca = 0; ca < cal; ca ++ ) {
+
+                                        value = customAttribute.value[ ca ];
+
+                                        customAttribute.array[ offset ]   = value.R;
+                                        customAttribute.array[ offset + 1 ] = value.G;
+                                        customAttribute.array[ offset + 2 ] = value.B;
+
+                                        offset += 3;
+
+                                    }
+
+                                } else {
+
+                                    for (int ca = 0; ca < cal; ca ++ ) {
+
+                                        value = customAttribute.value[ ca ];
+
+                                        customAttribute.array[ offset ]   = value.X;
+                                        customAttribute.array[ offset + 1 ] = value.Y;
+                                        customAttribute.array[ offset + 2 ] = value.Z;
+
+                                        offset += 3;
 
                                     }
 
                                 }
 
-                            }
+                            } else if ( customAttribute.size == 4 ) {
 
-                        } else {
+                                for (int ca = 0; ca < cal; ca ++ ) {
 
-                            if ( dirtyVertices ) {
+                                    var value = customAttribute.value[ ca ];
 
-                                for (int v = 0; v < vl; v ++ ) {
+                                    customAttribute.array[ offset ]      = value.X;
+                                    customAttribute.array[ offset + 1  ] = value.Y;
+                                    customAttribute.array[ offset + 2  ] = value.Z;
+                                    customAttribute.array[ offset + 3  ] = value.w;
 
-                                    var vertex = vertices[ v ];
-
-                                    offset = v * 3;
-
-                                    vertexArray[ offset ]     = vertex.X;
-                                    vertexArray[ offset + 1 ] = vertex.Y;
-                                    vertexArray[ offset + 2 ] = vertex.Z;
-
-                                }
-
-                            }
-
-                            if ( dirtyColors ) {
-
-                                for (int c = 0; c < cl; c ++ ) {
-
-                                    var color = colors[ c ];
-
-                                    offset = c * 3;
-
-                                    colorArray[ offset ]     = color.R;
-                                    colorArray[ offset + 1 ] = color.G;
-                                    colorArray[ offset + 2 ] = color.B;
-
-                                }
-
-                            }
-
-                            if (null != customAttributes ) {
-
-                                for (int i = 0, il = customAttributes.Count; i < il; i ++ ) {
-
-                                    var customAttribute = customAttributes[ i ];
-
-                                    if ( customAttribute.needsUpdate &&
-                                         ( customAttribute.boundTo == undefined ||
-                                             customAttribute.boundTo == "vertices" ) ) {
-
-                                        var cal = customAttribute.value.length;
-
-                                        offset = 0;
-
-                                        if ( customAttribute.size == 1 ) {
-
-                                            for (int ca = 0; ca < cal; ca ++ ) {
-
-                                                customAttribute.array[ ca ] = customAttribute.value[ ca ];
-
-                                            }
-
-                                        } else if ( customAttribute.size == 2 ) {
-
-                                            for (int ca = 0; ca < cal; ca ++ ) {
-
-                                                value = customAttribute.value[ ca ];
-
-                                                customAttribute.array[ offset ]   = value.X;
-                                                customAttribute.array[ offset + 1 ] = value.Y;
-
-                                                offset += 2;
-
-                                            }
-
-                                        } else if ( customAttribute.size == 3 ) {
-
-                                            if ( customAttribute.type == "c" ) {
-
-                                                for (int ca = 0; ca < cal; ca ++ ) {
-
-                                                    value = customAttribute.value[ ca ];
-
-                                                    customAttribute.array[ offset ]   = value.R;
-                                                    customAttribute.array[ offset + 1 ] = value.G;
-                                                    customAttribute.array[ offset + 2 ] = value.B;
-
-                                                    offset += 3;
-
-                                                }
-
-                                            } else {
-
-                                                for (int ca = 0; ca < cal; ca ++ ) {
-
-                                                    value = customAttribute.value[ ca ];
-
-                                                    customAttribute.array[ offset ]   = value.X;
-                                                    customAttribute.array[ offset + 1 ] = value.Y;
-                                                    customAttribute.array[ offset + 2 ] = value.Z;
-
-                                                    offset += 3;
-
-                                                }
-
-                                            }
-
-                                        } else if ( customAttribute.size == 4 ) {
-
-                                            for (int ca = 0; ca < cal; ca ++ ) {
-
-                                                var value = customAttribute.value[ ca ];
-
-                                                customAttribute.array[ offset ]      = value.X;
-                                                customAttribute.array[ offset + 1  ] = value.Y;
-                                                customAttribute.array[ offset + 2  ] = value.Z;
-                                                customAttribute.array[ offset + 3  ] = value.w;
-
-                                                offset += 4;
-
-                                            }
-
-                                        }
-
-                                    }
+                                    offset += 4;
 
                                 }
 
                             }
 
                         }
+                    }
+                    */
 
-                        if ( dirtyVertices || object3D.sortParticles ) {
+                }
 
-                            GL.BindBuffer( BufferTarget.ArrayBuffer, geometry.__webglVertexBuffer );
-                            GL.BufferData( BufferTarget.ArrayBuffer, vertexArray, hint );
+            }
 
-                        }
+            if ( dirtyVertices || object3D.sortParticles ) 
+            {
 
-                        if ( dirtyColors || object3D.sortParticles ) {
+                GL.BindBuffer( BufferTarget.ArrayBuffer, geometry.__webglVertexBuffer );
+                GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)(vertexArray.Length * sizeof(float)), vertexArray, hint );
 
-                            GL.BindBuffer( BufferTarget.ArrayBuffer, geometry.__webglColorBuffer );
-                            GL.BufferData( BufferTarget.ArrayBuffer, colorArray, hint );
+            }
 
-                        }
+            if ( dirtyColors || object3D.sortParticles )
+            {
 
-                        if (null != customAttributes ) {
+                GL.BindBuffer( BufferTarget.ArrayBuffer, geometry.__webglColorBuffer );
+                GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)(colorArray.Length * sizeof(float)), colorArray, hint );
 
-                            for (int i = 0, il = customAttributes.Count; i < il; i ++ ) {
+            }
 
-                                var customAttribute = customAttributes[ i ];
+            if (null != customAttributes ) {
+/*
+                for (int i = 0, il = customAttributes.Count; i < il; i ++ ) {
 
-                                if ( customAttribute.needsUpdate || object3D.sortParticles ) {
+                    var customAttribute = customAttributes[ i ];
 
-                                    GL.BindBuffer( BufferTarget.ArrayBuffer, customAttribute.buffer );
-                                    GL.BufferData( BufferTarget.ArrayBuffer, customAttribute.array, hint );
+                    if ( customAttribute.needsUpdate || object3D.sortParticles ) {
 
-                                }
+                        GL.BindBuffer( BufferTarget.ArrayBuffer, customAttribute.buffer );
+                        GL.BufferData( BufferTarget.ArrayBuffer, customAttribute.array, hint );
 
-                            }
+                    }
 
-                        }
-            */
+                }
+*/
+            }
         }
 
         /// <summary>
@@ -5649,21 +5646,23 @@
         /// <param name="object3D"></param>
         private void updateObject(Scene scene, Object3D object3D)
         {
-            var geometry = object3D.Geometry;
             Material material = null;
 
-            if (geometry is BufferGeometry)
+            if (object3D.Geometry is BufferGeometry)
             {
+                var geometry = object3D.Geometry as BufferGeometry;
                 SetDirectBuffers(geometry as BufferGeometry, BufferUsageHint.DynamicDraw);
             }
             else if (object3D is Mesh)
             {
+                var geometry = object3D.Geometry as Geometry;
+
                 // check all geometry groups
                 if (geometry.BuffersNeedUpdate || geometry.GroupsNeedUpdate)
                 {
                     if (geometry is BufferGeometry)
                     {
-                        InitDirectBuffers(geometry as BufferGeometry);
+                     //   InitDirectBuffers(geometry as BufferGeometry);
                     }
                     else if (object3D is Mesh)
                     {
@@ -5705,6 +5704,8 @@
             }
             else if (object3D is Line)
             {
+                var geometry = object3D.Geometry as Geometry;
+                
                 material = this.getBufferMaterial(object3D, geometry);
 
                 var customAttributesDirty = (material is IAttributes && (null != ((IAttributes)material).attributes) && AreCustomAttributesDirty(material as IAttributes));
@@ -5723,6 +5724,7 @@
             }
             else if (object3D is PointCloud)
             {
+                var geometry = object3D.Geometry as Geometry;
                 var pointCloud = object3D as PointCloud;
 
                 material = this.getBufferMaterial(object3D, geometry);

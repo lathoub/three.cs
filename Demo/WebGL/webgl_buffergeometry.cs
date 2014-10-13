@@ -178,7 +178,7 @@
                     Count = Math.Min(triangles - (i * chunkSize), chunkSize) * 3
                 };
 
-                geometry.offsets.Add(offset);
+                geometry.Offsets.Add(offset);
 
             }
 

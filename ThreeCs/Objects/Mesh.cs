@@ -33,7 +33,7 @@
         /// </summary>
         /// <param name="geometry"></param>
         /// <param name="material"></param>
-        public Mesh(Geometry geometry, Material material)
+        public Mesh(BaseGeometry geometry, Material material)
         {
             this.Geometry = geometry;
             this.Material = material ?? new MeshBasicMaterial(null) { color = new Color().Random() };
@@ -220,7 +220,7 @@
 
                 var indices = ((BufferAttribute<short>)attributes["index"]).array;
                 var positions = ((BufferAttribute<float>)attributes["position"]).array;
-                var offsets = geometry.offsets;
+                var offsets = geometry.Offsets;
 
                 if (offsets.Count == 0)
                 {
@@ -367,6 +367,8 @@
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="raycaster"></param>
+        /// <param name="intersects"></param>
         public override void Raycast(Raycaster raycaster, ref List<Intersect> intersects)
         {
 		    var geometry = this.Geometry;
@@ -406,7 +408,7 @@
             } 
             else if ( geometry is Geometry ) 
             {
-                this.Raycast(raycaster, ray, geometry, ref intersects);
+                this.Raycast(raycaster, ray, geometry as Geometry, ref intersects);
             }
 
         }

@@ -60,6 +60,7 @@
     <Compile Include="Misc\misc_lookat.cs" />
     <Compile Include="WebGL\webgl_buffergeometry_custom_attributes_particles.cs" />
     <Compile Include="WebGL\webgl_interactive_buffergeometry.cs" />
+    <Compile Include="WebGL\webgl_interactive_particles.cs" />
     <Compile Include="WebGL\webgl_loader_vtk.cs" />
     <Compile Include="WebGL\webgl_materials_grass.cs" />
     <Compile Include="Program.cs" />
@@ -130,6 +131,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\Textures\disturb.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\Textures\Sprites\disc.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

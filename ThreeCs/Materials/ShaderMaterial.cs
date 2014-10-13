@@ -13,7 +13,11 @@
 
         // IAttributes
 
-        public Hashtable attributes { get; set; }
+        public Hashtable attributes { get; set; 
+
+
+
+
 
         public string vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
 

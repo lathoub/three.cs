@@ -105,6 +105,23 @@ namespace ThreeCs.Math
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
+        /// <returns></returns>
+        public Matrix4 Multiply(Matrix4 left, Matrix4 right = null) 
+        {
+		    if ( right != null )
+		    {
+		        Trace.TraceInformation("THREE.Matrix4: .multiply() now only accepts one argument. Use .multiplyMatrices( a, b ) instead.");
+			    return this.MultiplyMatrices( left, right );
+		    }
+
+		    return this.MultiplyMatrices( this, left );
+	    }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public Matrix4 MultiplyMatrices(Matrix4 left, Matrix4 right)
         {
             return left * right;

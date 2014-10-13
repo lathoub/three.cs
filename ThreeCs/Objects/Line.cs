@@ -20,7 +20,7 @@
         /// <summary>
         /// Constructor
         /// </summary>
-        public Line(Geometry geometry = null, Material material = null, int type = 0 )
+        public Line(BaseGeometry geometry = null, Material material = null, int type = 0)
         {
             this.Geometry = geometry ?? new Geometry();
             this.Material = material ?? new LineBasicMaterial { Color = new Color().Random() };

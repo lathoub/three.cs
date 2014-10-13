@@ -1,123 +1,41 @@
 ﻿namespace ThreeCs.Core
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Drawing;
 
     using ThreeCs.Math;
-    using ThreeCs.Materials;
 
-    public class WebGlObject
-    {
-        public long id;
-
- //       public GeometryGroup buffer;
-        public object buffer;
-
-        public Object3D object3D;
-
-        public Material material;
-
-        public float z;
-
-        public bool render;
-    }
-
-    public class GeometryGroup
-    {
-        public long id;
-
-        public List<int> faces3;
-
-        public long materialIndex;
-
-        public long vertices;
-
-        public int numMorphTargets;
-
-        public int numMorphNormals;
-
-        public int __webglLineDistanceBuffer;
-
-    	public int __webglVertexBuffer;
-		public int __webglNormalBuffer;
-		public int __webglTangentBuffer;
-		public int __webglColorBuffer;
-		public int __webglUVBuffer;
-		public int __webglUV2Buffer;
-
-        public int __webglSkinIndicesBuffer;
-		public int __webglSkinWeightsBuffer;
-               
-        public int __webglFaceBuffer;
-        public int __webglLineBuffer;
-
-        public List<int> __webglMorphTargetsBuffers;
-        public List<int> __webglMorphNormalsBuffers;
-
-        public float[] __vertexArray;
-        public float[] __normalArray;
-        public float[] __tangentArray;
-        public float[] __colorArray;
-        public float[] __uvArray;
-        public float[] __uv2Array;
-        public float[] __skinIndexArray;
-        public float[] __skinWeightArray;
-        public Type __typeArray;
-        public ushort[] __faceArray;
-        public ushort[] __lineArray;
-
-        public List<float[]> __morphTargetsArrays;
-        public List<float[]> __morphNormalsArrays;
-
-        public int __webglFaceCount;
-        public int __webglLineCount;
-        public int __webglParticleCount;
-
-        public List<Hashtable> __webglCustomAttributesList;
-
-        public bool __inittedArrays;
-
-    }
-
-    
-    public class Geometry : ICloneable
+    public class Geometry : BaseGeometry, ICloneable
     {
         protected static int GeometryIdCount;
 
-        public int id = GeometryIdCount++;
+        public int Id = GeometryIdCount++;
+
+
+
+
+
 
         public Guid uuid = Guid.NewGuid();
         
-        public string name;
 
-        // Dynamic attributesLocation and object
-        public bool __webglInit = false;
 
-            public int __webglVertexBuffer;
 
-            public int __webglColorBuffer;
 
-            public int __webglLineDistanceBuffer;
 
-            public float[] __vertexArray;
-
-            public float[] __colorArray;
-
-            public float[] __lineDistanceArray;
-
-            public int __webglLineCount;
-
-            public int __webglParticleCount;
-
-            public object __sortArray;
-
-            public List<Hashtable> __webglCustomAttributesList;
 
         public Dictionary<string, GeometryGroup> GeometryGroups;
 
         public List<GeometryGroup> GeometryGroupsList;
+
+
+
+
+
+
+
+
 
         public List<Vector3> Vertices = new List<Vector3>();
 
@@ -139,9 +57,14 @@
 
         public List<float> LineDistances = new List<float>();
 
-        public Object3D BoundingBox = null;
 
-        public Sphere BoundingSphere = null;
+
+
+
+
+
+
+
 
         public bool HasTangents = false;
 
@@ -190,7 +113,7 @@
         /// 
         /// </summary>
         /// <param name="matrix"></param>
-        public virtual void ApplyMatrix(Matrix4 matrix)
+        public override void ApplyMatrix(Matrix4 matrix)
         {
             var normalMatrix = new Matrix3().GetNormalMatrix(matrix);
 
@@ -342,18 +265,20 @@
         /// <summary>
         /// 
         /// </summary>
-        public virtual void ComputeBoundingSphere()
+        public override void ComputeBoundingSphere()
         {
 
-		    if ( this.BoundingSphere == null ) {
-
-                this.BoundingSphere = new Sphere();
-
+		    if ( this.BoundingSphere == null )
+		    {
+		        this.BoundingSphere = new Sphere();
 		    }
 
             this.BoundingSphere.SetFromPoints(this.Vertices);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Merge()
         {
             throw new NotImplementedException();
@@ -450,8 +375,6 @@
         /// </summary>
         public void MakeGroups(bool usesFaceMaterial, long maxVerticesInGroup)
         {
-            var geometryGroupCounter = 0;
-
             var hash_map = new Dictionary<int, Hash>();
 
             var numMorphTargets = this.MorphTargets.Count;
@@ -477,17 +400,17 @@
                 GeometryGroup geometryGroup = null;
                 if (!this.GeometryGroups.TryGetValue(groupHash, out geometryGroup))
                 {
-                    geometryGroup = new GeometryGroup { id = geometryGroupCounter++, faces3 = new List<int>(), materialIndex = materialIndex, vertices = 0, numMorphTargets = numMorphTargets, numMorphNormals = numMorphNormals };
+                    geometryGroup = new GeometryGroup { Faces3 = new List<int>(), MaterialIndex = materialIndex, Vertices = 0, NumMorphTargets = numMorphTargets, NumMorphNormals = numMorphNormals };
                     this.GeometryGroups.Add(groupHash, geometryGroup);
                     this.GeometryGroupsList.Add(geometryGroup);
                 }
 
-                if (this.GeometryGroups[groupHash].vertices + 3 > maxVerticesInGroup)
+                if (this.GeometryGroups[groupHash].Vertices + 3 > maxVerticesInGroup)
                 {
                 }
 
-                geometryGroup.faces3.Add(i);
-                geometryGroup.vertices = geometryGroup.vertices + 3;
+                geometryGroup.Faces3.Add(i);
+                geometryGroup.Vertices = geometryGroup.Vertices + 3;
             }
         }
 

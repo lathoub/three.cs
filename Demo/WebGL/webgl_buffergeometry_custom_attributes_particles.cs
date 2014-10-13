@@ -82,11 +82,8 @@
             var attributes = new Hashtable { { "size",        new Hashtable() { { "f", null } } }, 
                                              { "customcolor", new Hashtable() { { "c", null } } } };
 
-            uniforms = new Uniforms
-                {
-                    { "color", new KVP("c", Color.White) },
-                    { "texture", new KVP("t", ImageUtils.LoadTexture(@"data\textures/sprites/spark1.png")) }
-                };
+            uniforms = new Uniforms { { "color", new KVP("c", Color.White) },
+                                      { "texture", new KVP("t", ImageUtils.LoadTexture(@"data\textures/sprites/spark1.png")) } };
 
 			var shaderMaterial = new ShaderMaterial() {
 				uniforms =       uniforms,
@@ -98,7 +95,6 @@
 				depthTest =      false,
 				transparent =    true
 			};
-
 
 			var radius = 200;
 

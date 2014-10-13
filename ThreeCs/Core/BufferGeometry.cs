@@ -14,17 +14,27 @@
         public int Count;
     }
 
-    public class BufferGeometry : Geometry, IAttributes // Note: in three.js, BufferGeometry is not Geometry
+    public class BufferGeometry : BaseGeometry, IAttributes // Note: in three.js, BufferGeometry is not Geometry
     {
         protected static int BufferGeometryIdCount;
+
+        public int Id = BufferGeometryIdCount++;
+
+
+
+
 
         // IAttributes
 
         public Hashtable attributes { get; set; }
 
-        public IList<Offset> drawcalls = new List<Offset>();
 
-        public IList<Offset> offsets; // backwards compatibility
+
+
+
+        public IList<Offset> Drawcalls = new List<Offset>();
+
+        public IList<Offset> Offsets; // backwards compatibility
 
         /// <summary>
         /// 
@@ -34,7 +44,7 @@
             // IAttributes
             attributes = new Hashtable();
 
-            this.offsets = this.drawcalls;
+            this.Offsets = this.Drawcalls;
         }
 
         /// <summary>
@@ -46,16 +56,6 @@
         {
             this.attributes[name] = attribute;
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="name"></param>
-        ///// <param name="attribute"></param>
-        //public void AddAttribute(string name, IBufferAttribute attribute)
-        //{
-        //    this.attributes[name] = attribute;
-        //}
 
         /// <summary>
         /// 
@@ -111,7 +111,7 @@
         /// 
         /// </summary>
         /// <param name="matrix"></param>
-    	public override void ApplyMatrix (Matrix4 matrix )
+        public override void ApplyMatrix(Matrix4 matrix)
         {
 
             var position = ((BufferAttribute<float>)this.attributes["position"]);

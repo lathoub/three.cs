@@ -110,9 +110,7 @@
             var geometry = new SphereGeometry(radius, segments, rings);
             geometry.Dynamic = true;
 
-            sphere = new Mesh(geometry, shaderMaterial);
-
-            var vertices = sphere.Geometry.Vertices;
+            var vertices = geometry.Vertices;
             var values = new float[vertices.Count];
 
             noise = new float[vertices.Count];
@@ -124,6 +122,9 @@
             }
 
             ((Hashtable)attributes["displacement"])["f"] = values;
+
+
+            sphere = new Mesh(geometry, shaderMaterial);
 
             scene.Add(sphere);
 

@@ -67,7 +67,7 @@
 
         public bool FrustumCulled = true;
 
-        public Geometry Geometry;
+        public BaseGeometry Geometry;
 
         public Material Material;
 

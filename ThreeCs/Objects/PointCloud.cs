@@ -12,7 +12,7 @@
         /// </summary>
         /// <param name="geometry"></param>
         /// <param name="material"></param>
-        public PointCloud(Geometry geometry = null, Material material = null)
+        public PointCloud(BaseGeometry geometry = null, Material material = null)
         {
             this.Geometry = geometry ?? new Geometry();
             this.Material = material ?? new PointCloudMaterial(); 
