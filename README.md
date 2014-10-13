@@ -5,7 +5,7 @@ C# and OpenTK implementation of Three.js
 
 All the fun of Three.js, now using C# and OpenTK for the OpenGL rendering.
 
-The library is far from being finished, with a handfull of fully working examples, still needs a lot of works.
+(The library is far from being finished, with a handfull of fully working examples, so still needs a lot of work.)
 
 ### Usage ###
 
