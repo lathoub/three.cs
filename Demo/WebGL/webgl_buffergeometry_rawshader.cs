@@ -16,7 +16,7 @@
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
-    [Example("webgl_buffergeometry_rawshader", ExampleCategory.WebGL, "BufferGeometry")]
+    [Example("webgl_buffergeometry_rawshader", ExampleCategory.OpenTK, "BufferGeometry")]
     class webgl_buffergeometry_rawshader : Example
     {
         private PerspectiveCamera camera;

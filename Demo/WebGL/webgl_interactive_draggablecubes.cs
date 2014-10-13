@@ -22,7 +22,7 @@ namespace Demo.WebGL
     using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
-    [Example("webgl_interactive_draggablecubes", ExampleCategory.WebGL, "Interactive", 0.2f)]
+    [Example("webgl_interactive_draggablecubes", ExampleCategory.OpenTK, "Interactive", 0.2f)]
     class webgl_interactive_draggablecubes : Example
     {
         private PerspectiveCamera camera;

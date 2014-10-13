@@ -15,7 +15,7 @@
     using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
-    [Example("webgl_geometry_hierarchy", ExampleCategory.WebGL, "Geometry", 0.2f)]
+    [Example("webgl_geometry_hierarchy", ExampleCategory.OpenTK, "Geometry", 0.2f)]
     class webgl_geometry_hierarchy : Example
     {
         private PerspectiveCamera camera;

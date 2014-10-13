@@ -16,7 +16,7 @@
     using ThreeCs.Lights;
     using ThreeCs.Math;
 
-    [Example("webgl_loader_vtk", ExampleCategory.WebGL, "loader", 0.5f)]
+    [Example("webgl_loader_vtk", ExampleCategory.OpenTK, "loader", 0.5f)]
     class webgl_loader_vtk : Example
     {
         private PerspectiveCamera camera;

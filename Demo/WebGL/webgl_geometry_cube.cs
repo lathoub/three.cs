@@ -15,7 +15,7 @@
     using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
-    [Example("webgl_geometry_cube", ExampleCategory.WebGL, "Geometry")]
+    [Example("webgl_geometry_cube", ExampleCategory.OpenTK, "Geometry")]
     class webgl_geometry_cube : Example
     {
         private PerspectiveCamera camera;

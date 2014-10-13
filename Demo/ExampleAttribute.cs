@@ -1,5 +1,5 @@
 ﻿#region --- License ---
-/* Copyright (c) 2006-2008 the WebGL team
+/* Copyright (c) 2006-2008 the OpenTK team
  * See license.txt for licensing details
  */
 #endregion
@@ -41,7 +41,7 @@ namespace Examples
 
     public enum ExampleCategory
     {
-        WebGL = 0,
+        OpenTK = 0,
         Misc
     }
 }

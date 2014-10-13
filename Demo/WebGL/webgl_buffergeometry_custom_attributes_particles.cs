@@ -18,7 +18,7 @@
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
-    [Example("webgl_buffergeometry_custom_attributes_particles", ExampleCategory.WebGL, "BufferGeometry", 0.2f)]
+    [Example("webgl_buffergeometry_custom_attributes_particles", ExampleCategory.OpenTK, "BufferGeometry", 0.2f)]
     class webgl_buffergeometry_custom_attributes_particles : Example
     {
         private PerspectiveCamera camera;

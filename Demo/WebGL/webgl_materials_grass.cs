@@ -19,7 +19,7 @@ namespace Demo.Misc
     using ThreeCs.Scenes;
     using ThreeCs.Textures;
 
-    [Example("webgl_materials_grass", ExampleCategory.WebGL, "materials", 0.6f)]
+    [Example("webgl_materials_grass", ExampleCategory.OpenTK, "materials", 0.6f)]
     class webgl_materials_grass : Example
     {
         private PerspectiveCamera camera;

@@ -16,7 +16,7 @@
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
-    [Example("webgl_shader", ExampleCategory.WebGL, "Shader")]
+    [Example("webgl_shader", ExampleCategory.OpenTK, "Shader")]
     class webgl_shader : Example
     {
         private Camera camera;

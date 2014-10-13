@@ -17,7 +17,7 @@
     using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
-    [Example("webgl_materials_wireframe", ExampleCategory.WebGL, "materials", 0.4f)]
+    [Example("webgl_materials_wireframe", ExampleCategory.OpenTK, "materials", 0.4f)]
     class webgl_materials_wireframe : Example
     {
         private PerspectiveCamera camera;

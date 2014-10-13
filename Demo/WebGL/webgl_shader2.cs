@@ -21,7 +21,7 @@ namespace Demo.WebGL
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
-    [Example("webgl_shader2", ExampleCategory.WebGL, "BufferGeometry")]
+    [Example("webgl_shader2", ExampleCategory.OpenTK, "BufferGeometry")]
     class webgl_shader2 : Example
     {
         private PerspectiveCamera camera;

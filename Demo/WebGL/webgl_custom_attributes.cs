@@ -19,7 +19,7 @@
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
-    [Example("webgl_custom_attributes", ExampleCategory.WebGL, "custom", 0.6f)]
+    [Example("webgl_custom_attributes", ExampleCategory.OpenTK, "custom", 0.6f)]
     class webgl_custom_attributes : Example
     {
         private PerspectiveCamera camera;
