@@ -13,4 +13,4 @@ Download the library and open it in Visual Studio (the project includes both Lib
 
 ### Screenshot ###
 
-![ui.png](http://lathoub.github.com/three.cs/ui.png)
+![example.PNG](http://lathoub.github.com/three.cs/example.PNG)
