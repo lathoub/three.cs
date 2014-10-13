@@ -1,13 +1,10 @@
-﻿namespace Demo
+﻿namespace Demo.WebGL
 {
-    using System;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
 
     using Examples;
-
-
 
     using ThreeCs;
     using ThreeCs.Cameras;
@@ -16,11 +13,10 @@
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
-    [Example("webgl_buffergeometry", ExampleCategory.WebGL, "BufferGeometry")]
-    class webgl_buffergeometry : Example
+    [Example("webgl_buffergeometry_uint", ExampleCategory.WebGL, "BufferGeometry", 0.5f)]
+    class webgl_buffergeometry_uint : Example
     {
         private PerspectiveCamera camera;
 
@@ -52,24 +48,15 @@
             light2.Position = new Vector3(0, -1, 0);
             scene.Add(light2);
 
-            //
-
             const int triangles = 160000;
 
             var geometry = new BufferGeometry();
 
-            // break geometry into
-            // chunks of 21,845 triangles (3 unique vertices per triangle)
-            // for indices to fit into 16 bit integer number
-            // floor(2^16 / 3) = 21845
+            var indices = new uint[triangles * 3];
 
-            const int chunkSize = 21845;
-
-            var indices = new ushort[triangles * 3];
-
-            for (var i = 0; i < indices.Length; i++)
+            for (uint i = 0; i < indices.Length; i++)
             {
-                indices[i] = (ushort)(i % (3 * chunkSize));
+                indices[i] = i;
             }
 
             var positions = new float[triangles * 3 * 3];
@@ -163,25 +150,10 @@
             }
 
 
-            geometry.AddAttribute("index", new BufferAttribute<ushort>(indices, 1));
+            geometry.AddAttribute("index", new BufferAttribute<uint>(indices, 1));
             geometry.AddAttribute("position", new BufferAttribute<float>(positions, 3));
             geometry.AddAttribute("normal", new BufferAttribute<float>(normals, 3));
             geometry.AddAttribute("color", new BufferAttribute<float>(colors, 3));
-
-            const int offsets = triangles / chunkSize;
-
-            for (var i = 0; i < offsets; i++)
-            {
-                var offset = new Offset
-                {
-                    Start = i * chunkSize * 3,
-                    Index = i * chunkSize * 3,
-                    Count = Math.Min(triangles - (i * chunkSize), chunkSize) * 3
-                };
-
-                geometry.Offsets.Add(offset);
-
-            }
 
             geometry.ComputeBoundingSphere();
 
@@ -226,7 +198,7 @@
         {
             Debug.Assert(null != this.mesh);
             Debug.Assert(null != this.renderer);
-            
+
             var time = stopWatch.ElapsedMilliseconds;
 
             var ftime = time * 0.001f;

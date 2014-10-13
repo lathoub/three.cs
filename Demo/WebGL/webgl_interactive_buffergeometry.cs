@@ -243,10 +243,10 @@
 
                 var object3D = intersect.Object3D;
                 var bg = object3D.Geometry as BufferGeometry;
-                var positions = ((BufferAttribute<float>)bg.attributes["position"]).array;
+                var positions = ((BufferAttribute<float>)bg.attributes["position"]).Array;
 
                 var bg2 = line.Geometry as BufferGeometry;
-                var array = ((BufferAttribute<float>)bg2.attributes["position"]).array;
+                var array = ((BufferAttribute<float>)bg2.attributes["position"]).Array;
 
                 for (int i = 0, j = 0; i < 4; i++, j+=3)
                 {

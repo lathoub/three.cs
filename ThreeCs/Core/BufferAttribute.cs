@@ -2,9 +2,9 @@
 {
     public class BufferAttribute<T> : IBufferAttribute
     {
-        public T[] array;
+        public T[] Array;
 
-        public int itemSize;
+        public int ItemSize;
 
         public int buffer { get; set; }
 
@@ -14,45 +14,45 @@
         {
             get
             {
-                return this.array.Length;
+                return this.Array.Length;
             }
         }
 
         public BufferAttribute(T[] array, int itemSize)
         {
-            this.array = array;
-            this.itemSize = itemSize;
+            this.Array = array;
+            this.ItemSize = itemSize;
         }
 
         public BufferAttribute<T> SetXY(int index, T x, T y)
         {
-            index *= this.itemSize;
+            index *= this.ItemSize;
 
-            this.array[index] = x;
-            this.array[index + 1] = y;
+            this.Array[index] = x;
+            this.Array[index + 1] = y;
 
             return this;
         }
 
         public BufferAttribute<T> SetXYZ(int index, T x, T y, T z)
         {
-            index *= this.itemSize;
+            index *= this.ItemSize;
 
-            this.array[index] = x;
-            this.array[index + 1] = y;
-            this.array[index + 2] = z;
+            this.Array[index] = x;
+            this.Array[index + 1] = y;
+            this.Array[index + 2] = z;
 
             return this;
         }
 
         public BufferAttribute<T> SetXYZW(int index, T x, T y, T z, T w)
         {
-            index *= this.itemSize;
+            index *= this.ItemSize;
 
-            this.array[index] = x;
-            this.array[index + 1] = y;
-            this.array[index + 2] = z;
-            this.array[index + 3] = w;
+            this.Array[index] = x;
+            this.Array[index + 1] = y;
+            this.Array[index + 2] = z;
+            this.Array[index + 3] = w;
 
             return this;
         }

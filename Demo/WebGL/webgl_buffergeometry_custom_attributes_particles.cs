@@ -163,7 +163,7 @@
             Debug.Assert(null != size);
             
             for (var i = 0; i < particles; i++)
-                size.array[i] = 10 * (1 + (float)System.Math.Sin(0.1 * i + time));
+                size.Array[i] = 10 * (1 + (float)System.Math.Sin(0.1 * i + time));
 
             size.needsUpdate = true;
 

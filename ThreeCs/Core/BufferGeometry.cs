@@ -70,7 +70,7 @@
             }
 
             var bufferAttribute = this.attributes["position"] as BufferAttribute<float>;
-            var positions = bufferAttribute.array as float[];
+            var positions = bufferAttribute.Array as float[];
 
             if (null  != positions)
             {
@@ -117,7 +117,7 @@
             var position = ((BufferAttribute<float>)this.attributes["position"]);
 		    if ( position != null )
 		    {
-		        matrix.ApplyToVector3Array(position.array);
+		        matrix.ApplyToVector3Array(position.Array);
 			    position.needsUpdate = true;
 		    }
 
@@ -126,7 +126,7 @@
 		    {
 		        var normalMatrix = new Matrix3().GetNormalMatrix(matrix);
 
-		        normalMatrix.ApplyToVector3Array(normal.array);
+		        normalMatrix.ApplyToVector3Array(normal.Array);
 			    normal.needsUpdate = true;
 		    }
 	    }

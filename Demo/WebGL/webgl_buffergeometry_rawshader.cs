@@ -89,7 +89,7 @@
 
             var vertices = new BufferAttribute<float>(new float[triangles * 3 * 3], 3);
 
-            for (var i = 0; i < vertices.length / vertices.itemSize; i++)
+            for (var i = 0; i < vertices.length / vertices.ItemSize; i++)
             {
                 vertices.SetXYZ(i, (float)(random.NextDouble() - 0.5), (float)(random.NextDouble() - 0.5), (float)(random.NextDouble() - 0.5));
             }
@@ -98,7 +98,7 @@
 
             var colors = new BufferAttribute<float>(new float[triangles * 3 * 4], 4);
 
-            for (var i = 0; i < colors.length / colors.itemSize; i++)
+            for (var i = 0; i < colors.length / colors.ItemSize; i++)
             {
                 colors.SetXYZW(i, (float)(random.NextDouble()), (float)(random.NextDouble()), (float)(random.NextDouble()), (float)(random.NextDouble()));
             }

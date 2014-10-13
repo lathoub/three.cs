@@ -147,6 +147,8 @@ namespace Demo
                 }
             }
 
+            treeViewSamples.Sort();
+
             // 
             treeViewSamples.ExpandAll();
         }

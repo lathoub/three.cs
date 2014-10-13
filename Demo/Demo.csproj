@@ -59,6 +59,7 @@
     <Compile Include="Misc\misc_controls_transform.cs" />
     <Compile Include="Misc\misc_lookat.cs" />
     <Compile Include="WebGL\webgl_buffergeometry_custom_attributes_particles.cs" />
+    <Compile Include="WebGL\webgl_buffergeometry_uint.cs" />
     <Compile Include="WebGL\webgl_interactive_buffergeometry.cs" />
     <Compile Include="WebGL\webgl_interactive_particles.cs" />
     <Compile Include="WebGL\webgl_loader_vtk.cs" />

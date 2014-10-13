@@ -218,8 +218,8 @@
             if (attributes["index"] != null)
             {
 
-                var indices = ((BufferAttribute<short>)attributes["index"]).array;
-                var positions = ((BufferAttribute<float>)attributes["position"]).array;
+                var indices = ((BufferAttribute<short>)attributes["index"]).Array;
+                var positions = ((BufferAttribute<float>)attributes["position"]).Array;
                 var offsets = geometry.Offsets;
 
                 if (offsets.Count == 0)
@@ -299,7 +299,7 @@
             else
             {
 
-                var positions = ((BufferAttribute<float>)attributes["position"]).array;
+                var positions = ((BufferAttribute<float>)attributes["position"]).Array;
 
                 int j = 0;
                 for (var i = 0; i < positions.Length; i += 3, j += 9)

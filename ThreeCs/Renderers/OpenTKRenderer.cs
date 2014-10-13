@@ -1134,11 +1134,27 @@
                     attribute.buffer = buffer;
 
                     GL.BindBuffer(bufferType, attribute.buffer);
-                    GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(ushort)), attribute.array, BufferUsageHint.StaticDraw);
+                    GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(ushort)), attribute.Array, BufferUsageHint.StaticDraw);
 
                     Debug.WriteLine("BufferData for attribute.buffer ushort {0}", attribute.buffer);
 
                 }
+
+                if (geometry.attributes[entry.Key] is BufferAttribute<uint>)
+                {
+                    var attribute = geometry.attributes[entry.Key] as BufferAttribute<uint>;
+
+                    int buffer = 0;
+                    GL.GenBuffers(1, out buffer);
+                    attribute.buffer = buffer;
+
+                    GL.BindBuffer(bufferType, attribute.buffer);
+                    GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(uint)), attribute.Array, BufferUsageHint.StaticDraw);
+
+                    Debug.WriteLine("BufferData for attribute.buffer uint {0}", attribute.buffer);
+
+                }
+
                 if (geometry.attributes[entry.Key] is BufferAttribute<float>)
                 {
                     var attribute = geometry.attributes[entry.Key] as BufferAttribute<float>;
@@ -1148,7 +1164,7 @@
                     attribute.buffer = buffer;
 
                     GL.BindBuffer(bufferType, attribute.buffer);
-                    GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(float)), attribute.array, BufferUsageHint.StaticDraw);
+                    GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(float)), attribute.Array, BufferUsageHint.StaticDraw);
 
                     Debug.WriteLine("BufferData for attribute.buffer float {0}", attribute.buffer);
                 }
@@ -1356,7 +1372,7 @@
                 if (updateBuffers)
                 {
                     GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglVertexBuffer);
-                    this.enableAttribute((int)attributeLocation);
+                    this.EnableAttribute((int)attributeLocation);
                     GL.VertexAttribPointer((int)attributeLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
                 }
             }
@@ -1406,7 +1422,7 @@
                     if (geometry.Colors.Count > 0 || geometry.Faces.Count > 0)
                     {
                         GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglColorBuffer);
-                        this.enableAttribute((int)attributeLocation);
+                        this.EnableAttribute((int)attributeLocation);
                         GL.VertexAttribPointer((int)attributeLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
                     }
                     //else if (material.defaultAttributeValues)
@@ -1421,7 +1437,7 @@
                 if (null != attributeLocation)
                 {
                     GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglNormalBuffer);
-                    this.enableAttribute((int)attributeLocation);
+                    this.EnableAttribute((int)attributeLocation);
                     GL.VertexAttribPointer((int)attributeLocation, 3, VertexAttribPointerType.Float, false, 0, 0);
                 }
 
@@ -1430,7 +1446,7 @@
                 if (null != attributeLocation)
                 {
                     GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglTangentBuffer);
-                    this.enableAttribute((int)attributeLocation);
+                    this.EnableAttribute((int)attributeLocation);
                     GL.VertexAttribPointer((int)attributeLocation, 4, VertexAttribPointerType.Float, false, 0, 0);
                 }
 
@@ -1441,7 +1457,7 @@
                     if (geometry.FaceVertexUvs[0].Count > 0)
                     {
                         GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglUVBuffer);
-                        this.enableAttribute((int)attributeLocation);
+                        this.EnableAttribute((int)attributeLocation);
                         GL.VertexAttribPointer((int)attributeLocation, 2, VertexAttribPointerType.Float, false, 0, 0);
                     }
                     //else if (material.defaultAttributeValues)
@@ -1456,7 +1472,7 @@
                     if (geometry.FaceVertexUvs[1].Count > 0)
                     {
                         GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglUV2Buffer);
-                        this.enableAttribute((int)attributeLocation);
+                        this.EnableAttribute((int)attributeLocation);
                         GL.VertexAttribPointer((int)attributeLocation, 2, VertexAttribPointerType.Float, false, 0, 0);
                     }
                     //else if (material.defaultAttributeValues)
@@ -1482,12 +1498,12 @@
                 if (null != attributeLocation)
                 {
                     GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglLineDistanceBuffer);
-                    this.enableAttribute((int)attributeLocation);
+                    this.EnableAttribute((int)attributeLocation);
                     GL.VertexAttribPointer((int)attributeLocation, 1, VertexAttribPointerType.Float, false, 0, 0);
                 }
             }
 
-            this.disableUnusedAttributes();
+            this.DisableUnusedAttributes();
 
             // render mesh
 
@@ -1560,7 +1576,7 @@
         /// <param name="programAttributes"></param>
         /// <param name="geometryAttributes"></param>
         /// <param name="startIndex"></param>
-        private void setupVertexAttributes(Material material, Hashtable programAttributes, Hashtable geometryAttributes, int startIndex )
+        private void setupVertexAttributes(Material material, IEnumerable programAttributes, IDictionary geometryAttributes, int startIndex )
         {
 
 		    foreach ( DictionaryEntry attribute in programAttributes ) 
@@ -1568,17 +1584,45 @@
 			    var attributePointer = attribute.Value;
 			    if ( null != attributePointer ) 
                 {
-                    var attributeItem = geometryAttributes[attribute.Key] as BufferAttribute<float>;
-                    if (null != attributeItem)
+                    if (null != geometryAttributes[attribute.Key] as BufferAttribute<float>)
                     {
-					    var attributeSize = attributeItem.itemSize;
+                        var attributeItem = geometryAttributes[attribute.Key] as BufferAttribute<float>;
+                        var attributeSize = attributeItem.ItemSize;
 
                         Debug.Assert(attributeItem.buffer > 0, "buffer has not been initialized");
 
 					    GL.BindBuffer( BufferTarget.ArrayBuffer, attributeItem.buffer );
-					    this.enableAttribute( (int)attributePointer );
+					    this.EnableAttribute( (int)attributePointer );
                         GL.VertexAttribPointer((int)attributePointer, attributeSize, VertexAttribPointerType.Float, false, 0, startIndex * attributeSize * sizeof(float));
-				    } 
+				    }
+
+                    if (null != geometryAttributes[attribute.Key] as BufferAttribute<uint>)
+                    {
+                        var attributeItem = geometryAttributes[attribute.Key] as BufferAttribute<uint>;
+                        var attributeSize = attributeItem.ItemSize;
+
+                        Debug.Assert(attributeItem.buffer > 0, "buffer has not been initialized");
+
+                        GL.BindBuffer(BufferTarget.ArrayBuffer, attributeItem.buffer);
+                        this.EnableAttribute((int)attributePointer);
+                        GL.VertexAttribPointer((int)attributePointer, attributeSize, VertexAttribPointerType.UnsignedInt, false, 0, startIndex * attributeSize * sizeof(uint));
+                    }
+
+                    if (null != geometryAttributes[attribute.Key] as BufferAttribute<ushort>)
+                    {
+                        var attributeItem = geometryAttributes[attribute.Key] as BufferAttribute<ushort>;
+                        var attributeSize = attributeItem.ItemSize;
+
+                        Debug.Assert(attributeItem.buffer > 0, "buffer has not been initialized");
+
+                        GL.BindBuffer(BufferTarget.ArrayBuffer, attributeItem.buffer);
+                        this.EnableAttribute((int)attributePointer);
+                        GL.VertexAttribPointer((int)attributePointer, attributeSize, VertexAttribPointerType.UnsignedShort, false, 0, startIndex * attributeSize * sizeof(ushort));
+                    } 
+
+
+
+
 /*                    else if ( material.defaultAttributeValues ) 
                     {
 					    if ( material.defaultAttributeValues[ attributeName ].length == 2 )
@@ -1592,7 +1636,7 @@
 			    }
             }
 
-		    this.disableUnusedAttributes();
+		    this.DisableUnusedAttributes();
 	    }
 
         /// <summary>
@@ -1620,17 +1664,15 @@
             var wireframeBit = 0;//material.wireframe ? 1 : 0;
 			var geometryHash = ( geometry.Id * 0xffffff ) + ( program.Id * 2 ) + wireframeBit;
 
-		    if ( geometryHash != this._currentGeometryGroupHash ) {
-
+		    if ( geometryHash != this._currentGeometryGroupHash ) 
+            {
 			    this._currentGeometryGroupHash = geometryHash;
 			    updateBuffers = true;
-
 		    }
 
-		    if ( updateBuffers ) {
-
+		    if ( updateBuffers ) 
+            {
 			    this.InitAttributes();
-
 		    }
 
 		    // render mesh
@@ -1775,12 +1817,16 @@
 					    if ( updateBuffers )
                         {
 						    this.setupVertexAttributes( material, programAttributes, geometryAttributes, 0 );
-                            GL.BindBuffer(BufferTarget.ElementArrayBuffer, (index is ushort[]) ? ((BufferAttribute<ushort>)index).buffer : ((BufferAttribute<float>)index).buffer);
-					    }
 
-				        var length = (index is ushort[])
-                                         ? ((IBufferAttribute)index).length
-				                         : ((IBufferAttribute)index).length;
+                            if (index is ushort[])
+                                GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<ushort>)index).buffer);
+                            if (index is uint[])
+                                GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<uint>)index).buffer);
+                            if (index is float[])
+                                GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<float>)index).buffer);
+                        }
+
+				        var length = ((IBufferAttribute)index).length;
 
                         GL.DrawElements(mode, length, type, 0); // 2 bytes per Uint16Array
 
@@ -1803,8 +1849,14 @@
 						    if ( updateBuffers ) 
                             {
 							    this.setupVertexAttributes( material, programAttributes, geometryAttributes, startIndex );
-                                GL.BindBuffer(BufferTarget.ElementArrayBuffer, (index is short[]) ? ((BufferAttribute<ushort>)index).buffer : ((BufferAttribute<float>)index).buffer);
-						    }
+
+                                if (index is ushort[])
+                                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<ushort>)index).buffer);
+                                if (index is uint[])
+                                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<uint>)index).buffer);
+                                if (index is float[])
+                                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<float>)index).buffer);
+                            }
 
 						    // render indexed lines
 
@@ -1826,7 +1878,7 @@
 
                     var position = geometryAttributes["position"] as BufferAttribute<float>;
 
-			        var array = position.array;
+			        var array = position.Array;
 
                     GL.DrawArrays(mode, 0, array.Length / 3);
 
@@ -2348,7 +2400,7 @@
         /// <summary>
         /// 
         /// </summary>
-        private void disableUnusedAttributes()
+        private void DisableUnusedAttributes()
         {
             for (var i = 0; i < this._enabledAttributes.Length; i ++)
             {
@@ -2364,7 +2416,7 @@
         /// 
         /// </summary>
         /// <param name="attribute"></param>
-        private void enableAttribute(int attribute)
+        private void EnableAttribute(int attribute)
         {
             this._newAttributes[attribute] = 1;
 
@@ -2407,7 +2459,7 @@
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        private int getTextureUnit()
+        private int GetTextureUnit()
         {
             var textureUnit = this._usedTextureUnits;
 
@@ -2439,9 +2491,7 @@
         /// <param name="hint"></param>
         private static void SetDirectBuffers(BufferGeometry geometry, BufferUsageHint hint)
         {
-            var attributes = geometry.attributes;
-
-		    foreach (DictionaryEntry attribute in attributes )
+		    foreach (DictionaryEntry attribute in geometry.attributes )
 		    {
 		        var attributeItem = attribute.Value as IBufferAttribute;
                 Debug.Assert(null != attributeItem, "casting to IBufferAttribute failed");
@@ -2454,9 +2504,11 @@
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, attributeItem.buffer);
 
                         if (null != attribute.Value as BufferAttribute<float>)
-                            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(attributeItem.length * sizeof(float)), ((BufferAttribute<float>)attribute.Value).array, hint);
+                            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(attributeItem.length * sizeof(float)), ((BufferAttribute<float>)attribute.Value).Array, hint);
                         if (null != attribute.Value as BufferAttribute<ushort>)
-                            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(attributeItem.length * sizeof(ushort)), ((BufferAttribute<ushort>)attribute.Value).array, hint);
+                            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(attributeItem.length * sizeof(ushort)), ((BufferAttribute<ushort>)attribute.Value).Array, hint);
+                        if (null != attribute.Value as BufferAttribute<uint>)
+                            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(attributeItem.length * sizeof(uint)), ((BufferAttribute<uint>)attribute.Value).Array, hint);
                     } 
                     else 
                     {
@@ -2464,9 +2516,11 @@
                         GL.BindBuffer(BufferTarget.ArrayBuffer, attributeItem.buffer);
 
                         if (null != attribute.Value as BufferAttribute<float>)
-                            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(attributeItem.length * sizeof(float)), ((BufferAttribute<float>)attribute.Value).array, hint);
+                            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(attributeItem.length * sizeof(float)), ((BufferAttribute<float>)attribute.Value).Array, hint);
                         if (null != attribute.Value as BufferAttribute<ushort>)
-                            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(attributeItem.length * sizeof(ushort)), ((BufferAttribute<ushort>)attribute.Value).array, hint);
+                            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(attributeItem.length * sizeof(ushort)), ((BufferAttribute<ushort>)attribute.Value).Array, hint);
+                        if (null != attribute.Value as BufferAttribute<uint>)
+                            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(attributeItem.length * sizeof(uint)), ((BufferAttribute<uint>)attribute.Value).Array, hint);
                     }
 
                     attributeItem.needsUpdate = false;
@@ -2948,8 +3002,8 @@
                     Debug.Assert(null != uniform, "key is null or could not cast to KVP");
 
                     // needsUpdate property is not added to all uniformsLocation.
-                    //                if ( uniform["needsUpdate"] == false ) 
-                    //                    continue;
+           //         if (uniform.needsUpdate == false)
+           //             continue;
 
                     type = uniform.Key;
                     value = uniform.Value;
@@ -3207,7 +3261,7 @@
                             // single THREE.Texture (2d or cube)
 
                             var texture = (Texture)value;
-                            var textureUnit = this.getTextureUnit();
+                            var textureUnit = this.GetTextureUnit();
 
                             GL.Uniform1(location, textureUnit);
 
@@ -5308,8 +5362,8 @@
 
             } else {
 
-                if ( dirtyVertices ) {
-
+                if ( dirtyVertices )
+                {
                     for (int v = 0; v < vl; v ++ ) {
 
                         var vertex = vertices[ v ];
@@ -5324,8 +5378,8 @@
 
                 }
 
-                if ( dirtyColors ) {
-
+                if ( dirtyColors )
+                {
                     for (int c = 0; c < cl; c ++ ) {
 
                         var color = colors[ c ];
@@ -5434,18 +5488,14 @@
 
             if ( dirtyVertices || object3D.sortParticles ) 
             {
-
                 GL.BindBuffer( BufferTarget.ArrayBuffer, geometry.__webglVertexBuffer );
                 GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)(vertexArray.Length * sizeof(float)), vertexArray, hint );
-
             }
 
             if ( dirtyColors || object3D.sortParticles )
             {
-
                 GL.BindBuffer( BufferTarget.ArrayBuffer, geometry.__webglColorBuffer );
                 GL.BufferData( BufferTarget.ArrayBuffer, (IntPtr)(colorArray.Length * sizeof(float)), colorArray, hint );
-
             }
 
             if (null != customAttributes ) {
