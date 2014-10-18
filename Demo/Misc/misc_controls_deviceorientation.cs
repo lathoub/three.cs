@@ -1,7 +1,6 @@
 ﻿
 namespace Demo.Misc
 {
-    using System;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -16,10 +15,9 @@ namespace Demo.Misc
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
-    [Example("misc_controls_deviceorientation", ExampleCategory.Misc, "controls", 0.2f)]
+    [Example("misc_controls_deviceorientation", ExampleCategory.Misc, "controls", 0.4f)]
     class misc_controls_deviceorientation : Example
     {
         private PerspectiveCamera camera;
@@ -55,9 +53,9 @@ namespace Demo.Misc
             scene.Add(mesh);
 
             var geometry2 = new BoxGeometry( 100, 100, 100, 4, 4, 4 );
-            var material2 = new MeshBasicMaterial() { color = Color.Purple, side = 1, wireframe = true };
+            var material2 = new MeshBasicMaterial() { color = Color.Purple, side = Three.BackSide, wireframe = true };
             var mesh2 = new Mesh( geometry2, material2 );
-        //    scene.Add( mesh2 );
+            scene.Add(mesh2);
         }
 
         /// <summary>

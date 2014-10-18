@@ -62,12 +62,17 @@
     <Compile Include="Core\Raycaster.cs" />
     <Compile Include="Core\WebGlObject.cs" />
     <Compile Include="DeviceOrientationControls.cs" />
+    <Compile Include="Extras\Geometries\CircleGeometry.cs" />
+    <Compile Include="Extras\Geometries\RingGeometry.cs" />
+    <Compile Include="Extras\Geometries\TorusGeometry.cs" />
     <Compile Include="Extras\Helpers\ArrowHelper.cs" />
     <Compile Include="Lights\ILightShadow.cs" />
     <Compile Include="Loaders\JSONLoader.cs" />
     <Compile Include="Loaders\VTKLoader.cs" />
     <Compile Include="Materials\IAttributes.cs" />
     <Compile Include="Materials\IWirerframe.cs" />
+    <Compile Include="Math\ColorNormalized.cs" />
+    <Compile Include="Math\HSLColor.cs" />
     <Compile Include="Math\Line3.cs" />
     <Compile Include="Math\Ray.cs" />
     <Compile Include="PreventCircularUpdate.cs" />
@@ -123,6 +128,7 @@
     <Compile Include="Renderers\Renderables\RenderableObject.cs" />
     <Compile Include="Renderers\Renderables\RenderableSprite.cs" />
     <Compile Include="Renderers\Renderables\RenderableVertex.cs" />
+    <Compile Include="Renderers\Shaders\Uniform.cs" />
     <Compile Include="Three.cs" />
     <Compile Include="Math\Euler.cs" />
     <Compile Include="Objects\Bone.cs" />
@@ -327,6 +333,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extras\Renderers\Plugins\" />
+    <Folder Include="Renderers\PlugIns\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

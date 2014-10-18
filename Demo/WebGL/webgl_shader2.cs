@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Demo.WebGL
 {
@@ -17,7 +16,6 @@ namespace Demo.WebGL
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 

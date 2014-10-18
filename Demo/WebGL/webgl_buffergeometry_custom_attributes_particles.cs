@@ -1,6 +1,5 @@
 ﻿namespace Demo.WebGL
 {
-    using System;
     using System.Collections;
     using System.Diagnostics;
     using System.Drawing;
@@ -14,7 +13,6 @@
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
@@ -114,7 +112,7 @@
                 positions[v * 3 + 1] = ((float)random.NextDouble() * 2 - 1) * radius;
                 positions[v * 3 + 2] = ((float)random.NextDouble() * 2 - 1) * radius;
 
-                color.setHSL(v / (float)particles, 1.0f, 0.5f);
+                color = new HSLColor(v / (float)particles, 1.0f, 0.5f);
 
                 color = Color.Tomato;
 

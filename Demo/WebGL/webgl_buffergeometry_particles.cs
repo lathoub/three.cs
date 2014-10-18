@@ -1,6 +1,5 @@
 ﻿namespace Demo
 {
-    using System;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -12,7 +11,6 @@
     using ThreeCs.Core;
     using ThreeCs.Materials;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
     [Example("webgl_buffergeometry_particles", ExampleCategory.OpenTK, "BufferGeometry", 0.6f)]

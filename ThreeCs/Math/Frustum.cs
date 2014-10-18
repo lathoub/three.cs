@@ -95,12 +95,12 @@ namespace ThreeCs.Math
         /// <param name="p5"></param>
         public void Initialize(Plane p0, Plane p1, Plane p2, Plane p3, Plane p4, Plane p5)
         {
-            if (p0 != null) this.Planes[0] = p0;
-            if (p1 != null) this.Planes[1] = p1;
-            if (p2 != null) this.Planes[2] = p2;
-            if (p3 != null) this.Planes[3] = p3;
-            if (p4 != null) this.Planes[4] = p4;
-            if (p5 != null) this.Planes[5] = p5;
+            if (p0 != null) this.Planes[0].Copy(p0);
+            if (p1 != null) this.Planes[1].Copy(p1);
+            if (p2 != null) this.Planes[2].Copy(p2);
+            if (p3 != null) this.Planes[3].Copy(p3);
+            if (p4 != null) this.Planes[4].Copy(p4);
+            if (p5 != null) this.Planes[5].Copy(p5);
         }
 
         /// <summary>

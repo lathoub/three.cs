@@ -10,7 +10,6 @@
     using Three.Core;
 
     using ThreeCs.Cameras;
-    using ThreeCs.Core;
     using ThreeCs.Extras;
     using ThreeCs.Extras.Geometries;
     using ThreeCs.Materials;

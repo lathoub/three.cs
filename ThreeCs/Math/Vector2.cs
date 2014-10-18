@@ -11,7 +11,7 @@ namespace ThreeCs.Math
     using Math = System.Math;
 
     [DebuggerDisplay("X = {X}, Y = {Y}")]
-    public class Vector2 : IEquatable<Vector2>, INotifyPropertyChanged
+    public class Vector2 : IEquatable<Vector2>, ICloneable, INotifyPropertyChanged
     {
 
         public float X;
@@ -34,6 +34,15 @@ namespace ThreeCs.Math
         {
             this.X = x;
             this.Y = y;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public object Clone()
+        {
+            return new Vector2(this.X, this.Y);
         }
 
         /// <summary>

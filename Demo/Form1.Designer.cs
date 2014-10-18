@@ -31,19 +31,19 @@
             this.glControl = new OpenTK.GLControl();
             this.treeViewSamples = new System.Windows.Forms.TreeView();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.statusStrip2 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabelThreeCs = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelTheeCs = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelOpenTK = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.statusStrip2 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabelThreeCs = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabelOpenTK = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
             this.statusStrip2.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // glControl
@@ -57,7 +57,10 @@
             this.glControl.VSync = true;
             this.glControl.Load += new System.EventHandler(this.glControl_Load);
             this.glControl.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl_Paint);
+            this.glControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseDown);
             this.glControl.MouseMove += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseMove);
+            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
+            this.glControl.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseWheel);
             this.glControl.Resize += new System.EventHandler(this.glControl_Resize);
             // 
             // treeViewSamples
@@ -88,6 +91,25 @@
             this.splitContainer.SplitterDistance = 357;
             this.splitContainer.TabIndex = 4;
             // 
+            // statusStrip2
+            // 
+            this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabelThreeCs});
+            this.statusStrip2.Location = new System.Drawing.Point(0, 707);
+            this.statusStrip2.Name = "statusStrip2";
+            this.statusStrip2.Size = new System.Drawing.Size(357, 22);
+            this.statusStrip2.SizingGrip = false;
+            this.statusStrip2.TabIndex = 4;
+            this.statusStrip2.Text = "statusStrip2";
+            // 
+            // toolStripStatusLabelThreeCs
+            // 
+            this.toolStripStatusLabelThreeCs.IsLink = true;
+            this.toolStripStatusLabelThreeCs.Name = "toolStripStatusLabelThreeCs";
+            this.toolStripStatusLabelThreeCs.Size = new System.Drawing.Size(51, 17);
+            this.toolStripStatusLabelThreeCs.Text = "Three.cs";
+            this.toolStripStatusLabelThreeCs.Click += new System.EventHandler(this.toolStripStatusLabelThreeCs_Click);
+            // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -117,6 +139,12 @@
             this.toolStripStatusLabel.Text = "toolStripStatusLabel1";
             this.toolStripStatusLabel.Click += new System.EventHandler(this.toolStripStatusLabel_Click);
             // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(483, 17);
+            this.toolStripStatusLabel2.Spring = true;
+            // 
             // toolStripStatusLabelOpenTK
             // 
             this.toolStripStatusLabelOpenTK.IsLink = true;
@@ -124,31 +152,6 @@
             this.toolStripStatusLabelOpenTK.Size = new System.Drawing.Size(50, 17);
             this.toolStripStatusLabelOpenTK.Text = "OpenTK";
             this.toolStripStatusLabelOpenTK.Click += new System.EventHandler(this.toolStripStatusLabelOpenTK_Click);
-            // 
-            // toolStripStatusLabel2
-            // 
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(483, 17);
-            this.toolStripStatusLabel2.Spring = true;
-            // 
-            // statusStrip2
-            // 
-            this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabelThreeCs});
-            this.statusStrip2.Location = new System.Drawing.Point(0, 707);
-            this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(357, 22);
-            this.statusStrip2.SizingGrip = false;
-            this.statusStrip2.TabIndex = 4;
-            this.statusStrip2.Text = "statusStrip2";
-            // 
-            // toolStripStatusLabelThreeCs
-            // 
-            this.toolStripStatusLabelThreeCs.IsLink = true;
-            this.toolStripStatusLabelThreeCs.Name = "toolStripStatusLabelThreeCs";
-            this.toolStripStatusLabelThreeCs.Size = new System.Drawing.Size(51, 17);
-            this.toolStripStatusLabelThreeCs.Text = "Three.cs";
-            this.toolStripStatusLabelThreeCs.Click += new System.EventHandler(this.toolStripStatusLabelThreeCs_Click);
             // 
             // Form1
             // 
@@ -164,10 +167,10 @@
             this.splitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
             this.statusStrip2.ResumeLayout(false);
             this.statusStrip2.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
 
         }

@@ -9,19 +9,19 @@
 
     public class SphereGeometry : Geometry
     {
-        public float radius;
+        public float Radius;
 
-        public float widthSegments;
+        public float WidthSegments;
 
-        public float heightSegments;
+        public float HeightSegments;
 
-        public float phiStart;
+        public float PhiStart;
 
-        public float phiLength;
+        public float PhiLength;
 
-        public float thetaStart;
+        public float ThetaStart;
 
-        public float thetaLength;
+        public float ThetaLength;
 
         /// <summary>
         /// 
@@ -37,16 +37,16 @@
         {
             Debug.Assert(this.FaceVertexUvs.Count == 1, "Should only be 1 element at this stage");
 
-            this.radius = radius;
+            this.Radius = radius;
             
-            this.widthSegments = widthSegments;
-            this.heightSegments = heightSegments;
+            this.WidthSegments = widthSegments;
+            this.HeightSegments = heightSegments;
             
-            this.phiStart = phiStart;
-            this.phiLength = phiLength;
+            this.PhiStart = phiStart;
+            this.PhiLength = phiLength;
 
-            this.thetaStart = thetaStart;
-            this.thetaLength = thetaLength;
+            this.ThetaStart = thetaStart;
+            this.ThetaLength = thetaLength;
 
             var uvs = new List<List<Vector2>>();
             var vertices = new List<List<int>>();
@@ -87,15 +87,15 @@
 		            var v3 = vertices[y + 1][x];
 		            var v4 = vertices[y + 1][x + 1];
 
-		            var n1 = this.Vertices[v1].Normalize();
-		            var n2 = this.Vertices[v2].Normalize();
-		            var n3 = this.Vertices[v3].Normalize();
-		            var n4 = this.Vertices[v4].Normalize();
+		            var n1 = ((Vector3)this.Vertices[v1].Clone()).Normalize();
+                    var n2 = ((Vector3)this.Vertices[v2].Clone()).Normalize();
+                    var n3 = ((Vector3)this.Vertices[v3].Clone()).Normalize();
+                    var n4 = ((Vector3)this.Vertices[v4].Clone()).Normalize();
 
-		            var uv1 = uvs[y][x + 1];
-		            var uv2 = uvs[y][x];
-		            var uv3 = uvs[y + 1][x];
-		            var uv4 = uvs[y + 1][x + 1];
+		            var uv1 = (Vector2)uvs[y][x + 1].Clone();
+                    var uv2 = (Vector2)uvs[y][x].Clone();
+                    var uv3 = (Vector2)uvs[y + 1][x].Clone();
+                    var uv4 = (Vector2)uvs[y + 1][x + 1].Clone();
 
 			        if ( Math.Abs( this.Vertices[ v1 ].Y ) == radius ) {
 
@@ -119,7 +119,7 @@
                         face.VertexNormals.Add(n3);
 				        this.Faces.Add(face);
 
-                        this.FaceVertexUvs[0].Add(new List<Vector2> { uv1, uv2, uv3 });
+			            this.FaceVertexUvs[0].Add(new List<Vector2> { uv1, uv2, uv3 });
 
 			        } else {
 
@@ -129,15 +129,15 @@
                         face.VertexNormals.Add(n2);
                         face.VertexNormals.Add(n4);
 
-                        this.FaceVertexUvs[0].Add(new List<Vector2> { uv1, uv2, uv4 });
+			            this.FaceVertexUvs[0].Add(new List<Vector2> { uv1, uv2, uv4 });
 
 			            face = new Face3(v2, v3, v4);
 			            this.Faces.Add(face);
-                        face.VertexNormals.Add(n2);
+                        face.VertexNormals.Add((Vector3)n2.Clone());
                         face.VertexNormals.Add(n3);
-                        face.VertexNormals.Add(n4);
+                        face.VertexNormals.Add((Vector3)n4.Clone());
 
-                        this.FaceVertexUvs[0].Add(new List<Vector2> { uv2, uv3, uv4 });
+                        this.FaceVertexUvs[0].Add(new List<Vector2> { (Vector2)uv2.Clone(), uv3, (Vector2)uv4.Clone() });
 
 			        }
 
@@ -147,7 +147,7 @@
 
 	        this.ComputeFaceNormals();
 
-	        this.BoundingSphere = new Sphere( new Vector3(), radius );
+            this.BoundingSphere = new Sphere(new Vector3(), radius);
         }
     }
 }

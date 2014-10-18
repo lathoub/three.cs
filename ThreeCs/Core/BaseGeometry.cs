@@ -12,7 +12,6 @@
 
         public string Name;
 
-
         public Object3D BoundingBox = null;
 
         public Sphere BoundingSphere = null;

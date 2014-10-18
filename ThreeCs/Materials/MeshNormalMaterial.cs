@@ -4,17 +4,13 @@
 
     public class MeshNormalMaterial : Material, IWirerframe
     {
-        public int shading = Three.FlatShading;
-
-        // IWireFrameable
+        public int Shading = Three.FlatShading;
 
         public bool wireframe { get; set; }
 
         public float wireframeLinewidth { get; set; }
 
-        //
-
-        public bool morphTargets = false;
+        public bool MorphTargets = false;
 
         /// <summary>
         /// 
@@ -22,10 +18,13 @@
         /// <param name="parameters"></param>
         public MeshNormalMaterial(Hashtable parameters = null)
         {
-            // IWireFrameable
+            Shading = Three.FlatShading;
+
             wireframe = false;
             wireframeLinewidth = 1;
-            
+
+            this.MorphTargets = false;
+
             this.SetValues(parameters);
         }
     }

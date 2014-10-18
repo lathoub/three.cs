@@ -1,7 +1,5 @@
 ﻿namespace Demo
 {
-    using System;
-    using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
 
@@ -15,7 +13,6 @@
     using ThreeCs.Lights;
     using ThreeCs.Materials;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
     [Example("misc_controls_transform", ExampleCategory.Misc, "controls", 0.2f)]

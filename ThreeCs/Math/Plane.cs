@@ -8,27 +8,55 @@
         public Vector3 Normal = new Vector3(1, 0, 0);
         public float Constant = 0;
 
-        public Plane Set(Vector3 Normal, float Constant)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="normal"></param>
+        /// <param name="constant"></param>
+        /// <returns></returns>
+        public Plane Set(Vector3 normal, float constant)
+        {
+            this.Normal.Copy(normal);
+            this.Constant = constant;
+
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
+        public Plane SetComponents(float x, float y, float z, float w)
+        {
+            this.Normal.Set(x, y, z);
+            this.Constant = w;
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="normal"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public Plane SetFromNormalAndCoplanarPoint(Vector3 normal, Vector3 point)
         {
             this.Normal.Copy(Normal);
-            this.Constant = Constant;
+            this.Constant -= point.Dot(this.Normal); // must be this.normal, not normal, as this.normal is normalized
             return this;
         }
 
-        public Plane SetComponents(float X, float Y, float Z, float W)
-        {
-            this.Normal.Set(X, Y, Z);
-            this.Constant = W;
-            return this;
-        }
-
-        public Plane SetFromNormalAndCoplanarPoint(Vector3 Normal, Vector3 Point)
-        {
-            this.Normal.Copy(Normal);
-            this.Constant -= Point.Dot(this.Normal);
-            return this;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="V1"></param>
+        /// <param name="V2"></param>
+        /// <param name="V3"></param>
+        /// <returns></returns>
         public Plane SetFromCoplanarPoints(Vector3 V1, Vector3 V2, Vector3 V3)
         {
             var V1B = new Vector3();
@@ -39,21 +67,35 @@
             return this;
         }
 
-        public Plane Copy(Plane Plane)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="plane"></param>
+        /// <returns></returns>
+        public Plane Copy(Plane plane)
         {
-            this.Normal.Copy(Plane.Normal);
-            this.Constant = Plane.Constant;
+            this.Normal.Copy(plane.Normal);
+            this.Constant = plane.Constant;
+
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public Plane Normalize()
         {
-            var InverseNormalLength = 1.0f / this.Normal.Length;
-            this.Normal.MultiplyScalar(InverseNormalLength);
-            this.Constant *= InverseNormalLength;
+            var inverseNormalLength = 1.0f / this.Normal.Length;
+            this.Normal.MultiplyScalar(inverseNormalLength);
+            this.Constant *= inverseNormalLength;
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public Plane Negate()
         {
             this.Constant *= -1;
@@ -61,38 +103,43 @@
             return this;
         }
 
-        public float DistanceToPoint(Vector3 Point)
+        public float DistanceToPoint(Vector3 point)
         {
-            return this.Normal.Dot(Point) + this.Constant;
+            return this.Normal.Dot(point) + this.Constant;
         }
 
-        public float DistanceToSphere(Sphere Sphere)
+        public float DistanceToSphere(Sphere sphere)
         {
-            return this.DistanceToPoint(Sphere.Center) - Sphere.Radius;
+            return this.DistanceToPoint(sphere.Center) - sphere.Radius;
         }
 
-        public Vector3 ProjectPoint(Vector3 Point, Vector3 Target = null)
+        public Vector3 ProjectPoint(Vector3 point, Vector3 target = null)
         {
-            return (this.OrthoPoint(Point, Target) - Point).Negate();
+            return (this.OrthoPoint(point, target) - point).Negate();
         }
 
-        public Vector3 OrthoPoint(Vector3 Point, Vector3 Target = null)
+        public Vector3 OrthoPoint(Vector3 point, Vector3 target = null)
         {
-            var PerpendicularMagnitude = this.DistanceToPoint(Point);
+            var perpendicularMagnitude = this.DistanceToPoint(point);
 
-            var Result = Target ?? new Vector3();
-            return Result.Copy(this.Normal).MultiplyScalar(PerpendicularMagnitude);
+            var result = target ?? new Vector3();
+            return result.Copy(this.Normal).MultiplyScalar(perpendicularMagnitude);
         }
 
-        public bool IsIntersectionLine(Line Line)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public bool IsIntersectionLine(Line line)
         {
-            var StartSign = this.DistanceToPoint(Line.Start);
-            var EndSign = this.DistanceToPoint(Line.End);
+            var startSign = this.DistanceToPoint(line.Start);
+            var endSign = this.DistanceToPoint(line.End);
 
-            return (StartSign < 0 && EndSign > 0) || (EndSign < 0 && StartSign > 0);
+            return (startSign < 0 && endSign > 0) || (endSign < 0 && startSign > 0);
         }
 
-        public Vector3 IntersectLine(Line Line, Vector3 Target = null)
+        public Vector3 IntersectLine(Line line, Vector3 target = null)
         {
             // Vector3 V1 = new Vector3();
             // Vector3 Result = Target ?? new Vector3();
@@ -116,36 +163,42 @@
             return new Vector3();
         }
 
-        public Vector3 CoplanarPoint(Vector3 Target = null)
+        public Vector3 CoplanarPoint(Vector3 target = null)
         {
-            var Result = Target ?? new Vector3();
-            return Result.Copy(this.Normal).MultiplyScalar(-this.Constant);
+            var result = target ?? new Vector3();
+            return result.Copy(this.Normal).MultiplyScalar(-this.Constant);
         }
 
-        public Plane ApplyMatrix4(Matrix4 Matrix, Matrix3 NormalMatrix = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="normalMatrix"></param>
+        /// <returns></returns>
+        public Plane ApplyMatrix4(Matrix4 matrix, Matrix3 normalMatrix = null)
         {
-            var V1 = new Vector3();
-            var V2 = new Vector3();
-            var M1 = new Matrix3();
+            var v1 = new Vector3();
+            var v2 = new Vector3();
+            var m1 = new Matrix3();
 
-            var NormalM = NormalMatrix ?? M1.GetNormalMatrix(Matrix);
-            var NewNormal = V1.Copy(this.Normal).ApplyMatrix3(NormalM);
-            var NewCoplanarPoint = this.CoplanarPoint(V2);
-            NewCoplanarPoint.ApplyMatrix4(Matrix);
+            var normalM = normalMatrix ?? m1.GetNormalMatrix(matrix);
+            var newNormal = v1.Copy(this.Normal).ApplyMatrix3(normalM);
+            var newCoplanarPoint = this.CoplanarPoint(v2);
+            newCoplanarPoint.ApplyMatrix4(matrix);
 
-            this.SetFromNormalAndCoplanarPoint(NewNormal, NewCoplanarPoint);
+            this.SetFromNormalAndCoplanarPoint(newNormal, newCoplanarPoint);
             return this;
         }
 
-        public Plane Translate(Vector3 Offset)
+        public Plane Translate(Vector3 offset)
         {
-            this.Constant = this.Constant - Offset.Dot(this.Normal);
+            this.Constant = this.Constant - offset.Dot(this.Normal);
             return this;
         }
 
-        public bool Equals(Plane Plane)
+        public bool Equals(Plane plane)
         {
-            return Plane.Normal.Equals(this.Normal) && (Plane.Constant == this.Constant);
+            return plane.Normal.Equals(this.Normal) && (plane.Constant == this.Constant);
         }
 
         public Plane Clone()

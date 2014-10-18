@@ -155,9 +155,9 @@
 
                     var face = new Face3(a + offset, b + offset, d + offset, new Vector3().One(), Color.White);
                     face.Normal = normal;
-                    face.VertexNormals.Add(normal);
-                    face.VertexNormals.Add(normal);
-                    face.VertexNormals.Add(normal);
+                    face.VertexNormals.Add((Vector3)normal.Clone());
+                    face.VertexNormals.Add((Vector3)normal.Clone());
+                    face.VertexNormals.Add((Vector3)normal.Clone());
                     face.MaterialIndex = materialIndex;
 
                     this.Faces.Add(face);
@@ -168,14 +168,14 @@
 
                     face = new Face3(b + offset, c + offset, d + offset, new Vector3().One(), Color.White);
                     face.Normal = normal;
-                    face.VertexNormals.Add(normal);
-                    face.VertexNormals.Add(normal);
-                    face.VertexNormals.Add(normal);
+                    face.VertexNormals.Add((Vector3)normal.Clone());
+                    face.VertexNormals.Add((Vector3)normal.Clone());
+                    face.VertexNormals.Add((Vector3)normal.Clone());
                     face.MaterialIndex = materialIndex;
 
                     this.Faces.Add(face);
                     {
-                        var uvs = new List<Vector2> { (Vector2)uvb, uvc, (Vector2)uvd };
+                        var uvs = new List<Vector2> { (Vector2)uvb.Clone(), uvc, (Vector2)uvd.Clone() };
                         this.FaceVertexUvs[0].Add(uvs);
                     }
                 }

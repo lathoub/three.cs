@@ -174,7 +174,7 @@
 
                 cb.Normalize();
 
-                face.Normal = cb;
+                face.Normal.Copy(cb);
             }
         }
 
@@ -236,9 +236,9 @@
 
             foreach (var face in this.Faces)
             {
-                face.VertexNormals.Add(vertices[face.a]);
-                face.VertexNormals.Add(vertices[face.b]);
-                face.VertexNormals.Add(vertices[face.c]);
+                face.VertexNormals.Add((Vector3)vertices[face.a].Clone());
+                face.VertexNormals.Add((Vector3)vertices[face.b].Clone());
+                face.VertexNormals.Add((Vector3)vertices[face.c].Clone());
             }
         }
 

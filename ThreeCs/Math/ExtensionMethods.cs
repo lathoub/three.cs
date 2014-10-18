@@ -58,32 +58,16 @@ namespace ThreeCs.Math
         /// <param name="s"></param>
         /// <param name="l"></param>
         /// <returns></returns>
-        public static Color setHSL(this Color value, float h, float s, float l)
+        public static Color OffsetHSL (this Color value, float h, float s, float l)
         {
-	    	// h,s,l ranges are in 0.0 - 1.0
+            var hsl = new HSLColor(value);
 
-            Color color;
+            hsl.Hue += h; hsl.Saturation += s; hsl.Luminosity += l;
 
-		    if ( s == 0 ) {
+            value = hsl;
 
-                return Color.FromArgb(255, (int)l * 255, (int)l * 255, (int)l * 255);
-
-		    } else {
-
-			    var p = l <= 0.5f ? l * ( 1 + s ) : l + s - ( l * s );
-			    var q = ( 2.0f * l ) - p;
-
-			    var r = hue2rgb( q, p, h + 1 / 3.0f );
-                var g = hue2rgb(q, p, h);
-                var b = hue2rgb(q, p, h - 1 / 3.0f);
-
-                value = Color.FromArgb(255, (int)(r * 255), (int)(g * 255), (int)(b * 255));
-
-		        return value;
-
-		    }
-
-            return color;
+            return value;
         }
+
     }
 }

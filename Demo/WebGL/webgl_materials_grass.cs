@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing.Drawing2D;
 using System.Linq;
 
 namespace Demo.Misc
@@ -15,7 +14,6 @@ namespace Demo.Misc
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
     using ThreeCs.Textures;
 
@@ -90,7 +88,7 @@ namespace Demo.Misc
 			for ( var i = 0; i < 15; i ++ ) {
 
 				var material = new MeshBasicMaterial() {
-					color = new Color().setHSL( 0.3f, 0.75f, ( i / 15.0f ) * 0.4f + 0.1f ),
+                    color = new HSLColor(0.3f, 0.75f, (i / 15.0f) * 0.4f + 0.1f),
 					map = texture,
 					depthTest = false,
 					depthWrite = false,

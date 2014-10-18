@@ -2167,7 +2167,17 @@
         /// <returns></returns>
         private static bool materialNeedsSmoothNormals (Material material ) 
         {
-		   // return  material && material.shading !== undefined && material.shading == THREE.SmoothShading;
+            if (null == material) return false;
+
+            var meshNormalMaterial = material as MeshNormalMaterial;
+            if (null != meshNormalMaterial)
+            {
+                if (meshNormalMaterial.Shading == Three.SmoothShading)
+                    return true;
+            }
+
+            // TODO: do also for other material that carries shading
+
             return false;
         }
 
@@ -2584,8 +2594,18 @@
 
             if (!string.IsNullOrEmpty(shaderId))
             {
-                material.__webglShader = (WebGlShader)this.shaderLib[shaderId];
+                var shader =  (WebGlShader)this.shaderLib[shaderId];
 
+                material.__webglShader  = new WebGlShader();
+                
+                // TODO: good enough as Clone?
+                material.__webglShader.Uniforms = new Uniforms();
+                foreach (var e in shader.Uniforms)
+                    material.__webglShader.Uniforms.Add(e.Key, e.Value);
+
+                material.__webglShader.VertexShader = shader.VertexShader;
+                material.__webglShader.FragmentShader = shader.FragmentShader;
+                
                 if (null == material.__webglShader)
                 {
                     Trace.TraceError("Shader '{0}' could not be found. Check if it was created in UniformsLib", shaderId);
@@ -2688,7 +2708,7 @@
             {
                 parameters.Add("alphaTest", meshNormalMaterial.alphaTest);
 
-                parameters.Add("morphTargets", meshNormalMaterial.morphTargets);
+                parameters.Add("morphTargets", meshNormalMaterial.MorphTargets);
             }
 
             var meshLambertMaterial = material as MeshLambertMaterial;
@@ -4716,7 +4736,7 @@
             }
 
             var meshNormalMaterial = material as MeshNormalMaterial;
-            if (null != meshNormalMaterial && meshNormalMaterial.morphTargets)
+            if (null != meshNormalMaterial && meshNormalMaterial.MorphTargets)
             {
                 if (null == object3D.__webglMorphTargetInfluences)
                 {

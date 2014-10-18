@@ -9,17 +9,18 @@
 
     using Examples;
 
+    using OpenTK.Graphics.OpenGL;
+
     using ThreeCs.Cameras;
     using ThreeCs.Extras;
     using ThreeCs.Extras.Geometries;
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
-    [Example("webgl_custom_attributes", ExampleCategory.OpenTK, "custom", 0.6f)]
+    [Example("webgl_custom_attributes", ExampleCategory.OpenTK, "custom", 0.7f)]
     class webgl_custom_attributes : Example
     {
         private PerspectiveCamera camera;
@@ -91,8 +92,8 @@
             uniforms = new Uniforms
                     {
                         { "amplitude", new KVP("f", 1.0f) },
-                        { "color",     new KVP("c", Color.Firebrick) },
-                        { "texture",   new KVP("t", ImageUtils.LoadTexture(@"data\textures/crate.gif")) },
+                        { "color",     new KVP("c", (Color)colorConvertor.ConvertFromString("#ff2200")) },
+                        { "texture",   new KVP("t", ImageUtils.LoadTexture(@"data\textures/water.jpg")) },
                     };
 
 //            uniforms.Texture.value.wrapS = uniforms.texture.value.wrapT = THREE.RepeatWrapping;
@@ -158,7 +159,7 @@
             this.sphere.Rotation.Y = this.sphere.Rotation.Z = 0.01f * time;
 
             uniforms["amplitude"].Value = 2.5f * Math.Sin(this.sphere.Rotation.Y * 0.125);
-            uniforms["color"].Value = Color.White;// .offsetHSL(0.0005, 0, 0);
+            uniforms["color"].Value = ((Color)uniforms["color"].Value).OffsetHSL(512 * 0.0005f, 0, 0);
 
             var displacement = attributes["displacement"] as Hashtable;
             var values = (float[])displacement["f"];
@@ -168,7 +169,7 @@
                 values[i] = (float)Math.Sin(0.1 * i + time);
 
                 noise[i] += 0.5f * (0.5f - (float)random.NextDouble());
-                noise[i] = Mat.Clamp(noise[i], -5, 5);
+                noise[i] = this.noise[i].Clamp(-5, 5);
 
                 values[i] += noise[i];
             }

@@ -45,7 +45,6 @@
             m1.LookAt(this.Position, vector, this.Up);
 
             this.Quaternion.SetFromRotationMatrix(m1);
-//            this.Rotation.SetFromQuaternion(this.Quaternion);
         }
 
         #endregion

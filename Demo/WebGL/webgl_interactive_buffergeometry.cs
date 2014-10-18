@@ -1,6 +1,5 @@
 ﻿namespace Demo.WebGL
 {
-    using System;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -16,7 +15,6 @@
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
     [Example("webgl_interactive_buffergeometry", ExampleCategory.OpenTK, "Interactive")]

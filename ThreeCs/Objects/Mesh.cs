@@ -37,6 +37,8 @@
         {
             this.Geometry = geometry;
             this.Material = material ?? new MeshBasicMaterial(null) { color = new Color().Random() };
+
+            UpdateMorphTargets();
         }
 
         /// <summary>

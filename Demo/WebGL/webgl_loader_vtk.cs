@@ -1,6 +1,5 @@
 ﻿namespace Demo.WebGL
 {
-    using System;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -11,7 +10,6 @@
     using ThreeCs.Loaders;
     using ThreeCs.Materials;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
     using ThreeCs.Lights;
     using ThreeCs.Math;

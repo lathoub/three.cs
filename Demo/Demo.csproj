@@ -54,7 +54,6 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="IExample.cs" />
     <Compile Include="Misc\misc_controls_deviceorientation.cs" />
     <Compile Include="Misc\misc_controls_transform.cs" />
     <Compile Include="Misc\misc_lookat.cs" />
@@ -75,6 +74,7 @@
     <Compile Include="WebGL\webgl_geometry_hierarchy.cs" />
     <Compile Include="WebGL\webgl_interactive_draggablecubes.cs" />
     <Compile Include="WebGL\webgl_materials_wireframe.cs" />
+    <Compile Include="WebGL\webgl_panorama_equirectangular.cs" />
     <Compile Include="WebGL\webgl_shader.cs" />
     <Compile Include="WebGL\webgl_shader2.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -137,6 +137,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\Textures\Sprites\disc.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\Textures\water.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

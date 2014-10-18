@@ -14,7 +14,7 @@ namespace Demo
 
     public partial class Form1 : Form
     {
-        private IExample example;
+        private Example example;
 
         private bool _exampleLoaded;
 
@@ -100,6 +100,40 @@ namespace Demo
             if (null != example)
                 example.MouseMove(control.ClientSize,   new Point(mouseX, mouseY));
         }
+
+        private void glControl_MouseDown(object sender, MouseEventArgs e)
+        {
+            var control = sender as Control;
+
+            mouseX = (e.X - windowHalfX);
+            mouseY = (e.Y - windowHalfY);
+
+            if (null != example)
+                example.MouseDown(control.ClientSize, new Point(mouseX, mouseY));
+        }
+
+        private void glControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            var control = sender as Control;
+
+            mouseX = (e.X - windowHalfX);
+            mouseY = (e.Y - windowHalfY);
+
+            if (null != example)
+                example.MouseUp(control.ClientSize, new Point(mouseX, mouseY));
+        }
+
+        private void glControl_MouseWheel(object sender, MouseEventArgs e)
+        {
+            var control = sender as Control;
+
+            mouseX = (e.X - windowHalfX);
+            mouseY = (e.Y - windowHalfY);
+
+            if (null != example)
+                example.MouseWheel(control.ClientSize, new Point(mouseX, mouseY), e.Delta);
+        }
+
 
         /// <summary>
         /// 
@@ -198,7 +232,7 @@ namespace Demo
 
             Application.Idle -= Application_Idle;
 
-            example = (IExample)Activator.CreateInstance(e.Example);
+            example = (Example)Activator.CreateInstance(e.Example);
             if (null != example)
             {
                 example.Load(parent);

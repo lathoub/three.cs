@@ -272,6 +272,7 @@ namespace ThreeCs.Math
             this.X = another.X;
             this.Y = another.Y;
             this.Z = another.Z;
+
             return this;
         }
 

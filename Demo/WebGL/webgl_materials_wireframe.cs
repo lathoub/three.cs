@@ -14,7 +14,6 @@
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
     [Example("webgl_materials_wireframe", ExampleCategory.OpenTK, "materials", 0.4f)]

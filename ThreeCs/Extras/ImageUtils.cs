@@ -16,6 +16,8 @@
         {
             var image = (Bitmap)Image.FromFile(url, true);
 
+            image.RotateFlip(RotateFlipType.Rotate180FlipX);
+
             return new Texture(image) { needsUpdate = true, sourceFile = url };
         }
     }

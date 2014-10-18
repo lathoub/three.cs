@@ -12,7 +12,6 @@
     using ThreeCs.Extras.Geometries;
     using ThreeCs.Materials;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
     [Example("webgl_geometry_hierarchy", ExampleCategory.OpenTK, "Geometry", 0.2f)]

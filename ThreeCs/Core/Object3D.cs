@@ -101,7 +101,7 @@
         /// </summary>
         public Object3D()
         {
-            this.Up = this.DefaultUp;
+            this.Up = (Vector3)this.DefaultUp.Clone();
 
             // When the Rotation Euler is changed, the Quaternion is changed automaticaly
             this.Rotation.PropertyChanged += (o, args) => this.preventCircularUpdate.Do(() => this.Quaternion.SetFromEuler(this.Rotation));
@@ -444,7 +444,7 @@
 
                 if (this.Parent == null)
                 {
-                    this.MatrixWorld = this.Matrix;
+                    this.MatrixWorld.Copy(this.Matrix);
                 }
                 else
                 {

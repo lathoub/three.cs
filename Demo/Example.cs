@@ -7,7 +7,7 @@
 
     using ThreeCs.Renderers;
 
-    abstract class Example : IExample
+    abstract class Example
     {
         protected OpenTKRenderer renderer;
 
@@ -43,7 +43,35 @@
         /// </summary>
         /// <param name="clientSize"></param>
         /// <param name="here"></param>
+        public virtual void MouseUp(Size clientSize, Point here)
+        {
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clientSize"></param>
+        /// <param name="here"></param>
+        /// <param name="delta"></param>
+        public virtual void MouseWheel(Size clientSize, Point here, int delta)
+        {
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clientSize"></param>
+        /// <param name="here"></param>
         public virtual void MouseMove(Size clientSize, Point here)
+        {
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clientSize"></param>
+        /// <param name="here"></param>
+        public virtual void MouseDown(Size clientSize, Point here)
         {
         }
 

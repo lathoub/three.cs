@@ -7,7 +7,7 @@
     [DebuggerDisplay("Center = ({Center.X}, {Center.Y}, {Center.Z}), Radius = {Radius}")]
     public class Sphere
     {
-        public Vector3 Center;
+        public Vector3 Center = new Vector3();
 
         public float Radius;
 
@@ -27,7 +27,7 @@
         /// <param name="radius"></param>
         public Sphere(Vector3 center, float radius)
         {
-            this.Center = center;
+            this.Center.Copy(center);
             this.Radius = radius;
         }
 
@@ -45,7 +45,7 @@
 
             if ( optionalCenter != null ) {
 
-                center = optionalCenter;
+                center.Copy(optionalCenter);
 
             } else {
 
@@ -62,22 +62,28 @@
 			this.Radius = (float)System.Math.Sqrt( maxRadiusSq );
 
  		}
-/*
-       public void copy ( sphere ) {
 
-		    this.center.copy( sphere.center );
-		    this.radius = sphere.radius;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sphere"></param>
+        /// <returns></returns>
+        public Sphere Copy(Sphere sphere)
+        {
+		    this.Center.Copy( sphere.Center );
+		    this.Radius = sphere.Radius;
 
 		    return this;
-
 	    }
 
-	    public void empty () {
-
-		    return ( this.radius <= 0 );
-
-	    }
-
+        /// <summary>
+        /// 
+        /// </summary>
+	    public bool IsEmpty ()
+        {
+            return (this.Radius <= 0);
+        }
+/*
 	    public void containsPoint ( point ) {
 
 		    return ( point.distanceToSquared( this.center ) <= ( this.radius * this.radius ) );

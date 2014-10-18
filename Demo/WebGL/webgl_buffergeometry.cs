@@ -16,7 +16,6 @@
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
     [Example("webgl_buffergeometry", ExampleCategory.OpenTK, "BufferGeometry")]

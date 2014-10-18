@@ -12,7 +12,6 @@
     using ThreeCs.Extras.Geometries;
     using ThreeCs.Materials;
     using ThreeCs.Objects;
-    using ThreeCs.Renderers;
     using ThreeCs.Scenes;
 
     [Example("webgl_geometry_cube", ExampleCategory.OpenTK, "Geometry")]

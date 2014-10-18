@@ -22,8 +22,8 @@
         /// <param name="max"></param>
         public Box3(Vector3 min, Vector3 max)
         {
-            this.Min = min;
-            this.Max = max;
+            this.Min.Copy(min);
+            this.Max.Copy(max);
         }
 
         /// <summary>
