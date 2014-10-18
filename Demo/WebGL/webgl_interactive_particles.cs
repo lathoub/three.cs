@@ -1,6 +1,7 @@
 ﻿namespace Demo.WebGL
 {
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -95,11 +96,17 @@
             scene = new Scene();
             scene.Fog = new Fog((Color)colorConvertor.ConvertFromString("#050505"), 2000, 3500);
 
-            attributes = new Hashtable { { "size",        new Hashtable() { { "f", null } } }, 
-                                         { "customColor", new Hashtable() { { "c", null } } } };
+            attributes = new Hashtable
+            { 
+                { "size",        new Hashtable() { {"type", "f"},  {"value", null}} },
+                { "customColor", new Hashtable() { {"type", "c"},  {"value", Color.White}} },
+            };
 
-            uniforms = new Uniforms { { "color", new KVP("c", Color.White) },
-                                      { "texture", new KVP("t", ImageUtils.LoadTexture(@"data\textures/sprites/disc.png")) } };
+            uniforms = new Uniforms 
+            { 
+                { "color",   new Uniform() { {"type", "c"},  {"value", Color.White}} },
+                { "texture", new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"data\textures/sprites/disc.png")}} } 
+            };
    
         	var shaderMaterial = new ShaderMaterial() {
                     uniforms = uniforms,

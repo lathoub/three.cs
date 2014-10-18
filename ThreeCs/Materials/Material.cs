@@ -2,10 +2,18 @@
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Reflection;
 
+    using ThreeCs.Renderers.Shaders;
     using ThreeCs.Renderers.WebGL;
+
+    public struct UniformLocation
+    {
+        public Uniform Uniform;
+        public int Location;
+    }
 
     public class Material : ICloneable
     {
@@ -55,7 +63,7 @@
         
         public bool needsUpdate = true;
 
-        public Hashtable uniformsList; 
+        public List<UniformLocation> uniformsList; 
 
         /// <summary>
         /// 

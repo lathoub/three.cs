@@ -1,6 +1,7 @@
 ﻿namespace Demo.WebGL
 {
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -29,9 +30,9 @@
 
         private BufferGeometry geometry;
 
-        private int particles = 100000;
+        private const int Particles = 100000;
 
-        private string VertexShader = @"			
+        private const string VertexShader = @"			
             attribute float size;
 			attribute vec3 customColor;
 
@@ -49,7 +50,7 @@
 
 			}";
 
-        private string FragmentShader = @"
+        private const string FragmentShader = @"
             uniform vec3 color;
 			uniform sampler2D texture;
 
@@ -62,7 +63,6 @@
 				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
 
 			}";
-
 
         /// <summary>
         /// 
@@ -77,17 +77,23 @@
 
             scene = new Scene();
 
-            var attributes = new Hashtable { { "size",        new Hashtable() { { "f", null } } }, 
-                                             { "customcolor", new Hashtable() { { "c", null } } } };
+            var attributes = new Hashtable 
+            {
+                { "size",        new Hashtable() { { "f", null } } }, 
+                { "customcolor", new Hashtable() { { "c", null } } } 
+            };
 
-            uniforms = new Uniforms { { "color", new KVP("c", Color.White) },
-                                      { "texture", new KVP("t", ImageUtils.LoadTexture(@"data\textures/sprites/spark1.png")) } };
+            uniforms = new Uniforms
+            {
+                { "color",   new Uniform() { {"type", "c"},  {"value", Color.White}} },
+                { "texture", new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"data\textures/sprites/spark1.png")}} },
+            };
 
 			var shaderMaterial = new ShaderMaterial() {
 				uniforms =       uniforms,
 				attributes =     attributes,
-				vertexShader =   this.VertexShader,
-				fragmentShader = this.FragmentShader,
+				vertexShader =   VertexShader,
+				fragmentShader = FragmentShader,
 
 				blending =       ThreeCs.Three.AdditiveBlending,
 				depthTest =      false,
@@ -98,13 +104,13 @@
 
 			geometry = new BufferGeometry();
 
-            var positions = new float[particles * 3];
-            var values_color = new float[particles * 3];
-            var values_size = new float[particles];
+            var positions = new float[Particles * 3];
+            var values_color = new float[Particles * 3];
+            var values_size = new float[Particles];
 
             var color = new Color();
 
-            for(var v = 0; v < particles; v++ ) 
+            for(var v = 0; v < Particles; v++ ) 
             {
 				values_size[ v ] = 20;
 
@@ -112,7 +118,7 @@
                 positions[v * 3 + 1] = (Mat.Random() * 2 - 1) * radius;
                 positions[v * 3 + 2] = (Mat.Random() * 2 - 1) * radius;
 
-                color = new HSLColor(v / (float)particles, 1.0f, 0.5f);
+                color = new HSLColor(v / (float)Particles, 1.0f, 0.5f);
 
                 color = Color.Tomato;
 
@@ -160,7 +166,7 @@
             var size = geometry.attributes["size"] as BufferAttribute<float>;
             Debug.Assert(null != size);
             
-            for (var i = 0; i < particles; i++)
+            for (var i = 0; i < Particles; i++)
                 size.Array[i] = 10 * (1 + (float)System.Math.Sin(0.1 * i + time));
 
             size.needsUpdate = true;

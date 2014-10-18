@@ -1,5 +1,6 @@
 ﻿namespace Demo
 {
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -81,10 +82,10 @@
             var geometry = new PlaneGeometry(2, 2);
 
             uniforms = new Uniforms
-                           {
-                               { "time", new KVP("f", 1.0f) },
-                               { "resolution", new KVP("v2", new Vector2()) }
-                           };
+            {
+                { "time",       new Uniform() { {"type", "f"},  {"value", 1.0f}} },
+                { "resolution", new Uniform() { {"type", "v2"}, {"value", new Vector2()}} }
+            };
 
             var material = new ShaderMaterial(null)
             {
@@ -114,7 +115,7 @@
                 perspectiveCamera.UpdateProjectionMatrix();
             }
 
-            uniforms["resolution"].Value = new Vector2(clientSize.Width, clientSize.Height);
+            uniforms["resolution"]["value"] = new Vector2(clientSize.Width, clientSize.Height);
 
             this.renderer.size = clientSize;
         }
@@ -124,8 +125,8 @@
         /// </summary>
         public override void Render()
         {
-            var ut = (float)uniforms["time"].Value;
-            uniforms["time"].Value = ut + 0.05f;
+            var ut = (float)uniforms["time"]["value"];
+            uniforms["time"]["value"] = ut + 0.05f;
 
             renderer.Render(scene, camera);
         }

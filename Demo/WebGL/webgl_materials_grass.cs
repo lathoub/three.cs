@@ -83,7 +83,7 @@ namespace Demo.Misc
 			var geometry = new PlaneGeometry( 100, 100 );
 
 			var texture = new Texture( generateTexture() );
-			texture.needsUpdate = true;
+			texture.NeedsUpdate = true;
 
 			for ( var i = 0; i < 15; i ++ ) {
 

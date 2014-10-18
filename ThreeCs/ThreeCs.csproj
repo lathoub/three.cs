@@ -128,6 +128,8 @@
     <Compile Include="Renderers\Renderables\RenderableObject.cs" />
     <Compile Include="Renderers\Renderables\RenderableSprite.cs" />
     <Compile Include="Renderers\Renderables\RenderableVertex.cs" />
+    <Compile Include="Renderers\Shaders\Attribute.cs" />
+    <Compile Include="Renderers\Shaders\Attributes.cs" />
     <Compile Include="Renderers\Shaders\Uniform.cs" />
     <Compile Include="Three.cs" />
     <Compile Include="Math\Euler.cs" />

@@ -6,6 +6,7 @@
 
     using ThreeCs.Materials;
     using ThreeCs.Math;
+    using ThreeCs.Renderers.Shaders;
 
     public struct Offset
     {

@@ -32,44 +32,44 @@
 
         public bool generateMipmaps = true;
 
-        public int id = TextureIdCount++;
+        public int Id = TextureIdCount++;
 
-        public string name;
+        public Guid Uuid = Guid.NewGuid();
 
-        public string sourceFile;
+        public string Name;
 
-        public bool needsUpdate = false;
+        public string SourceFile;
 
-        public Bitmap image;
+        public bool NeedsUpdate = false;
 
-        public Hashtable mipmaps;
+        public Bitmap Image;
 
-        //this.mapping = mapping !== undefined ? mapping : THREE.Texture.DEFAULT_MAPPING;
+        public Hashtable Mipmaps;
 
-        //this.wrapS = wrapS !== undefined ? wrapS : THREE.ClampToEdgeWrapping;
+        //this.mapping = mapping !== undefined ? mapping : Three.Texture.DEFAULT_MAPPING;
 
-        //this.wrapT = wrapT !== undefined ? wrapT : THREE.ClampToEdgeWrapping;
+        public int WrapS = Three.ClampToEdgeWrapping;
 
-        //this.magFilter = magFilter !== undefined ? magFilter : THREE.LinearFilter;
+        public int WrapT = Three.ClampToEdgeWrapping;
 
-        //this.minFilter = minFilter !== undefined ? minFilter : THREE.LinearMipMapLinearFilter;
+        public int MagFilter = Three.LinearFilter;
 
-        public PixelInternalFormat internalFormat = PixelInternalFormat.Rgba;//format !== undefined ? format : THREE.RGBAFormat;
+        public int MinFilter = Three.LinearMipMapLinearFilter;
 
-        public PixelFormat format = PixelFormat.Bgra;//format !== undefined ? format : THREE.RGBAFormat;
+        public PixelInternalFormat InternalFormat = PixelInternalFormat.Rgba;
 
-        public PixelType type = PixelType.UnsignedByte;
+        public PixelFormat Format = PixelFormat.Bgra;
+
+        public PixelType Type = PixelType.UnsignedByte;
         
-        public Vector2 offset = new Vector2(0, 0);
+        public Vector2 Offset = new Vector2(0, 0);
 
-        public bool premultiplyAlpha = false;
+        public bool PremultiplyAlpha = false;
 
-        public Vector2 repeat = new Vector2(1, 1);
+        public Vector2 Repeat = new Vector2(1, 1);
 
         // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
-        public int unpackAlignment = 4;
-
-        public Guid uuid = Guid.NewGuid();
+        public int UnpackAlignment = 4;
 
         #endregion
 
@@ -87,7 +87,7 @@
         /// </summary>
         public Texture(Bitmap image, object mapping = null , bool wrapS = false, bool wrapT = false/* magFilter, minFilter, format, type, int anisotropy */)
         {
-            this.image = image;
+            this.Image = image;
         }
 
         /// <summary>
@@ -114,7 +114,7 @@
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("id: {0}, filename: {1}, size = {2}", this.id, Path.GetFileNameWithoutExtension(this.sourceFile), this.image.Size);
+            return string.Format("id: {0}, filename: {1}, size = {2}", this.Id, Path.GetFileNameWithoutExtension(this.SourceFile), this.Image.Size);
         }
 
         #region Public Events

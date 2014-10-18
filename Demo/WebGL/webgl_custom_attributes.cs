@@ -19,6 +19,7 @@
     using ThreeCs.Objects;
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
+    using ThreeCs.Textures;
 
     [Example("webgl_custom_attributes", ExampleCategory.OpenTK, "custom", 0.7f)]
     class webgl_custom_attributes : Example
@@ -35,8 +36,10 @@
 
         private IList<float> noise;
 
-        private string vertex_shader = @"			
+        private const string VertexShader = @"	
+		
             uniform float amplitude;
+
 			attribute float displacement;
 
 			varying vec3 vNormal;
@@ -52,8 +55,8 @@
 
 			}";
 
-
-        private string fragment_shader = @"			
+        private const string FragmentShader = @"
+	
             varying vec3 vNormal;
 			varying vec2 vUv;
 
@@ -87,29 +90,34 @@
 
 			scene = new Scene();
 
-            attributes = new Hashtable { { "displacement", new Hashtable() { { "f", null } } } };
+            attributes = new Hashtable
+            {
+                { "displacement", new Hashtable() { { "type", "f" }, { "value", null } } }
+            };
 
             uniforms = new Uniforms
-                    {
-                        { "amplitude", new KVP("f", 1.0f) },
-                        { "color",     new KVP("c", (Color)colorConvertor.ConvertFromString("#ff2200")) },
-                        { "texture",   new KVP("t", ImageUtils.LoadTexture(@"data\textures/water.jpg")) },
-                    };
+            {
+                { "amplitude", new Uniform() { {"type", "f"},  {"value", 1.0f}} },
+                { "color",     new Uniform() { {"type", "c"},  {"value", (Color)colorConvertor.ConvertFromString("#ff2200")}} },
+                { "texture",   new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"data\textures/water.jpg")} }},
+            };
 
-//            uniforms.Texture.value.wrapS = uniforms.texture.value.wrapT = THREE.RepeatWrapping;
-            Uniforms.SetValue(uniforms, "t", null);
+            //((Texture)uniforms["texture"].Value).WrapS = ThreeCs.Three.RepeatWrapping;
+            //((Texture)uniforms["texture"].Value).WrapT = ThreeCs.Three.RepeatWrapping;
 
             var shaderMaterial = new ShaderMaterial
-                    {
-	                    uniforms = 		 uniforms,
-	                    attributes =     attributes,
-                        vertexShader =   vertex_shader,
-                        fragmentShader = fragment_shader,
-                    };
+            {
+	            uniforms = 		 uniforms,
+	            attributes =     attributes,
+                vertexShader =   VertexShader,
+                fragmentShader = FragmentShader,
+            };
 
-            var radius = 50.0f; var segments = 128; var rings = 64;
-            var geometry = new SphereGeometry(radius, segments, rings);
+            const float Radius = 50.0f; const int Segments = 128; const int Rings = 64;
+            var geometry = new SphereGeometry(Radius, Segments, Rings);
             geometry.Dynamic = true;
+
+            sphere = new Mesh(geometry, shaderMaterial);
 
             var vertices = geometry.Vertices;
             var values = new float[vertices.Count];
@@ -124,8 +132,6 @@
 
             ((Hashtable)attributes["displacement"])["f"] = values;
 
-
-            sphere = new Mesh(geometry, shaderMaterial);
 
             scene.Add(sphere);
 
@@ -158,8 +164,8 @@
 
             this.sphere.Rotation.Y = this.sphere.Rotation.Z = 0.01f * time;
 
-            uniforms["amplitude"].Value = 2.5f * Math.Sin(this.sphere.Rotation.Y * 0.125);
-            uniforms["color"].Value = ((Color)uniforms["color"].Value).OffsetHSL(512 * 0.0005f, 0, 0);
+            uniforms["amplitude"]["value"] = 2.5f * Math.Sin(this.sphere.Rotation.Y * 0.125);
+            uniforms["color"]["value"] = ((Color)uniforms["color"]["value"]).OffsetHSL(512 * 0.0005f, 0, 0);
 
             var displacement = attributes["displacement"] as Hashtable;
             var values = (float[])displacement["f"];

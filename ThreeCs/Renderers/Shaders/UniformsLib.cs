@@ -31,26 +31,26 @@ namespace ThreeCs.Renderers.Shaders
         private Uniforms MakeCommon()
         {
             return new Uniforms
-                             {
-                                 { "diffuse",               new KVP("c", Color.Chartreuse) },
-                                 { "opacity",               new KVP("f", 1.0f) },
+            {
+                { "diffuse",               new Uniform() { {"type", "c"}, {"value", Color.White}}},            
+                { "opacity",               new Uniform() { {"type", "f"}, {"value", 1.0f}}},
 
-                                 { "map",                   new KVP("t", null) },
-                                 { "offsetRepeat",          new KVP("v4", new Vector4(0, 0, 1, 1)) },
+                { "map",                   new Uniform() { {"type", "t"}, {"value", null}}},
+                { "offsetRepeat",          new Uniform() { {"type", "v4"}, {"value", new Vector4(0,0,1,1)}}},
 
-                                 { "lightmap",              new KVP("t", null) },
-                                 { "specularMap",           new KVP("t", null) },
-                                 { "alphaMap",              new KVP("t", null) },
+                { "lightmap",              new Uniform() { {"type", "t"}, {"value", null}}},
+                { "specularMap",           new Uniform() { {"type", "t"}, {"value", null}}},
+                { "alphaMap",              new Uniform() { {"type", "t"}, {"value", null}}},
 
-                                 { "envMap",                new KVP("t", null) },
-                                 { "flipEnvMap",            new KVP("f", -1) },
-                                 { "useRefract",            new KVP("i", 0) },
-                                 { "reflectivity",          new KVP("f", 1.0f) },
-                                 { "refractionRatio",       new KVP("f", 0.98f) },
-                                 { "combine",               new KVP("i", 0) },
+                { "envMap",                new Uniform() { {"type", "t"}, {"value", null}}},
+                { "flipEnvMap",            new Uniform() { {"type", "f"}, {"value", -1}}},
+                { "useRefract",            new Uniform() { {"type", "i"}, {"value", 0}}},
+                { "reflectivity",          new Uniform() { {"type", "f"}, {"value", 1.0f}}},
+                { "refractionRatio",       new Uniform() { {"type", "f"}, {"value", 0.98f}}},
+                { "combine",               new Uniform() { {"type", "i"}, {"value", 0}}},
 
-                                 { "morphTargetInfluences", new KVP("f", 0.0f) }
-                             };
+                { "morphTargetInfluences", new Uniform() { {"type", "f"}, {"value", 0.0f}}},
+            };
         }
 
         /// <summary>
@@ -60,10 +60,10 @@ namespace ThreeCs.Renderers.Shaders
         private Uniforms MakeBump()
         {
             return new Uniforms
-                            { 
-                                { "bumpMap",      new KVP("t", null) },
-                                { "bumpScale",    new KVP("f", 1.0f) }
-                            };
+            { 
+                { "bumpMap",      new Uniform() { {"type", "t"}, {"value", null}}},
+                { "bumpScale",    new Uniform() { {"type", "f"}, {"value", 1.0f}}},
+            };
         }
 
         /// <summary>
@@ -73,10 +73,10 @@ namespace ThreeCs.Renderers.Shaders
         private Uniforms MakeNormalMap()
         {
             return new Uniforms
-                                {
-                                    { "normalMap",      new KVP("t", null) },
-                                    { "normalScale",    new KVP("v2", new Vector2(1, 1)) }
-                                };
+            {
+                { "normalMap",    new Uniform() { {"type", "t"},  {"value", null}}},
+                { "normalScale",  new Uniform() { {"type", "v2"}, {"value", new Vector2(1, 1)}}},
+            };
         }
 
         /// <summary>
@@ -86,12 +86,12 @@ namespace ThreeCs.Renderers.Shaders
         private Uniforms MakeFog()
         {
             return new Uniforms
-                          {
-                              { "fogDensity",   new KVP("f", 0.00025f) },
-                              { "fogNear",      new KVP("f", 1) },
-                              { "fogFar",       new KVP("f", 2000) },
-                              { "fogColor",     new KVP("c", Color.White) }
-                          };
+            {
+                { "fogDensity",  new Uniform() { {"type", "f"},  {"value", 0.00025f}}},
+                { "fogNear",     new Uniform() { {"type", "f"},  {"value", 1}}},
+                { "fogFar",      new Uniform() { {"type", "f"},  {"value", 2000}}},
+                { "fogColor",    new Uniform() { {"type", "c"},  {"value", Color.White}}},
+            };
         }
 
         /// <summary>
@@ -101,27 +101,27 @@ namespace ThreeCs.Renderers.Shaders
         private Uniforms MakeLights()
         {
             return new Uniforms
-                             {
-                                 { "ambientLightColor",         new KVP("fv", new Hashtable()) },
+            {
+                { "ambientLightColor",          new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
 
-                                 { "directionalLightDirection", new KVP("fv", new Hashtable()) },
-                                 { "directionalLightColor",     new KVP("fv", new Hashtable()) },
+                { "directionalLightDirection",  new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "directionalLightColor",      new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+             
+                { "hemisphereLightDirection",   new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "hemisphereLightSkyColor",    new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "hemisphereLightGroundColor", new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
 
-                                 { "hemisphereLightDirection",  new KVP("fv", new Hashtable()) },
-                                 { "hemisphereLightSkyColor",   new KVP("fv", new Hashtable()) },
-                                 { "hemisphereLightGroundColor", new KVP("fv", new Hashtable()) },
-
-                                 { "pointLightColor",           new KVP("fv", new Hashtable()) },
-                                 { "pointLightPosition",        new KVP("fv", new Hashtable()) },
-                                 { "pointLightDistance",        new KVP("fv", new Hashtable()) },
-
-                                 { "spotLightColor",            new KVP("fv", new Hashtable()) },
-                                 { "spotLightPosition",         new KVP("fv", new Hashtable()) },
-                                 { "spotLightDirection",        new KVP("fv", new Hashtable()) },
-                                 { "spotLightDistance",         new KVP("fv1", new Hashtable()) },
-                                 { "spotLightAngleCos",         new KVP("fv1", new Hashtable()) },
-                                 { "spotLightExponent",         new KVP("fv1", new Hashtable()) }
-                             };
+                { "pointLightColor",            new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "pointLightPosition",         new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "pointLightDistance",         new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                
+                { "spotLightColor",             new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "spotLightPosition",          new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "spotLightDirection",         new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "spotLightDistance",          new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "spotLightAngleCos",          new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+                { "spotLightExponent",          new Uniform() { {"type", "fv"},  {"value", new Hashtable()}}},
+            };
         }
 
         /// <summary>
@@ -131,18 +131,18 @@ namespace ThreeCs.Renderers.Shaders
         private Uniforms MakeParticle()
         {
             return new Uniforms
-                               {
-                                   { "psColor", new KVP("c", Color.White) },
-                                   { "opacity", new KVP("f", 1.0) },
-                                   { "size", new KVP("f", 1.0) },
-                                   { "scale", new KVP("f", 1.0) },
-                                   { "map", new KVP("t", null) },
+            {
+                { "psColor",      new Uniform() { {"type", "c"},  {"value", Color.White}}},
+                { "opacity",      new Uniform() { {"type", "f"},  {"value", 1.0f}}},
+                { "size",         new Uniform() { {"type", "f"},  {"value", 1.0f}}},
+                { "scale",        new Uniform() { {"type", "f"},  {"value", 1.0f}}},
+                { "map",          new Uniform() { {"type", "t"},  {"value", null}}},
 
-                                   { "fogDensity", new KVP("f", 0.00025) },
-                                   { "fogNear", new KVP("f", 1) },
-                                   { "fogFar", new KVP("f", 2000) },
-                                   { "fogColor", new KVP("c", Color.White) }
-                               };
+                { "fogDensity",   new Uniform() { {"type", "f"},  {"value", 0.00025f}}},
+                { "fogNear",      new Uniform() { {"type", "f"},  {"value", 1.0f}}},
+                { "fogFar",       new Uniform() { {"type", "f"},  {"value", 2000.0f}}},
+                { "fogColor",     new Uniform() { {"type", "c"},  {"value", Color.White}}},
+            };
         }
 
         /// <summary>
@@ -152,15 +152,15 @@ namespace ThreeCs.Renderers.Shaders
         private Uniforms MakeShadowMap()
         {
             return new Uniforms
-                                {
-                                    { "shadowMap", new KVP("tv", new List<Texture>()) },
-                                    { "shadowMapSize", new KVP("v2v", new List<Size>()) },
+            {
+                { "shadowMap",       new Uniform() { {"type", "tv"},   {"value", new List<Texture>()}}},
+                { "shadowMapSize",   new Uniform() { {"type", "v2v"},  {"value", new List<Size>()}}},
 
-                                    { "shadowBias", new KVP("fv1", new List<float>()) },
-                                    { "shadowDarkness", new KVP("fv1", new List<float>()) },
+                { "shadowBias",      new Uniform() { {"type", "fv1"},  {"value", new List<float>()}}},
+                { "shadowDarkness",  new Uniform() { {"type", "fv1"},  {"value", new List<float>()}}},
 
-                                    { "shadowMatrix", new KVP("m4v", new List<Matrix4>()) }
-                                };
+                { "shadowMatrix",    new Uniform() { {"type", "m4v"},  {"value", new List<Matrix4>()}}},
+            };
         }
 
     }

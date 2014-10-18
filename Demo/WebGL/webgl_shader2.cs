@@ -18,6 +18,7 @@ namespace Demo.WebGL
     using ThreeCs.Objects;
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
+    using ThreeCs.Textures;
 
     [Example("webgl_shader2", ExampleCategory.OpenTK, "BufferGeometry")]
     class webgl_shader2 : Example
@@ -154,45 +155,48 @@ namespace Demo.WebGL
             var geometry = new BoxGeometry(0.75f, 0.75f, 0.75f);
 
             uniforms1 = new Uniforms
-                           {
-                               { "time", new KVP("f", 1.0f) },
-                               { "resolution", new KVP("v2", new Vector2()) }
-                           };
+            {
+                { "time",       new Uniform() { {"type", "f"},  {"value", 1.0f} }},
+                { "resolution", new Uniform() { {"type", "v2"}, {"value", new Vector2()} }}
+            };
 
             uniforms2 = new Uniforms
-                           {
-                               { "time", new KVP("f", 1.0f) },
-                               { "resolution", new KVP("v2", new Vector2()) },
-                               { "texture", new KVP("t", ImageUtils.LoadTexture(@"data\textures/disturb.jpg")) }
-                           };
-
-      //      uniforms2.texture.value.wrapS = uniforms2.texture.value.wrapT = THREE.RepeatWrapping;
-
-            var p = new List<KVP>
-                        {
-                            new KVP("fragment_shader1", this.uniforms1),
-                            new KVP("fragment_shader2", this.uniforms2),
-                            new KVP("fragment_shader3", this.uniforms1),
-                            new KVP("fragment_shader4", this.uniforms1)
-                        };
-
-            var fragment_shaders = new List<string> { FragmentShader1, FragmentShader2, FragmentShader3, FragmentShader4 };
-
-            for( var i = 0; i < p.Count; i++ ) 
             {
-				var material = new ShaderMaterial()
+                { "time",       new Uniform() { {"type", "f"},  {"value", 1.0f}} },
+                { "resolution", new Uniform() { {"type", "v2"},  {"value", new Vector2()}} },
+                { "texture",    new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"data\textures/disturb.jpg")} }},
+            };
+
+            var texture = uniforms2["texture"]["value"] as Texture;
+            texture.WrapS = texture.WrapT = ThreeCs.Three.RepeatWrapping;
+
+            var p = new Dictionary<string, Uniforms>
+            {
+                 { "fragment_shader1", this.uniforms1},
+                 { "fragment_shader2", this.uniforms2},
+                 { "fragment_shader3", this.uniforms1},
+                 { "fragment_shader4", this.uniforms1},
+            };
+
+            var fragmentShaders = new List<string> { FragmentShader1, FragmentShader2, FragmentShader3, FragmentShader4 };
+
+            int i = 0;
+            foreach (var uniforms in p)
+            {
+                var material = new ShaderMaterial()
                     {
-					    uniforms = p[i].Value as Uniforms,
-					    vertexShader = VertexShader,
-                        fragmentShader = fragment_shaders[i],
-					};
+                        uniforms = uniforms.Value,
+                        vertexShader = VertexShader,
+                        fragmentShader = fragmentShaders[i],
+                    };
 
-				var mesh = new Mesh( geometry, material );
-				mesh.Position.X = i - ( p.Count - 1 ) / 2;
-				mesh.Position.Y = i % 2 - 0.5f;
+                var mesh = new Mesh(geometry, material);
+                mesh.Position.X = i - (p.Count - 1) / 2;
+                mesh.Position.Y = i % 2 - 0.5f;
 
-				scene.Add(mesh);
-			}
+                scene.Add(mesh);
+                i++;
+            }
         }
 
         /// <summary>
@@ -204,8 +208,8 @@ namespace Demo.WebGL
             Debug.Assert(null != this.camera);
             Debug.Assert(null != this.renderer);
 
-            uniforms1["resolution"].Value = new Vector2(clientSize.Width, clientSize.Height);
-            uniforms2["resolution"].Value = new Vector2(clientSize.Width, clientSize.Height);
+            uniforms1["resolution"]["value"] = new Vector2(clientSize.Width, clientSize.Height);
+            uniforms2["resolution"]["value"] = new Vector2(clientSize.Width, clientSize.Height);
 
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
@@ -224,9 +228,9 @@ namespace Demo.WebGL
 
             var delta = 0.018f;
 
-            var ut1 = (float)uniforms1["time"].Value;
-            uniforms1["time"].Value = ut1 + (delta * 5);
-            uniforms2["time"].Value = elapsedTime;
+            var ut1 = (float)uniforms1["time"]["value"];
+            uniforms1["time"]["value"] = ut1 + (delta * 5);
+            uniforms2["time"]["value"] = elapsedTime;
 
 			for ( var i = 0; i < scene.Children.Count; i ++ )
             {

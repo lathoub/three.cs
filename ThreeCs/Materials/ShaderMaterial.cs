@@ -23,9 +23,9 @@
 
         public string fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
 
-        public int shading = Three.SmoothShading;
+        public int Shading = Three.SmoothShading;
 
-        public float linewidth = 1;
+        public float Linewidth = 1;
 
         // IWireFrameable
 
@@ -35,11 +35,11 @@
 
         //
 
-        public bool fog = false; // set to use scene fog
+        public bool Fog = false; // set to use scene fog
 
-        public bool lights = false; // set to use scene lights
+        public bool Lights = false; // set to use scene lights
 
-        public Color[] vertexColors; // set to use "color" attribute stream
+        public Color[] VertexColors; // set to use "color" attribute stream
 
         public bool skinning = false; // set to use skinning attribute streams
 

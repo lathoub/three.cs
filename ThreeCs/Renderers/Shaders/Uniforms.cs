@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class Uniforms : Dictionary<string, KVP>
+    public class Uniforms : Dictionary<string, Uniform>
     {
         /// <summary>
         /// 
@@ -12,10 +12,10 @@
         /// <param name="value"></param>
         public static void SetValue(Uniforms uniforms, string key, object value)
         {
-            KVP kvp = null;
-            if (uniforms.TryGetValue(key, out kvp))
+            Uniform entry = null;
+            if (uniforms.TryGetValue(key, out entry))
             {
-                kvp.Value = value;
+                entry["value"] = value;
             }
         }
 

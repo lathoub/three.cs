@@ -180,10 +180,9 @@
                                     this.UniformsLib["lights"],
                                     this.UniformsLib["shadowmap"],
 
-                                    new Uniforms { { "ambient", new KVP("c", Color.White) } },
-                                    new Uniforms { { "emissive", new KVP("c", Color.Black) } },
-                                    new Uniforms { { "wrapRGB", new KVP("v3", new Vector3( 1, 1, 1 )) } },
-                                    });
+                                    new Uniforms { { "ambient",  new Uniform() { {"type", "c"},  {"value", Color.White} } }},
+                                    new Uniforms { { "emissive", new Uniform() { {"type", "c"},  {"value", Color.Black} } }},
+                                    new Uniforms { { "wrapRGB",  new Uniform() { {"type", "v3"}, {"value", new Vector3(1,1,1)} }}}});
             #endregion
 
             #region construct vertexShader source
@@ -260,7 +259,7 @@
 
             fs.Add("void main() {");
 
-                fs.Add("	gl_FragColor = vec4( vec3( 1.0 ), opacity );");
+                fs.Add("	gl_FragColor = vec4( vec3( 1.0 }, opacity );");
 
                 fs.Add(this.getChunk("logdepthbuf_fragment"));
 			    fs.Add(this.getChunk("map_fragment"));
@@ -310,7 +309,7 @@
 
             #region construct uniform variables
 
-            var tt = new Uniforms { { "ambient", new KVP("c", Color.White) } };
+            var tt = new Uniforms { { "ambient", new Uniform() { {"type", "c"}, {"value", Color.White } }} };
 
             shader.Uniforms =
                 UniformsUtils.Merge(new List<Uniforms>
@@ -322,13 +321,12 @@
                                       this.UniformsLib["lights"],
                                       this.UniformsLib["shadowmap"],
 
-                                      new Uniforms { { "ambient", new KVP("c", Color.White) } },
-                                      new Uniforms { { "emissive", new KVP("c", Color.Black) } },
-                                      new Uniforms { { "specular", new KVP("c", Color.DimGray) } },
-                                      new Uniforms { { "shininess", new KVP("f", 30.0f) } },
-                                      new Uniforms { { "wrapRGB", new KVP("v3", new Vector3(1,1,1)) } },
+                                      new Uniforms { { "ambient",   new Uniform() { {"type", "c"},  {"value", Color.White} } }},
+                                      new Uniforms { { "emissive",  new Uniform() { {"type", "c"},  {"value", Color.Black} } }},
+                                      new Uniforms { { "specular",  new Uniform() { {"type", "c"},  {"value", Color.DimGray} } }},
+                                      new Uniforms { { "shininess", new Uniform() { {"type", "f"},  {"value", 30.0f} }} },
+                                      new Uniforms { { "wrapRGB",   new Uniform() { {"type", "v3"}, {"value", new Vector3(1,1,1)} }}}});
 
-                                  });
             #endregion
 
             #region construct vertexShader source
@@ -624,7 +622,7 @@
             shader.Uniforms =
                 UniformsUtils.Merge(new List<Uniforms>
                                   {
-                                      new Uniforms { { "opacity", new KVP("f", 1.0f) } }
+                                      new Uniforms { { "opacity", new Uniform() { {"type", "f"},  {"value", 1.0f} } }},
                                   });
             #endregion
 

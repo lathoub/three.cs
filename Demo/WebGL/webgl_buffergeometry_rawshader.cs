@@ -1,5 +1,6 @@
 ﻿namespace Demo
 {
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -108,7 +109,7 @@
 
             var material = new RawShaderMaterial()
             {
-                uniforms = new Uniforms { { "time", new KVP("f", 1.0f) } },
+                uniforms = new Uniforms { { "time", new Uniform() { {"type", "f"}, {"value", 1.0f} } } },
                 vertexShader = VertexShader,
                 fragmentShader = FragmentShader,
                 side = Three.DoubleSide,
@@ -147,7 +148,7 @@
 
             object3D.Rotation.Y = time * 0.0005f;
 
-            ((ShaderMaterial)object3D.Material).uniforms["time"].Value = time * 0.005;
+            ((ShaderMaterial)object3D.Material).uniforms["time"]["value"] = time * 0.005;
 
             renderer.Render(scene, camera);
         }

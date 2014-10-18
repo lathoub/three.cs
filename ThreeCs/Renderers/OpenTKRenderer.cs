@@ -828,7 +828,8 @@
         {
             if (null == material) return false;
 
-            foreach ( DictionaryEntry entry in material.attributes ) {
+            foreach (DictionaryEntry entry in material.attributes)
+            {
 
                 var attribute = material.attributes[entry.Key] as Hashtable;
                 Debug.Assert(null != attribute, "Failed to cast material.attributes[{0}] to Hashtable", (string)entry.Key);
@@ -1119,7 +1120,7 @@
         /// <param name="geometry"></param>
         private static void InitDirectBuffers(BufferGeometry geometry)
         {
-            foreach ( DictionaryEntry entry in geometry.attributes ) 
+            foreach (DictionaryEntry entry in geometry.attributes) 
             {
                 var bufferType = (entry.Key.Equals("index")) ? BufferTarget.ElementArrayBuffer : BufferTarget.ArrayBuffer;
 
@@ -2176,6 +2177,13 @@
                     return true;
             }
 
+            var shaderMaterial = material as ShaderMaterial;
+            if (null != shaderMaterial)
+            {
+                if (shaderMaterial.Shading == Three.SmoothShading)
+                    return true;
+            }
+
             // TODO: do also for other material that carries shading
 
             return false;
@@ -2225,8 +2233,8 @@
             {
                 var m = material as MeshBasicMaterial;
                 if (null != m.map
-                || null != m.specularMap
-                || null != m.alphaMap) return true;
+                ||  null != m.specularMap
+                ||  null != m.alphaMap) return true;
             }
 
             if (material is MeshLambertMaterial)
@@ -2501,7 +2509,7 @@
         /// <param name="hint"></param>
         private static void SetDirectBuffers(BufferGeometry geometry, BufferUsageHint hint)
         {
-		    foreach (DictionaryEntry attribute in geometry.attributes )
+            foreach (DictionaryEntry attribute in geometry.attributes)
 		    {
 		        var attributeItem = attribute.Value as IBufferAttribute;
                 Debug.Assert(null != attributeItem, "casting to IBufferAttribute failed");
@@ -2684,8 +2692,8 @@
             if (null != shaderMaterial)
             {
                 parameters.Add("alphaTest", shaderMaterial.alphaTest);
-                parameters.Add("useFog", shaderMaterial.fog);
-                parameters.Add("vertexColors", shaderMaterial.vertexColors);
+                parameters.Add("useFog", shaderMaterial.Fog);
+                parameters.Add("vertexColors", shaderMaterial.VertexColors);
                 parameters.Add("skinning", shaderMaterial.skinning);
 
                 parameters.Add("morphTargets", shaderMaterial.morphTargets);
@@ -2846,14 +2854,15 @@
             //    }
             //}
 
-            material.uniformsList = new Hashtable();
+            material.uniformsList = new List<UniformLocation>();
 
             foreach (var u in material.__webglShader.Uniforms)
             {
                 var location = material.program.UniformsLocation[u.Key];
                 if (location != null)
                 {
-                    material.uniformsList.Add(material.__webglShader.Uniforms[u.Key], (int)location);
+                    var uniform = material.__webglShader.Uniforms[u.Key];
+                    material.uniformsList.Add(new UniformLocation() { Uniform = uniform, Location = (int)location });
                 }
             }
         }
@@ -2953,7 +2962,7 @@
 				    geometryGroup.__webglCustomAttributesList = new List<Hashtable>();
 			    }
 
-			    foreach ( DictionaryEntry a in attributesMaterial.attributes)
+                foreach (DictionaryEntry a in attributesMaterial.attributes)
 			    {
 			        var originalAttribute = a.Value as Hashtable;
 
@@ -3006,28 +3015,27 @@
         /// <summary>
         /// </summary>
         /// <param name="uniforms"></param>
-        private void LoadUniformsGeneric(Hashtable uniforms)
+        private void LoadUniformsGeneric(IEnumerable<UniformLocation> uniforms)
         {
-            var type = string.Empty;
-            object value = null;
-            var location = 0;
+            //         Console.WriteLine("------");
 
-   //         Console.WriteLine("------");
-
-            foreach (DictionaryEntry entry in uniforms)
+            foreach (var uniformLocation in uniforms)
             {
+                int location = -1;
+                string type = string.Empty;
+
                 try
                 {
-                    var uniform = entry.Key as KVP;
+                    var uniform = uniformLocation.Uniform;
                     Debug.Assert(null != uniform, "key is null or could not cast to KVP");
 
                     // needsUpdate property is not added to all uniformsLocation.
            //         if (uniform.needsUpdate == false)
            //             continue;
 
-                    type = uniform.Key;
-                    value = uniform.Value;
-                    location = (Int32)entry.Value;
+                    type = (string)uniform["type"];
+                    object value = uniform["value"];
+                    location = uniformLocation.Location;
 
             //        Console.WriteLine("loadUniformsGeneric: {0} {1} {2}", location, type, value);
 
@@ -3494,10 +3502,10 @@
 */
             if (uvScaleMap != null)
             {
-                var offset = uvScaleMap.offset;
-                var repeat = uvScaleMap.repeat;
+                var offset = uvScaleMap.Offset;
+                var repeat = uvScaleMap.Repeat;
 
-                uniforms["offsetRepeat"].Value = new Vector4(offset.X, offset.Y, repeat.X, repeat.Y);
+                uniforms["offsetRepeat"]["value"] = new Vector4(offset.X, offset.Y, repeat.X, repeat.Y);
             }
 
 
@@ -4139,9 +4147,335 @@
                 Debug.WriteLine("BufferData for __webglLineBuffer float {0}", geometryGroup.__webglLineBuffer);
             }
 
-            //if (customAttributes)
-            //{
-            //}
+            if (null != customAttributes && customAttributes.Count > 0)
+            {
+                for (var i = 0; i < customAttributes.Count; i++)
+                {
+                    var customAttribute = customAttributes[i] as Hashtable;
+
+                    if (! (bool)((Hashtable)customAttribute["__original"])["needsUpdate"]) continue;
+
+                    offset_custom = 0;
+                    offset_customSrc = 0; // not used
+
+                    var size = ((int)customAttribute["size"]);
+
+                    if (size == 1)
+                    {
+
+                        if (customAttribute["boundTo"] == null || (string)customAttribute["boundTo"] == "vertices")
+                        {
+                            var array  = (float[])customAttribute["array"];
+                            var values = (float[])customAttribute["f"];
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+                                var face = obj_faces[chunk_faces3[f]];
+
+                                array[offset_custom + 0] = values[face.a];
+                                array[offset_custom + 1] = values[face.b];
+                                array[offset_custom + 2] = values[face.c];
+
+                                offset_custom += 3;
+
+                            }
+
+                        }
+                        else if (customAttribute["boundTo"] == "faces")
+                        {
+                            throw new NotImplementedException();
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+
+                                //var value = customAttribute.value[chunk_faces3[f]];
+
+                                //customAttribute["array"][offset_custom] = value;
+                                //customAttribute["array"][offset_custom + 1] = value;
+                                //customAttribute["array"][offset_custom + 2] = value;
+
+                                offset_custom += 3;
+
+                            }
+
+                        }
+
+                    }
+                    else if (size == 2)
+                    {
+
+                        if (customAttribute["boundTo"] == null || (string)customAttribute["boundTo"] == "vertices")
+                        {
+                            throw new NotImplementedException();
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+                                var face = obj_faces[chunk_faces3[f]];
+
+                                //var v1 = customAttribute.value[face.a];
+                                //var v2 = customAttribute.value[face.b];
+                                //var v3 = customAttribute.value[face.c];
+
+                                //customAttribute["array"][offset_custom] = v1.X;
+                                //customAttribute["array"][offset_custom + 1] = v1.Y;
+
+                                //customAttribute["array"][offset_custom + 2] = v2.X;
+                                //customAttribute["array"][offset_custom + 3] = v2.Y;
+
+                                //customAttribute["array"][offset_custom + 4] = v3.X;
+                                //customAttribute["array"][offset_custom + 5] = v3.Y;
+
+                                offset_custom += 6;
+
+                            }
+
+                        }
+                        else if ((string)customAttribute["boundTo"] == "faces")
+                        {
+                            throw new NotImplementedException();
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+
+                                //var value = customAttribute.value[chunk_faces3[f]];
+
+                                //var v1 = value;
+                                //var v2 = value;
+                                //var v3 = value;
+
+                                //customAttribute["array"][offset_custom] = v1.X;
+                                //customAttribute["array"][offset_custom + 1] = v1.Y;
+
+                                //customAttribute["array"][offset_custom + 2] = v2.X;
+                                //customAttribute["array"][offset_custom + 3] = v2.Y;
+
+                                //customAttribute["array"][offset_custom + 4] = v3.X;
+                                //customAttribute["array"][offset_custom + 5] = v3.Y;
+
+                                offset_custom += 6;
+
+                            }
+
+                        }
+
+                    }
+                    else if (size == 3)
+                    {
+                        List<string> pp = null;
+
+                        if ((string)customAttribute["type"] == "c")
+                        {
+
+                            pp = new List<string>()   { "r", "g", "b" };
+
+                        }
+                        else
+                        {
+
+                            pp = new List<string>() { "x", "y", "z" };
+
+                        }
+
+                        if (customAttribute["boundTo"] == null || (string)customAttribute["boundTo"] == "vertices")
+                        {
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+                                var array = (float[])customAttribute["array"];
+
+                                var face = obj_faces[chunk_faces3[f]];
+
+                                var v1 = ((float[])customAttribute["value"])[face.a];
+                                var v2 = ((float[])customAttribute["value"])[face.b];
+                                var v3 = ((float[])customAttribute["value"])[face.c];
+
+                                //array[offset_custom + 0] = v1[pp[0]];
+                                //array[offset_custom + 1] = v1[pp[1]];
+                                //array[offset_custom + 2] = v1[pp[2]];
+
+                                //array[offset_custom + 3] = v2[pp[0]];
+                                //array[offset_custom + 4] = v2[pp[1]];
+                                //array[offset_custom + 5] = v2[pp[2]];
+
+                                //array[offset_custom + 6] = v3[pp[0]];
+                                //array[offset_custom + 7] = v3[pp[1]];
+                                //array[offset_custom + 8] = v3[pp[2]];
+
+                                offset_custom += 9;
+
+                            }
+
+                        }
+                        else if ((string)customAttribute["boundTo"] == "faces")
+                        {
+                            throw new NotImplementedException();
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+                                var array = (float[])customAttribute["array"];
+
+                                //var value = customAttribute.value[chunk_faces3[f]];
+
+                                //var v1 = value;
+                                //var v2 = value;
+                                //var v3 = value;
+
+                                //array[offset_custom] = v1[pp[0]];
+                                //array[offset_custom + 1] = v1[pp[1]];
+                                //array[offset_custom + 2] = v1[pp[2]];
+                                
+                                //array[offset_custom + 3] = v2[pp[0]];
+                                //array[offset_custom + 4] = v2[pp[1]];
+                                //array[offset_custom + 5] = v2[pp[2]];
+                                
+                                //array[offset_custom + 6] = v3[pp[0]];
+                                //array[offset_custom + 7] = v3[pp[1]];
+                                //array[offset_custom + 8] = v3[pp[2]];
+
+                                offset_custom += 9;
+
+                            }
+
+                        }
+                        else if ((string)customAttribute["boundTo"] == "faceVertices")
+                        {
+                            var array  = (float[])customAttribute["array"];
+                            var values = (List<List<Vector3>>)customAttribute["value"];
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+                                var value = values[chunk_faces3[f]];
+
+                                var v1 = value[0];
+                                var v2 = value[1];
+                                var v3 = value[2];
+
+                                array[offset_custom + 0] = v1.X;
+                                array[offset_custom + 1] = v1.Y;
+                                array[offset_custom + 2] = v1.Z;
+
+                                array[offset_custom + 3] = v2.X;
+                                array[offset_custom + 4] = v2.Y;
+                                array[offset_custom + 5] = v2.Z;
+
+                                array[offset_custom + 6] = v3.X;
+                                array[offset_custom + 7] = v3.Y;
+                                array[offset_custom + 8] = v3.Z;
+
+                                offset_custom += 9;
+
+                            }
+
+                        }
+
+                    }
+                    else if (size == 4)
+                    {
+                        throw new NotImplementedException();
+
+                        if (customAttribute["boundTo"] == null || (string)customAttribute["boundTo"] == "vertices")
+                        {
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+
+                                var face = obj_faces[chunk_faces3[f]];
+
+                                //var v1 = customAttribute.value[face.a];
+                                //var v2 = customAttribute.value[face.b];
+                                //var v3 = customAttribute.value[face.c];
+
+                                //customAttribute["array"][offset_custom] = v1.X;
+                                //customAttribute["array"][offset_custom + 1] = v1.Y;
+                                //customAttribute["array"][offset_custom + 2] = v1.Z;
+                                //customAttribute["array"][offset_custom + 3] = v1.W;
+
+                                //customAttribute["array"][offset_custom + 4] = v2.X;
+                                //customAttribute["array"][offset_custom + 5] = v2.Y;
+                                //customAttribute["array"][offset_custom + 6] = v2.Z;
+                                //customAttribute["array"][offset_custom + 7] = v2.W;
+
+                                //customAttribute["array"][offset_custom + 8] = v3.X;
+                                //customAttribute["array"][offset_custom + 9] = v3.Y;
+                                //customAttribute["array"][offset_custom + 10] = v3.Z;
+                                //customAttribute["array"][offset_custom + 11] = v3.W;
+
+                                offset_custom += 12;
+
+                            }
+
+                        }
+                        else if ((string)customAttribute["boundTo"] == "faces")
+                        {
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+
+                                //var value = customAttribute.value[chunk_faces3[f]];
+
+                                //var v1 = value;
+                                //var v2 = value;
+                                //var v3 = value;
+
+                                //customAttribute["array"][offset_custom] = v1.X;
+                                //customAttribute["array"][offset_custom + 1] = v1.Y;
+                                //customAttribute["array"][offset_custom + 2] = v1.Z;
+                                //customAttribute["array"][offset_custom + 3] = v1.W;
+
+                                //customAttribute["array"][offset_custom + 4] = v2.X;
+                                //customAttribute["array"][offset_custom + 5] = v2.Y;
+                                //customAttribute["array"][offset_custom + 6] = v2.Z;
+                                //customAttribute["array"][offset_custom + 7] = v2.W;
+
+                                //customAttribute["array"][offset_custom + 8] = v3.X;
+                                //customAttribute["array"][offset_custom + 9] = v3.Y;
+                                //customAttribute["array"][offset_custom + 10] = v3.Z;
+                                //customAttribute["array"][offset_custom + 11] = v3.W;
+
+                                offset_custom += 12;
+
+                            }
+
+                        }
+                        else if ((string)customAttribute["boundTo"] == "faceVertices")
+                        {
+
+                            for (var f = 0; f < chunk_faces3.Count; f++)
+                            {
+
+                                //var value = customAttribute.value[chunk_faces3[f]];
+
+                                //var v1 = value[0];
+                                //var v2 = value[1];
+                                //var v3 = value[2];
+
+                                //customAttribute["array"][offset_custom] = v1.X;
+                                //customAttribute["array"][offset_custom + 1] = v1.Y;
+                                //customAttribute["array"][offset_custom + 2] = v1.Z;
+                                //customAttribute["array"][offset_custom + 3] = v1.W;
+
+                                //customAttribute["array"][offset_custom + 4] = v2.X;
+                                //customAttribute["array"][offset_custom + 5] = v2.Y;
+                                //customAttribute["array"][offset_custom + 6] = v2.Z;
+                                //customAttribute["array"][offset_custom + 7] = v2.W;
+
+                                //customAttribute["array"][offset_custom + 8] = v3.X;
+                                //customAttribute["array"][offset_custom + 9] = v3.Y;
+                                //customAttribute["array"][offset_custom + 10] = v3.Z;
+                                //customAttribute["array"][offset_custom + 11] = v3.W;
+
+                                offset_custom += 12;
+
+                            }
+
+                        }
+
+                    }
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, (int)((Hashtable)customAttribute["buffer"])["id"]);
+                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(((float[])customAttribute["array"]).Length * sizeof(float)), (float[])customAttribute["array"], hint);
+                }
+            }
 
             if (dispose)
             {
@@ -4245,18 +4579,21 @@
         private void RefreshUniformsFog ( Uniforms uniforms, Fog fog ) 
         {
 
-		    uniforms["fogColor"].Value = fog.color;
+            uniforms["fogColor"]["value"] = fog.color;
 
-		    if ( fog is Fog ) {
+            if (fog is Fog)
+            {
 
-                uniforms["fogNear"].Value = fog.near;
-                uniforms["fogFar"].Value = fog.far;
+                uniforms["fogNear"]["value"] = fog.near;
+                uniforms["fogFar"]["value"] = fog.far;
 
-		    } else if ( fog is FogExp2 ) {
+            }
+            else if (fog is FogExp2)
+            {
 
-             //   uniforms["fogDensity"].Value = fog.density;
+                //   uniforms["fogDensity"]["value"] = fog.density;
 
-		    }
+            }
 
 	    }
 
@@ -4267,21 +4604,25 @@
         /// <param name="material"></param>
         private void RefreshUniformsPhong ( Uniforms uniforms, MeshPhongMaterial material ) 
         {
-		    uniforms["shininess"].Value = material.shininess;
+            uniforms["shininess"]["value"] = material.shininess;
 
-		    if ( this.gammaInput ) {
-                uniforms["ambient"].Value  = this.copyGammaToLinear(material.ambient);
-                uniforms["emissive"].Value = this.copyGammaToLinear(material.emissive);
-                uniforms["specular"].Value = this.copyGammaToLinear(material.specular);
-		    } else {
-			    uniforms["ambient"].Value = material.ambient;
-			    uniforms["emissive"].Value = material.emissive;
-			    uniforms["specular"].Value = material.specular;
-		    }
+            if (this.gammaInput)
+            {
+                uniforms["ambient"]["value"] = this.copyGammaToLinear(material.ambient);
+                uniforms["emissive"]["value"] = this.copyGammaToLinear(material.emissive);
+                uniforms["specular"]["value"] = this.copyGammaToLinear(material.specular);
+            }
+            else
+            {
+                uniforms["ambient"]["value"] = material.ambient;
+                uniforms["emissive"]["value"] = material.emissive;
+                uniforms["specular"]["value"] = material.specular;
+            }
 
-		    if ( material.WrapAround ) {
-			    uniforms["wrapRGB"].Value = material.wrapRGB;
-		    }
+            if (material.WrapAround)
+            {
+                uniforms["wrapRGB"]["value"] = material.wrapRGB;
+            }
 	    }
 
         /// <summary>
@@ -4529,29 +4870,31 @@
         {
             var lineBasicMaterial = material as LineBasicMaterial;
             if (null != lineBasicMaterial)
-                uniforms["diffuse"].Value = lineBasicMaterial.Color;
+            {
+                uniforms["diffuse"]["value"] = lineBasicMaterial.Color;
+            }
             else
             {
                 Debug.Assert(1 == 0, "Other material than LineBasicMaterial???");
             }
-/*
+            /*
             var meshBasicMaterial = material as MeshBasicMaterial;
             if (null != meshBasicMaterial)
-                uniforms["diffuse"].Value = meshBasicMaterial.color;
+                uniforms["diffuse"]["value"] = meshBasicMaterial.color;
 
             var meshLambertMaterial = material as MeshLambertMaterial;
             if (null != meshLambertMaterial)
-                uniforms["diffuse"].Value = meshLambertMaterial.color;
+                uniforms["diffuse"]["value"] = meshLambertMaterial.color;
 
             var meshPhongMaterial = material as MeshPhongMaterial;
             if (null != meshPhongMaterial)
-                uniforms["diffuse"].Value = meshPhongMaterial.color;
+                uniforms["diffuse"]["value"] = meshPhongMaterial.color;
 
             var pointCloudMaterial = material as PointCloudMaterial;
             if (null != pointCloudMaterial)
-                uniforms["diffuse"].Value = pointCloudMaterial.color;
+                uniforms["diffuse"]["value"] = pointCloudMaterial.color;
      */
-            uniforms["opacity"].Value = material.opacity;
+            //           uniforms["opacity"]["value"] = material.opacity;
         }
 
         /// <summary>
@@ -4562,9 +4905,9 @@
         private void RefreshUniformsDash(Uniforms uniforms, Material material)
         {
             throw new NotImplementedException();
-            //uniforms["dashSize"].Value = material.dashSize;
-            //uniforms["totalSize"].Value = material.dashSize + material.gapSize;
-            //uniforms["scale"].Value = material.scale;
+            //uniforms["dashSize"]["value"] = material.dashSize;
+            //uniforms["totalSize"]["value"] = material.dashSize + material.gapSize;
+            //uniforms["scale"]["value"] = material.scale;
         }
 
         /// <summary>
@@ -4578,12 +4921,12 @@
             {
                 var m = material as PointCloudMaterial;
 
-                uniforms["psColor"].Value = m.color;
-                uniforms["opacity"].Value = m.opacity;
-                uniforms["size"].Value = m.size;
-                uniforms["scale"].Value = this._currentHeight / 2.0f; // TODO: Cache this.
+                uniforms["psColor"]["value"] = m.color;
+                uniforms["opacity"]["value"] = m.opacity;
+                uniforms["size"]["value"] = m.size;
+                uniforms["scale"]["value"] = this._currentHeight / 2.0f; // TODO: Cache this.
 
-                uniforms["map"].Value = m.map;
+                uniforms["map"]["value"] = m.map;
 
                 return;
             }
@@ -4600,18 +4943,18 @@
         {
             if (this.gammaInput)
             {
-                uniforms["ambient"].Value = this.copyGammaToLinear(material.ambient);
-                uniforms["emissive"].Value = this.copyGammaToLinear(material.emissive);
+                uniforms["ambient"]["value"] = this.copyGammaToLinear(material.ambient);
+                uniforms["emissive"]["value"] = this.copyGammaToLinear(material.emissive);
             }
             else
             {
-                uniforms["ambient"].Value = material.ambient;
-                uniforms["emissive"].Value = material.emissive;
+                uniforms["ambient"]["value"] = material.ambient;
+                uniforms["emissive"]["value"] = material.emissive;
             }
 
             if (material.WrapAround)
             {
-                uniforms["wrapRGB"].Value = material.wrapRGB;
+                uniforms["wrapRGB"]["value"] = material.wrapRGB;
             }
 	    }
 
@@ -4635,13 +4978,13 @@
 
                         if (light is SpotLight || (light is DirectionalLight/* && !lightShadow.shadowCascade*/))
                         {
-                            ((List<Texture>)uniforms["shadowMap"].Value).Add(lightShadow.shadowMap);
-                            ((List<Size>)uniforms["shadowMapSize"].Value).Add(lightShadow.shadowMapSize);
+                            ((List<Texture>)uniforms["shadowMap"]["value"]).Add(lightShadow.shadowMap);
+                            ((List<Size>)uniforms["shadowMapSize"]["value"]).Add(lightShadow.shadowMapSize);
 
-                            ((List<Matrix4>)uniforms["shadowMatrix"].Value).Add(lightShadow.shadowMatrix);
+                            ((List<Matrix4>)uniforms["shadowMatrix"]["value"]).Add(lightShadow.shadowMatrix);
 
-                            ((List<float>)uniforms["shadowDarkness"].Value).Add(lightShadow.shadowDarkness);
-                            ((List<float>)uniforms["shadowBias"].Value).Add(lightShadow.shadowBias);
+                            ((List<float>)uniforms["shadowDarkness"]["value"]).Add(lightShadow.shadowDarkness);
+                            ((List<float>)uniforms["shadowBias"]["value"]).Add(lightShadow.shadowBias);
                         }
                     }
                 }
@@ -4655,25 +4998,25 @@
         /// <param name="lights"></param>
         private void RefreshUniformsLights(Uniforms uniforms, LightCollection lights)
         {
-            uniforms["ambientLightColor"].Value = this._lights.ambient.colors;
+            uniforms["ambientLightColor"]["value"] = this._lights.ambient.colors;
 
-            uniforms["directionalLightColor"].Value = this._lights.directional.colors;
-            uniforms["directionalLightDirection"].Value = this._lights.directional.positions;
+            uniforms["directionalLightColor"]["value"] = this._lights.directional.colors;
+            uniforms["directionalLightDirection"]["value"] = this._lights.directional.positions;
 
-            uniforms["pointLightColor"].Value = this._lights.point.colors;
-            uniforms["pointLightPosition"].Value = this._lights.point.positions;
-            uniforms["pointLightDistance"].Value = this._lights.point.distances;
+            uniforms["pointLightColor"]["value"] = this._lights.point.colors;
+            uniforms["pointLightPosition"]["value"] = this._lights.point.positions;
+            uniforms["pointLightDistance"]["value"] = this._lights.point.distances;
 
-            uniforms["spotLightColor"].Value = this._lights.spot.colors;
-            uniforms["spotLightPosition"].Value = this._lights.spot.positions;
-            uniforms["spotLightDistance"].Value = this._lights.spot.distances;
-            uniforms["spotLightDirection"].Value = this._lights.spot.directions;
-            uniforms["spotLightAngleCos"].Value = this._lights.spot.anglesCos;
-            uniforms["spotLightExponent"].Value = this._lights.spot.exponents;
+            uniforms["spotLightColor"]["value"] = this._lights.spot.colors;
+            uniforms["spotLightPosition"]["value"] = this._lights.spot.positions;
+            uniforms["spotLightDistance"]["value"] = this._lights.spot.distances;
+            uniforms["spotLightDirection"]["value"] = this._lights.spot.directions;
+            uniforms["spotLightAngleCos"]["value"] = this._lights.spot.anglesCos;
+            uniforms["spotLightExponent"]["value"] = this._lights.spot.exponents;
 
-            uniforms["hemisphereLightSkyColor"].Value = this._lights.hemi.skyColors;
-            uniforms["hemisphereLightGroundColor"].Value = this._lights.hemi.groundColors;
-            uniforms["hemisphereLightDirection"].Value = this._lights.hemi.positions;
+            uniforms["hemisphereLightSkyColor"]["value"] = this._lights.hemi.skyColors;
+            uniforms["hemisphereLightGroundColor"]["value"] = this._lights.hemi.groundColors;
+            uniforms["hemisphereLightDirection"]["value"] = this._lights.hemi.positions;
         }
 
         /// <summary>
@@ -4681,25 +5024,25 @@
         /// </summary>
         private void markUniformsLightsNeedsUpdate(Uniforms uniforms, bool value)
         {
-            uniforms["ambientLightColor"].needsUpdate = value;
+            uniforms["ambientLightColor"]["needsUpdate"] = value;
 
-            uniforms["directionalLightColor"].needsUpdate = value;
-            uniforms["directionalLightDirection"].needsUpdate = value;
+            uniforms["directionalLightColor"]["needsUpdate"] = value;
+            uniforms["directionalLightDirection"]["needsUpdate"] = value;
 
-            uniforms["pointLightColor"].needsUpdate = value;
-            uniforms["pointLightPosition"].needsUpdate = value;
-            uniforms["pointLightDistance"].needsUpdate = value;
+            uniforms["pointLightColor"]["needsUpdate"] = value;
+            uniforms["pointLightPosition"]["needsUpdate"] = value;
+            uniforms["pointLightDistance"]["needsUpdate"] = value;
 
-            uniforms["spotLightColor"].needsUpdate = value;
-            uniforms["spotLightPosition"].needsUpdate = value;
-            uniforms["spotLightDistance"].needsUpdate = value;
-            uniforms["spotLightDirection"].needsUpdate = value;
-            uniforms["spotLightAngleCos"].needsUpdate = value;
-            uniforms["spotLightExponent"].needsUpdate = value;
+            uniforms["spotLightColor"]["needsUpdate"] = value;
+            uniforms["spotLightPosition"]["needsUpdate"] = value;
+            uniforms["spotLightDistance"]["needsUpdate"] = value;
+            uniforms["spotLightDirection"]["needsUpdate"] = value;
+            uniforms["spotLightAngleCos"]["needsUpdate"] = value;
+            uniforms["spotLightExponent"]["needsUpdate"] = value;
 
-            uniforms["hemisphereLightSkyColor"].needsUpdate = value;
-            uniforms["hemisphereLightGroundColor"].needsUpdate = value;
-            uniforms["hemisphereLightDirection"].needsUpdate = value;
+            uniforms["hemisphereLightSkyColor"]["needsUpdate"] = value;
+            uniforms["hemisphereLightGroundColor"]["needsUpdate"] = value;
+            uniforms["hemisphereLightDirection"]["needsUpdate"] = value;
         }
 
         /// <summary>
@@ -4936,13 +5279,13 @@
                 }
                 else if (material is MeshDepthMaterial)
                 {
-                    m_uniforms["mNear"].Value = camera.Near;
-                    m_uniforms["mFar"].Value = camera.Far;
-                    m_uniforms["opacity"].Value = material.opacity;
+                    m_uniforms["mNear"]["value"] = camera.Near;
+                    m_uniforms["mFar"]["value"] = camera.Far;
+                    m_uniforms["opacity"]["value"] = material.opacity;
                 }
                 else if (material is MeshNormalMaterial)
                 {
-                    m_uniforms["opacity"].Value = material.opacity;
+                    m_uniforms["opacity"]["value"] = material.opacity;
                 }
 
                 if ( object3D.ReceiveShadow/* && ! material._shadowPass*/ ) {
@@ -4973,7 +5316,7 @@
         /// <param name="slot"></param>
         private void SetTexture(Texture texture, int slot)
         {
-            if (texture.needsUpdate)
+            if (texture.NeedsUpdate)
             {
                 if (! texture.__webglInit)
                 {
@@ -4991,15 +5334,15 @@
 
                 //  GL.PixelStore( PixelStoreParameter.     GL.UNPACK_FLIP_Y_WEBGL, texture.flipY );
                 //  GL.PixelStore( PixelStoreParameter.   GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, texture.premultiplyAlpha );
-                GL.PixelStore(PixelStoreParameter.UnpackAlignment, texture.unpackAlignment);
+                GL.PixelStore(PixelStoreParameter.UnpackAlignment, texture.UnpackAlignment);
 
-                var bitmap = texture.image;
+                var bitmap = texture.Image;
 
                 var isImagePowerOfTwo = IsPowerOfTwo(bitmap.Width) && IsPowerOfTwo(bitmap.Height);
 
                 this.SetTextureParameters(TextureTarget.Texture2D, texture, isImagePowerOfTwo);
 
-                var mipmaps = texture.mipmaps;
+                var mipmaps = texture.Mipmaps;
 
                 if (texture is DataTexture)
                 {
@@ -5019,7 +5362,7 @@
                     else
                     {
                         var data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                        GL.TexImage2D(TextureTarget.Texture2D, 0, texture.internalFormat, bitmap.Width, bitmap.Height, 0, texture.format, texture.type, data.Scan0);
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, texture.InternalFormat, bitmap.Width, bitmap.Height, 0, texture.Format, texture.Type, data.Scan0);
                         bitmap.UnlockBits(data);
                     }
                 }
@@ -5057,7 +5400,7 @@
                     else
                     {
                         var data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                        GL.TexImage2D(TextureTarget.Texture2D, 0, texture.internalFormat, bitmap.Width, bitmap.Height, 0, texture.format, texture.type, data.Scan0);
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, texture.InternalFormat, bitmap.Width, bitmap.Height, 0, texture.Format, texture.Type, data.Scan0);
                         bitmap.UnlockBits(data);
                     }
                 }
@@ -5067,7 +5410,7 @@
                     GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                 }
 
-                texture.needsUpdate = false;
+                texture.NeedsUpdate = false;
 
                 //if ( texture.onUpdate ) 
                 //    texture.onUpdate();
@@ -5085,22 +5428,22 @@
         {
             if (isImagePowerOfTwo)
             {
-                GL.TexParameter(textureTarget, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-                GL.TexParameter(textureTarget, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureWrapS, (int)texture.WrapS);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureWrapT, (int)texture.WrapT);
 
-                GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-                GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, (int)texture.MagFilter);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, (int)texture.MinFilter);
             }
             else
             {
                 GL.TexParameter(textureTarget, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(textureTarget, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-                GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-                GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, (int)texture.MagFilter);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, (int)texture.MinFilter);
             }
 
-            if ( this.glExtensionTextureFilterAnisotropic && (texture.type != PixelType.Float) ) 
+            if ( this.glExtensionTextureFilterAnisotropic && (texture.Type != PixelType.Float) ) 
             {
                 if ( texture.anisotropy > 1 || texture.__oldAnisotropy > 1 )
                 {
