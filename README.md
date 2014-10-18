@@ -18,3 +18,17 @@ Download the library and open it in Visual Studio (the project includes both Lib
 ### Screenshot ###
 
 ![alt tag](https://raw.github.com/lathoub/three.cs/master/example.jpg)
+
+## Working Examples ##
+
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_buffergeometry_lines.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/misc_controls_deviceorientation.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/misc_lookat.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_buffergeometry.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_buffergeometry_rawshader.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_geometry_cube.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_geometry_hierarchy.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_interactive_buffergeometry.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_panorama.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_shader.jpg">
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/webgl_shader2.jpg">
