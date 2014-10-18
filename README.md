@@ -17,7 +17,7 @@ Download the library and open it in Visual Studio (the project includes both Lib
 
 ### Screenshot ###
 
-![alt tag](https://raw.github.com/lathoub/three.cs/master/example.jpg)
+<img src="https://raw.github.com/lathoub/three.cs/master/Demo/Data/Thumbnails/screenshot.jpg">
 
 ## Working Examples ##
 
