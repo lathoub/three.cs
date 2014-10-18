@@ -36,7 +36,7 @@
 
         private float getRandom()
         {
-            return (float)random.NextDouble();
+            return Mat.Random();
         }
 
         /// <summary>

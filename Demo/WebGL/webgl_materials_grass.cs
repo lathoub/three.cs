@@ -45,7 +45,7 @@ namespace Demo.Misc
 
                         //context.fillStyle = 'hsl(0,0%,' + ( Math.random() * 50 + 50 ) + '%)';
                         //context.beginPath();
-                        //context.arc( random.NextDouble() * canvas.Width, random.NextDouble() * canvas.Height, random.NextDouble() + 0.15, 0, Math.PI * 2, true );
+                        //context.arc( Mat.Random() * canvas.Width, Mat.Random() * canvas.Height, Mat.Random() + 0.15, 0, Math.PI * 2, true );
                         //context.fill();
                     }
 					*/

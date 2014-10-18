@@ -11,17 +11,22 @@
     using ThreeCs.Core;
     using ThreeCs.Extras.Geometries;
     using ThreeCs.Materials;
+    using ThreeCs.Math;
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
-    [Example("webgl_geometry_hierarchy", ExampleCategory.OpenTK, "Geometry", 0.2f)]
+    [Example("webgl_geometry_hierarchy", ExampleCategory.OpenTK, "Geometry")]
     class webgl_geometry_hierarchy : Example
     {
         private PerspectiveCamera camera;
-   
+
         private Object3D group;
 
+        private Mesh vb;
+
         private Scene scene;
+
+        private readonly Vector2 mouse = new Vector2();
 
         /// <summary>
         /// 
@@ -31,11 +36,11 @@
         {
             base.Load(control);
 
-            camera = new PerspectiveCamera(70, control.Width / (float)control.Height, 1, 10000);
+            camera = new PerspectiveCamera(60, control.Width / (float)control.Height, 1, 10000);
             this.camera.Position.Z = 500;
 
             scene = new Scene();
-            scene.Fog = new Fog((Color)colorConvertor.ConvertFromString("#FFFFFF"), 1, 10000);
+            scene.Fog = new Fog(Color.White, 1, 10000);
 
             var geometry = new BoxGeometry(100, 100, 100);
             var material = new MeshNormalMaterial();
@@ -46,12 +51,12 @@
             {
                 var mesh = new Mesh(geometry, material);
 
-                mesh.Position.X = random.Next() * 2000 - 1000;
-                mesh.Position.Y = random.Next() * 2000 - 1000;
-                mesh.Position.Z = random.Next() * 2000 - 1000;
+                mesh.Position.X = Mat.Random() * 2000 - 1000;
+                mesh.Position.Y = Mat.Random() * 2000 - 1000;
+                mesh.Position.Z = Mat.Random() * 2000 - 1000;
 
-                mesh.Rotation.X = (float)(random.Next() * 2.0 * Math.PI);
-                mesh.Rotation.Y = (float)(random.Next() * 2.0 * Math.PI);
+                mesh.Rotation.X = (float)(Mat.Random() * 2.0 * Math.PI);
+                mesh.Rotation.Y = (float)(Mat.Random() * 2.0 * Math.PI);
 
                 mesh.MatrixAutoUpdate = false;
                 mesh.UpdateMatrix();
@@ -61,7 +66,7 @@
 
             scene.Add(group);
 
-            renderer.SetClearColor((Color)colorConvertor.ConvertFromString("#FFFFFF"));
+            renderer.SetClearColor(Color.White);
             renderer.SortObjects = false;
         }
 
@@ -83,6 +88,17 @@
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="clientSize"></param>
+        /// <param name="here"></param>
+        public override void MouseMove(Size clientSize, Point here)
+        {
+            this.mouse.X = (here.X - ((float)clientSize.Width / 2)) * 10;
+            this.mouse.Y = (here.Y - ((float)clientSize.Height / 2)) * 10;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public override void Render()
         {
             Debug.Assert(null != this.renderer);
@@ -96,10 +112,10 @@
             var ry = (float)(Math.Sin(ftime * 0.3) * 0.5);
             var rz = (float)(Math.Sin(ftime * 0.2) * 0.5);
 
-            //camera.Position.X += (mouseX - camera.Position.X) * .05f;
-            //camera.Position.Y += (-mouseY - camera.Position.Y) * .05f;
+            camera.Position.X += ( this.mouse.X - camera.Position.X) * .05f;
+            camera.Position.Y += (-this.mouse.Y - camera.Position.Y) * .05f;
 
-            //camera.LookAt(scene.Position);
+            camera.LookAt(scene.Position);
 
             this.group.Rotation.X = rx;
             this.group.Rotation.Y = ry;

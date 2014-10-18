@@ -21,20 +21,28 @@ namespace Demo.WebGL
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
-    [Example("webgl_interactive_draggablecubes", ExampleCategory.OpenTK, "Interactive", 0.2f)]
+    [Example("webgl_interactive_draggablecubes", ExampleCategory.OpenTK, "Interactive", 0.4f)]
     class webgl_interactive_draggablecubes : Example
     {
         private PerspectiveCamera camera;
 
         private Object3D group;
 
+        private Object3D SELECTED; 
+
+        private Object3D INTERSECTED; 
+
         private Mesh plane;
 
-        private IList<Object3D> object3Ds = new List<Object3D>();
+        private readonly IList<Object3D> object3Ds = new List<Object3D>();
 
         private Projector projector;
 
         private Scene scene;
+
+        private readonly Vector3 offset = new Vector3();
+
+        private readonly Vector2 mouse = new Vector2();
 
         /// <summary>
         /// 
@@ -60,7 +68,7 @@ namespace Demo.WebGL
 
 			scene.Add( new AmbientLight( (Color)colorConvertor.ConvertFromString("#505050") ) );
 
-			var light = new SpotLight( (Color)colorConvertor.ConvertFromString("#FFFFFF"), 1.5f );
+			var light = new SpotLight( Color.White, 1.5f );
 			light.Position = new Vector3( 0, 500, 2000 );
 			light.CastShadow = true;
 
@@ -80,21 +88,21 @@ namespace Demo.WebGL
 
 			for ( var i = 0; i < 200; i ++ ) {
 
-				var object3D = new Mesh( geometry, new MeshLambertMaterial() { color = Color.Violet } );
+                var object3D = new Mesh(geometry, new MeshLambertMaterial() { color = new Color().Random() });
 
-				((MeshLambertMaterial)object3D.Material).ambient = ((MeshLambertMaterial)object3D.Material).color;
+			    ((MeshLambertMaterial)object3D.Material).ambient = ((MeshLambertMaterial)object3D.Material).color;
 
-				object3D.Position.X = random.Next() * 1000 - 500;
-				object3D.Position.Y = random.Next() * 600 - 300;
-				object3D.Position.Z = random.Next() * 800 - 400;
+			    object3D.Position.X = Mat.Random() * 1000 - 500;
+			    object3D.Position.Y = Mat.Random() * 600 - 300;
+			    object3D.Position.Z = Mat.Random() * 800 - 400;
 
-				object3D.Rotation.X = random.Next() * 2 * (float)Math.PI;
-				object3D.Rotation.Y = random.Next() * 2 * (float)Math.PI;
-				object3D.Rotation.Z = random.Next() * 2 * (float)Math.PI;
+			    object3D.Rotation.X = (float)(Mat.Random() * 2 * Math.PI);
+			    object3D.Rotation.Y = (float)(Mat.Random() * 2 * Math.PI);
+			    object3D.Rotation.Z = (float)(Mat.Random() * 2 * Math.PI);
 
-				object3D.Scale.X = random.Next() * 2 + 1;
-				object3D.Scale.Y = random.Next() * 2 + 1;
-				object3D.Scale.Z = random.Next() * 2 + 1;
+			    object3D.Scale.X = Mat.Random() * 2 + 1;
+			    object3D.Scale.Y = Mat.Random() * 2 + 1;
+			    object3D.Scale.Z = Mat.Random() * 2 + 1;
 
 				object3D.CastShadow = true;
 				object3D.ReceiveShadow = true;
@@ -111,7 +119,6 @@ namespace Demo.WebGL
 			projector = new Projector();
 
 			renderer.SetClearColor( (Color)colorConvertor.ConvertFromString("#F0F0F0") );
-			renderer.size = new Size( control.Width, control.Height );
 			renderer.SortObjects = false;
 
 			renderer.shadowMapEnabled = true;
@@ -131,6 +138,105 @@ namespace Demo.WebGL
             this.camera.UpdateProjectionMatrix();
 
             this.renderer.size = clientSize;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clientSize"></param>
+        /// <param name="here"></param>
+        public override void MouseDown(Size clientSize, Point here)
+        {
+			var vector = new Vector3( mouse.X, mouse.Y, 0.5f );
+			projector.UnprojectVector( vector, camera );
+
+            var raycaster = new Raycaster(camera.Position, vector.Sub(camera.Position).Normalize());
+
+            var intersects = raycaster.IntersectObjects(object3Ds);
+			if ( intersects.Count > 0 ) {
+
+				//controls.enabled = false;
+
+			    SELECTED = intersects[0].Object3D; // take the closest to camera
+
+			    var intersects2 = raycaster.IntersectObject(plane);
+			    offset.Copy(intersects2[0].Point).Sub(plane.Position);
+
+			    //container.style.cursor = 'move';
+			}
+       }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clientSize"></param>
+        /// <param name="here"></param>
+        public override void MouseMove(Size clientSize, Point here)
+        {
+            // Normalize mouse position
+            mouse.X = (here.X / (float)clientSize.Width) * 2 - 1;
+            mouse.Y = -(here.Y / (float)clientSize.Height) * 2 + 1;
+            return;
+
+            var vector = new Vector3(mouse.X, mouse.Y, 0.5f);
+            projector.UnprojectVector(vector, camera);
+
+            var raycaster = new Raycaster(camera.Position, vector.Sub(camera.Position).Normalize());
+
+            if (null != SELECTED)
+            {
+                var intersects2 = raycaster.IntersectObject(plane);
+                SELECTED.Position.Copy(intersects2[0].Point.Sub(offset));
+
+                return;
+            }
+
+            var intersects = raycaster.IntersectObjects(object3Ds);
+			if ( intersects.Count > 0 ) {
+
+				if ( INTERSECTED != intersects[ 0 ].Object3D ) {
+
+		//			if (null != INTERSECTED ) INTERSECTED.Material.Color.setHex( INTERSECTED.currentHex );
+
+                    INTERSECTED = intersects[0].Object3D;
+		//			INTERSECTED.currentHex = INTERSECTED.Material.Color.getHex();
+
+					plane.Position.Copy( INTERSECTED.Position );
+					plane.LookAt( camera.Position );
+
+				}
+
+			//	container.style.cursor = 'pointer';
+
+			} else {
+
+	//			if ( INTERSECTED ) INTERSECTED.Material.color.setHex( INTERSECTED.currentHex );
+
+				INTERSECTED = null;
+
+			//	container.style.cursor = 'auto';
+
+			}
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clientSize"></param>
+        /// <param name="here"></param>
+        public override void MouseUp(Size clientSize, Point here)
+        {
+			//controls.enabled = true;
+
+			if (null != INTERSECTED )
+            {
+				plane.Position.Copy( INTERSECTED.Position );
+
+				SELECTED = null;
+			}
+
+			//container.style.cursor = 'auto';
         }
 
         /// <summary>

@@ -17,7 +17,7 @@ namespace Demo.Misc
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
-    [Example("misc_controls_deviceorientation", ExampleCategory.Misc, "controls", 0.4f)]
+    [Example("misc_controls_deviceorientation", ExampleCategory.Misc, "controls", 0.8f)]
     class misc_controls_deviceorientation : Example
     {
         private PerspectiveCamera camera;
@@ -56,6 +56,8 @@ namespace Demo.Misc
             var material2 = new MeshBasicMaterial() { color = Color.Purple, side = Three.BackSide, wireframe = true };
             var mesh2 = new Mesh( geometry2, material2 );
             scene.Add(mesh2);
+
+            controls.Connect();
         }
 
         /// <summary>
@@ -78,6 +80,7 @@ namespace Demo.Misc
         /// </summary>
         public override void Render()
         {
+            controls.Update();
             renderer.Render(scene, camera);
         }
 

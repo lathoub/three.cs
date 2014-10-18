@@ -10,6 +10,7 @@
     using ThreeCs.Cameras;
     using ThreeCs.Core;
     using ThreeCs.Materials;
+    using ThreeCs.Math;
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
@@ -50,13 +51,13 @@
 
                 // positions
 
-                var x = (float)random.NextDouble() * n - n2;
-                var y = (float)random.NextDouble() * n - n2;
-                var z = (float)random.NextDouble() * n - n2;
+                var x = Mat.Random() * n - n2;
+                var y = Mat.Random() * n - n2;
+                var z = Mat.Random() * n - n2;
 
-                positions[i + 0] = (float)x;
-                positions[i + 1] = (float)y;
-                positions[i + 2] = (float)z;
+                positions[i + 0] = x;
+                positions[i + 1] = y;
+                positions[i + 2] = z;
 
                 // colors
 

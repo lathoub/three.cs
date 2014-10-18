@@ -6,6 +6,8 @@ namespace ThreeCs.Math
 
     public static class Mat
     {
+        private static Random random = new Random();
+
         public const double PI2 = (2 * 3.14159265358979323846); 
 
         public static double RadToDeg(double rad)
@@ -23,6 +25,11 @@ namespace ThreeCs.Math
             if (val.CompareTo(min) < 0) return min;
             else if (val.CompareTo(max) > 0) return max;
             else return val;
+        }
+
+        public static float Random()
+        {
+            return (float)random.NextDouble();
         }
 
         public static Color Random(this Color value)

@@ -10,6 +10,7 @@
     using ThreeCs.Cameras;
     using ThreeCs.Core;
     using ThreeCs.Materials;
+    using ThreeCs.Math;
     using ThreeCs.Objects;
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
@@ -89,7 +90,7 @@
 
             for (var i = 0; i < vertices.length / vertices.ItemSize; i++)
             {
-                vertices.SetXYZ(i, (float)(random.NextDouble() - 0.5), (float)(random.NextDouble() - 0.5), (float)(random.NextDouble() - 0.5));
+                vertices.SetXYZ(i, (float)(Mat.Random() - 0.5), (float)(Mat.Random() - 0.5), (float)(Mat.Random() - 0.5));
             }
 
             geometry.AddAttribute("position", vertices);
@@ -98,7 +99,7 @@
 
             for (var i = 0; i < colors.length / colors.ItemSize; i++)
             {
-                colors.SetXYZW(i, (float)(random.NextDouble()), (float)(random.NextDouble()), (float)(random.NextDouble()), (float)(random.NextDouble()));
+                colors.SetXYZW(i, Mat.Random(), Mat.Random(), Mat.Random(), Mat.Random());
             }
 
             geometry.AddAttribute("color", colors);

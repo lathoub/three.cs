@@ -60,6 +60,8 @@
 
             var material = new MeshLambertMaterial() { color = Color.White, side = ThreeCs.Three.DoubleSide };
 
+            // Link in the loader
+
             var loader = new VTKLoader();
             loader.Loaded += (o, args) =>
             {
@@ -67,7 +69,6 @@
                 mesh.Position.Y = -0.09f;
                 scene.Add(mesh);
             };
-
             loader.Load(@"data\models/vtk/bunny.vtk");
         }
 

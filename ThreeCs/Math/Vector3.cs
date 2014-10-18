@@ -77,7 +77,10 @@ namespace ThreeCs.Math
         /// </summary>
         public float Length
         {
-            get { return (float)Math.Sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z); }
+            get 
+            { 
+                return (float)Math.Sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z);
+            }
             set
             {
                 var OldLength = (float)Math.Sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z);

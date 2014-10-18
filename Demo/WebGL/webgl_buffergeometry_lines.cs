@@ -10,6 +10,7 @@
     using ThreeCs.Cameras;
     using ThreeCs.Core;
     using ThreeCs.Materials;
+    using ThreeCs.Math;
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
@@ -51,9 +52,9 @@
             for (var i = 0; i < segments; i++)
             {
 
-                var x = (float)random.NextDouble() * r - r / 2;
-                var y = (float)random.NextDouble() * r - r / 2;
-                var z = (float)random.NextDouble() * r - r / 2;
+                var x = Mat.Random() * r - r / 2;
+                var y = Mat.Random() * r - r / 2;
+                var z = Mat.Random() * r - r / 2;
 
                 // positions
 

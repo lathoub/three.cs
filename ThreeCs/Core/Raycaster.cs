@@ -1,6 +1,7 @@
 ﻿
 namespace Three.Core
 {
+    using System;
     using System.Collections.Generic;
 
     using ThreeCs.Core;
@@ -97,7 +98,7 @@ namespace Three.Core
         /// <param name="object3Ds"></param>
         /// <param name="recursive"></param>
         /// <returns></returns>
-        public List<Intersect> IntersectObjects(Object3D[] object3Ds, bool recursive = false)
+        public List<Intersect> IntersectObjects(IEnumerable<Object3D> object3Ds, bool recursive = false)
         {
             var intersects = new List<Intersect>();
 

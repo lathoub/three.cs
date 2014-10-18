@@ -184,12 +184,7 @@
         /// <param name="areaWeighted"></param>
         public void ComputeVertexNormals(bool areaWeighted = false)
         {
-            IList<Vector3> vertices = new Vector3[this.Vertices.Count];
-
-            for (int v = 0; v < this.Vertices.Count; v++)
-            {
-                vertices[v] = new Vector3();
-            }
+            var vertices = this.Vertices.ToArray();
 
             if (areaWeighted)
             {

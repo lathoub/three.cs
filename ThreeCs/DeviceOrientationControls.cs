@@ -15,6 +15,8 @@
 
         private object screenOrientation = 0;
 
+//        private SimpleOrientationSensor _simpleorientation;
+
         /// <summary>
         /// 
         /// </summary>
@@ -41,13 +43,13 @@
         /// <param name="orient"></param>
         private void SetObjectQuaternion(out Quaternion quaternion, float alpha, float beta, float gamma, float orient)
         {
-		    var zee = new Vector3( 0, 0, 1 );
+            var zee = new Vector3(0, 0, 1);
 
-		    var q0 = new Quaternion();
+            var q0 = new Quaternion();
 
-	        var q1 = new Quaternion(- (float)System.Math.Sqrt(0.5), 0, 0, (float)System.Math.Sqrt(0.5)); // - PI/2 around the x-axis
+            var q1 = new Quaternion(- (float)System.Math.Sqrt(0.5), 0, 0, (float)System.Math.Sqrt(0.5)); // - PI/2 around the x-axis
 
-		    var euler = new Euler( beta, alpha, - gamma, Euler.RotationOrder.YXZ ); // 'ZXY' for the device, but 'YXZ' for us
+            var euler = new Euler(beta, alpha, - gamma, Euler.RotationOrder.YXZ); // 'ZXY' for the device, but 'YXZ' for us
 
             quaternion = new Quaternion().SetFromEuler(euler); // orient the device
 
@@ -63,6 +65,7 @@
         {
 	        if ( this.freeze ) return;
 
+            // TODO: using SimpleOrientationSensor ?
             var alpha = 0;//this.deviceOrientation.gamma ? Mat.DegToRad( this.deviceOrientation.alpha ) : 0; // Z
             var beta = 0;//this.deviceOrientation.beta  ? Mat.DegToRad( this.deviceOrientation.beta  ) : 0; // X'
             var gamma = 0;//this.deviceOrientation.gamma ? Mat.DegToRad( this.deviceOrientation.gamma ) : 0; // Y''

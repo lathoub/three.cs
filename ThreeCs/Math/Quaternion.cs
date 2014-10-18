@@ -204,7 +204,7 @@ namespace ThreeCs.Math
         {
             // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
-            // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+            // assumes the upper 3x3 of m is left pure rotation matrix (i.e, unscaled)
 
             var te = m1.elements;
 
@@ -266,11 +266,43 @@ namespace ThreeCs.Math
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="q1"></param>
-        public void Multiply(Quaternion q1)
+        /// <param name="q"></param>
+        /// <param name="p"></param>
+        public Quaternion Multiply(Quaternion q, Quaternion p = null)
         {
-            throw new NotImplementedException();
+		    if ( p != null )
+            {
+			    Trace.TraceWarning( "THREE.Quaternion: .multiply() now only accepts one argument. Use .multiplyQuaternions( left, right ) instead." );
+			    return this.MultiplyQuaternions( q, p );
+
+		    }
+
+		    return this.MultiplyQuaternions( this, q );
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public Quaternion MultiplyQuaternions ( Quaternion left, Quaternion right )
+        {
+		    // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
+
+		    var qax = left.x; var qay = left.y; var qaz = left.z; var qaw = left.w;
+		    var qbx = right.x; var qby = right.y; var qbz = right.z; var qbw = right.w;
+
+		    this.x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
+		    this.y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
+		    this.z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
+		    this.w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
+
+		    //this.onChangeCallback();
+
+		    return this;
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

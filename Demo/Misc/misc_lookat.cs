@@ -29,7 +29,7 @@ namespace Demo.Misc
 
         private Object3D sphere;
 
-        private Vector2 Mouse = new Vector2();
+        private readonly Vector2 mouse = new Vector2();
 
         /// <summary>
         /// 
@@ -55,11 +55,11 @@ namespace Demo.Misc
             for ( var i = 0; i < 1000; i ++ )
             {
                 var mesh = new Mesh(geometry, material);
-                mesh.Position.X = (float)random.NextDouble() * 4000 - 2000;
-                mesh.Position.Y = (float)random.NextDouble() * 4000 - 2000;
-                mesh.Position.Z = (float)random.NextDouble() * 4000 - 2000;
+                mesh.Position.X = Mat.Random() * 4000 - 2000;
+                mesh.Position.Y = Mat.Random() * 4000 - 2000;
+                mesh.Position.Z = Mat.Random() * 4000 - 2000;
 
-                mesh.Scale.X = mesh.Scale.Y = mesh.Scale.Z = (float)random.NextDouble() * 4 + 2;
+                mesh.Scale.X = mesh.Scale.Y = mesh.Scale.Z = Mat.Random() * 4 + 2;
 
                 scene.Add( mesh );
             }
@@ -77,8 +77,8 @@ namespace Demo.Misc
         /// <param name="here"></param>
         public override void MouseMove(Size clientSize, Point here)
         {
-            Mouse.X = (here.X - ((float)clientSize.Width / 2) ) * 10;
-            Mouse.Y = (here.Y - ((float)clientSize.Height / 2)) * 10;
+            this.mouse.X = (here.X - ((float)clientSize.Width / 2) ) * 10;
+            this.mouse.Y = (here.Y - ((float)clientSize.Height / 2)) * 10;
         }
 
         /// <summary>
@@ -117,8 +117,8 @@ namespace Demo.Misc
                 scene.Children[i].LookAt(sphere.Position);
             }
 
-            camera.Position.X += (this.Mouse.X - camera.Position.X) * .05f;
-            camera.Position.Y += (-this.Mouse.Y - camera.Position.Y) * .05f;
+            camera.Position.X += (this.mouse.X - camera.Position.X) * .05f;
+            camera.Position.Y += (-this.mouse.Y - camera.Position.Y) * .05f;
             camera.LookAt(scene.Position);
 
             renderer.Render(scene, camera);

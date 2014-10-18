@@ -108,9 +108,9 @@
             {
 				values_size[ v ] = 20;
 
-                positions[v * 3 + 0] = ((float)random.NextDouble() * 2 - 1) * radius;
-                positions[v * 3 + 1] = ((float)random.NextDouble() * 2 - 1) * radius;
-                positions[v * 3 + 2] = ((float)random.NextDouble() * 2 - 1) * radius;
+                positions[v * 3 + 0] = (Mat.Random() * 2 - 1) * radius;
+                positions[v * 3 + 1] = (Mat.Random() * 2 - 1) * radius;
+                positions[v * 3 + 2] = (Mat.Random() * 2 - 1) * radius;
 
                 color = new HSLColor(v / (float)particles, 1.0f, 0.5f);
 

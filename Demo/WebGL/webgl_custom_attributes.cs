@@ -119,7 +119,7 @@
             for (var v = 0; v < vertices.Count; v++)
             {
                 values[v] = 0;
-                noise[v] = (float)random.NextDouble() * 5;
+                noise[v] = Mat.Random() * 5;
             }
 
             ((Hashtable)attributes["displacement"])["f"] = values;
@@ -168,7 +168,7 @@
             {
                 values[i] = (float)Math.Sin(0.1 * i + time);
 
-                noise[i] += 0.5f * (0.5f - (float)random.NextDouble());
+                noise[i] += 0.5f * (0.5f - Mat.Random());
                 noise[i] = this.noise[i].Clamp(-5, 5);
 
                 values[i] += noise[i];

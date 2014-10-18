@@ -226,7 +226,7 @@ namespace Demo.WebGL
 
             var ut1 = (float)uniforms1["time"].Value;
             uniforms1["time"].Value = ut1 + (delta * 5);
-            uniforms2["time"].Value = (float)elapsedTime;
+            uniforms2["time"].Value = elapsedTime;
 
 			for ( var i = 0; i < scene.Children.Count; i ++ )
             {

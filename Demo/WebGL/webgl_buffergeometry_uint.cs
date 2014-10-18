@@ -73,21 +73,21 @@
 
                 // positions
 
-                var x = (float)(random.NextDouble() * n - n2);
-                var y = (float)(random.NextDouble() * n - n2);
-                var z = (float)(random.NextDouble() * n - n2);
+                var x = Mat.Random() * n - n2;
+                var y = Mat.Random() * n - n2;
+                var z = Mat.Random() * n - n2;
 
-                var ax = (float)(x + random.NextDouble() * d - d2);
-                var ay = (float)(y + random.NextDouble() * d - d2);
-                var az = (float)(z + random.NextDouble() * d - d2);
+                var ax = x + Mat.Random() * d - d2;
+                var ay = y + Mat.Random() * d - d2;
+                var az = z + Mat.Random() * d - d2;
 
-                var bx = (float)(x + random.NextDouble() * d - d2);
-                var by = (float)(y + random.NextDouble() * d - d2);
-                var bz = (float)(z + random.NextDouble() * d - d2);
+                var bx = x + Mat.Random() * d - d2;
+                var by = y + Mat.Random() * d - d2;
+                var bz = z + Mat.Random() * d - d2;
 
-                var cx = (float)(x + random.NextDouble() * d - d2);
-                var cy = (float)(y + random.NextDouble() * d - d2);
-                var cz = (float)(z + random.NextDouble() * d - d2);
+                var cx = x + Mat.Random() * d - d2;
+                var cy = y + Mat.Random() * d - d2;
+                var cz = z + Mat.Random() * d - d2;
 
                 positions[i + 0] = ax;
                 positions[i + 1] = ay;
