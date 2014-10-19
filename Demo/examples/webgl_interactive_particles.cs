@@ -105,7 +105,7 @@
             uniforms = new Uniforms 
             { 
                 { "color",   new Uniform() { {"type", "c"},  {"value", Color.White}} },
-                { "texture", new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"data\textures/sprites/disc.png")}} } 
+                { "texture", new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"examples\textures/sprites/disc.png")}} } 
             };
    
         	var shaderMaterial = new ShaderMaterial() {

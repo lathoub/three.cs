@@ -164,7 +164,7 @@ namespace Demo.WebGL
             {
                 { "time",       new Uniform() { {"type", "f"},  {"value", 1.0f}} },
                 { "resolution", new Uniform() { {"type", "v2"},  {"value", new Vector2()}} },
-                { "texture",    new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"data\textures/disturb.jpg")} }},
+                { "texture",    new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"examples\textures/disturb.jpg")} }},
             };
 
             var texture = uniforms2["texture"]["value"] as Texture;

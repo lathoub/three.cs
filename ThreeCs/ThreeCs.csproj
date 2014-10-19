@@ -146,7 +146,6 @@
     <Compile Include="Renderers\OpenTKRenderTarget.cs" />
     <Compile Include="Renderers\Shaders\ShaderLib.cs" />
     <Compile Include="Renderers\Shaders\Uniforms.cs" />
-    <Compile Include="Renderers\Shaders\KVP.cs" />
     <Compile Include="Renderers\Shaders\UniformsLib.cs" />
     <Compile Include="Renderers\Shaders\UniformsUtils.cs" />
     <Compile Include="Renderers\WebGL\WebGlProgram.cs" />

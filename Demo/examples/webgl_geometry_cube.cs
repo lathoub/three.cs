@@ -38,7 +38,7 @@
 
             var geometry = new BoxGeometry(200, 200, 200);
 
-            var texture = ImageUtils.LoadTexture(@"data/textures/crate.gif");
+            var texture = ImageUtils.LoadTexture(@"examples/textures/crate.gif");
             texture.anisotropy = this.renderer.MaxAnisotropy;
 
             var material = new MeshBasicMaterial { map = texture };

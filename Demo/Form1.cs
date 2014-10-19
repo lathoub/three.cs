@@ -83,6 +83,9 @@ namespace Demo
             if (control.ClientSize.Height == 0)
                 control.ClientSize = new Size(control.ClientSize.Width, 1);
 
+            //windowHalfX = control.ClientSize.Width / 2;
+            //windowHalfY = control.ClientSize.Height / 2;
+
             if (null != example)
                 example.Resize(control.ClientSize);
         }

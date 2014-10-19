@@ -48,7 +48,7 @@
             geometry.ApplyMatrix(new Matrix4().MakeScale(-1, 1, 1));
 
             var material = new MeshBasicMaterial {
-                map = ImageUtils.LoadTexture(@"data/textures/2294472375_24a3b8ef46_o.jpg")
+                map = ImageUtils.LoadTexture(@"examples/textures/2294472375_24a3b8ef46_o.jpg")
             };
 
             this.mesh = new Mesh(geometry, material);

@@ -34,7 +34,7 @@
 
             if ( GL.GetShaderInfoLog(shader) != string.Empty ) 
             {
-                Trace.TraceWarning( "THREE.WebGLShader: gl.getShaderInfoLog() {0}", GL.GetShaderInfoLog(shader) );
+                Trace.TraceWarning( "THREE.WebGLShader: gl.getShaderInfoLog()\n {0}", GL.GetShaderInfoLog(shader) );
                 Trace.TraceWarning( addLineNumbers(code) );
 
                 throw new ApplicationException("compilation warning or error, see console");

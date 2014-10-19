@@ -138,15 +138,15 @@
             //    index0AttributeName = 'position';
             //}
 
-		    var shadowMapTypeDefine = "SHADOWMAP_TYPE_BASIC";
-		    if ( (int)parameters["shadowMapType"] == Three.PCFShadowMap ) 
+            var shadowMapTypeDefine = "SHADOWMAP_TYPE_BASIC";
+            if ((int)parameters["shadowMapType"] == Three.PCFShadowMap)
             {
-			    shadowMapTypeDefine = "SHADOWMAP_TYPE_PCF";
+                shadowMapTypeDefine = "SHADOWMAP_TYPE_PCF";
             }
             else if ((int)parameters["shadowMapType"] == Three.PCFSoftShadowMap)
             {
-			    shadowMapTypeDefine = "SHADOWMAP_TYPE_PCF_SOFT";
-		    }
+                shadowMapTypeDefine = "SHADOWMAP_TYPE_PCF_SOFT";
+            }
 
             // Trace.TraceInformation( "building new program " );
 

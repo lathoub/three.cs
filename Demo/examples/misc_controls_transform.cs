@@ -43,7 +43,7 @@
             light.Position = new Vector3(1, 1, 1);
             scene.Add(light);
 
-            var texture = ImageUtils.LoadTexture(@"data\textures/crate.gif");
+            var texture = ImageUtils.LoadTexture(@"examples\textures/crate.gif");
             texture.anisotropy = renderer.MaxAnisotropy;
 
             var geometry = new BoxGeometry(200, 200, 200);

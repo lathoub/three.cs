@@ -86,7 +86,7 @@
             uniforms = new Uniforms
             {
                 { "color",   new Uniform() { {"type", "c"},  {"value", Color.White}} },
-                { "texture", new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"data\textures/sprites/spark1.png")}} },
+                { "texture", new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"examples\textures/sprites/spark1.png")}} },
             };
 
 			var shaderMaterial = new ShaderMaterial() {

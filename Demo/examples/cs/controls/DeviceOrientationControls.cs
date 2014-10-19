@@ -1,4 +1,4 @@
-﻿namespace Demo
+﻿namespace ThreeCs
 {
     using System.Collections;
 
@@ -15,7 +15,7 @@
 
         private object screenOrientation = 0;
 
-  //      private SimpleOrientationSensor _simpleorientation;
+//        private SimpleOrientationSensor _simpleorientation;
 
         /// <summary>
         /// 
@@ -66,7 +66,7 @@
 	        if ( this.freeze ) return;
 
             // TODO: using SimpleOrientationSensor ?
-            var alpha = 0;//this.deviceOrientation.alpha ? Mat.DegToRad( this.deviceOrientation.alpha ) : 0; // Z
+            var alpha = 0;//this.deviceOrientation.gamma ? Mat.DegToRad( this.deviceOrientation.alpha ) : 0; // Z
             var beta = 0;//this.deviceOrientation.beta  ? Mat.DegToRad( this.deviceOrientation.beta  ) : 0; // X'
             var gamma = 0;//this.deviceOrientation.gamma ? Mat.DegToRad( this.deviceOrientation.gamma ) : 0; // Y''
             var orient = 0;//this.screenOrientation       ? Mat.DegToRad( this.screenOrientation       ) : 0; // O

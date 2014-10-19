@@ -99,7 +99,7 @@
             {
                 { "amplitude", new Uniform() { {"type", "f"},  {"value", 1.0f}} },
                 { "color",     new Uniform() { {"type", "c"},  {"value", (Color)colorConvertor.ConvertFromString("#ff2200")}} },
-                { "texture",   new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"data\textures/water.jpg")} }},
+                { "texture",   new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"examples\textures/water.jpg")} }},
             };
 
             //((Texture)uniforms["texture"].Value).WrapS = ThreeCs.Three.RepeatWrapping;

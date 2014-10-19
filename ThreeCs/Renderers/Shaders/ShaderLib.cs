@@ -269,6 +269,9 @@
 
                 fs.Add("	#ifdef DOUBLE_SIDED");
 
+                //"float isFront = float( gl_FrontFacing );",
+                //"gl_FragColor.xyz *= isFront * vLightFront + ( 1.0 - isFront ) * vLightBack;",
+
                 fs.Add("		if ( gl_FrontFacing )");
                 fs.Add("			gl_FragColor.xyz *= vLightFront;");
                 fs.Add("		else");
