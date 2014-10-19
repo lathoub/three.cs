@@ -43,6 +43,8 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
@@ -61,16 +63,20 @@
     <Compile Include="Core\Projector.cs" />
     <Compile Include="Core\Raycaster.cs" />
     <Compile Include="Core\WebGlObject.cs" />
-    <Compile Include="DeviceOrientationControls.cs" />
     <Compile Include="Extras\Geometries\CircleGeometry.cs" />
     <Compile Include="Extras\Geometries\RingGeometry.cs" />
     <Compile Include="Extras\Geometries\TorusGeometry.cs" />
     <Compile Include="Extras\Helpers\ArrowHelper.cs" />
     <Compile Include="Lights\ILightShadow.cs" />
+    <Compile Include="Loaders\DDSLoader.cs" />
+    <Compile Include="Loaders\ImageDDS.cs" />
     <Compile Include="Loaders\JSONLoader.cs" />
     <Compile Include="Loaders\VTKLoader.cs" />
+    <Compile Include="Loaders\XHRLoader.cs" />
     <Compile Include="Materials\IAttributes.cs" />
-    <Compile Include="Materials\IWirerframe.cs" />
+    <Compile Include="Materials\IMap.cs" />
+    <Compile Include="Materials\IWireframe.cs" />
+    <Compile Include="Materials\UniformLocation.cs" />
     <Compile Include="Math\ColorNormalized.cs" />
     <Compile Include="Math\HSLColor.cs" />
     <Compile Include="Math\Line3.cs" />
@@ -130,6 +136,7 @@
     <Compile Include="Renderers\Renderables\RenderableVertex.cs" />
     <Compile Include="Renderers\Shaders\Attribute.cs" />
     <Compile Include="Renderers\Shaders\Attributes.cs" />
+    <Compile Include="Renderers\Shaders\IUniforms.cs" />
     <Compile Include="Renderers\Shaders\Uniform.cs" />
     <Compile Include="Three.cs" />
     <Compile Include="Math\Euler.cs" />

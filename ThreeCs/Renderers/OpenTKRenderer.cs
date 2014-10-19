@@ -42,7 +42,6 @@
     using PixelStoreParameter = OpenTK.Graphics.OpenGL.PixelStoreParameter;
     using PixelType = OpenTK.Graphics.OpenGL.PixelType;
     using StringName = OpenTK.Graphics.OpenGL.StringName;
-    using TextureMagFilter = OpenTK.Graphics.OpenGL.TextureMagFilter;
     using TextureMinFilter = OpenTK.Graphics.OpenGL.TextureMinFilter;
     using TextureParameterName = OpenTK.Graphics.OpenGL.TextureParameterName;
     using TextureTarget = OpenTK.Graphics.OpenGL.TextureTarget;
@@ -90,15 +89,15 @@
 
         public int MaxAnisotropy;
 
-        public int maxTextureSize;
+        public int MaxTextureSize;
 
-        public int maxTextures;
+        public int MaxTextures;
 
-        public int maxVertexTextures;
+        public int MaxVertexTextures;
 
-        public Info info;
+        public Info Info;
 
-        public Size size
+        public Size Size
         {
             get
             {
@@ -118,7 +117,7 @@
 
                 //}
 
-                this.SetViewport(0, 0, this.size.Width, this.size.Height);
+                this.SetViewport(0, 0, this.Size.Width, this.Size.Height);
             }
         }
 
@@ -128,7 +127,7 @@
 
         private List<WebGlProgram> _programs = new List<WebGlProgram>();
 
-        private bool autoClear;
+        public bool AutoClear;
 
         private bool autoClearColor;
 
@@ -322,7 +321,7 @@
 
             // clearing
 
-            this.autoClear = true;
+            this.AutoClear = true;
             this.autoClearColor = true;
             this.autoClearDepth = true;
             this.autoClearStencil = true;
@@ -360,15 +359,15 @@
 
             // GPU capabilities
 
-            GL.GetInteger(GetPName.MaxTextureSize, out this.maxTextureSize);
-            GL.GetInteger(GetPName.MaxTextureImageUnits, out this.maxTextures);
-            GL.GetInteger(GetPName.MaxVertexTextureImageUnits, out this.maxVertexTextures);
+            GL.GetInteger(GetPName.MaxTextureSize, out this.MaxTextureSize);
+            GL.GetInteger(GetPName.MaxTextureImageUnits, out this.MaxTextures);
+            GL.GetInteger(GetPName.MaxVertexTextureImageUnits, out this.MaxVertexTextures);
             GL.GetInteger(GetPName.MaxCubeMapTextureSize, out this.maxCubemapSize);
 
             if (this.glExtensionTextureFilterAnisotropic)
                 GL.GetInteger((GetPName)ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out this.MaxAnisotropy);
 
-            this.supportsVertexTextures = (this.maxVertexTextures > 0);
+            this.supportsVertexTextures = (this.MaxVertexTextures > 0);
             this.supportsBoneTextures = this.supportsVertexTextures && this.glExtensionTextureFloat;
 
             int compressedTextureFormatCount;
@@ -418,7 +417,14 @@
             GL.Viewport(this._viewportX, this._viewportY, this._viewportWidth, this._viewportHeight);
         }
 
-        private void setScissor ( int x, int y, int width, int height )
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        public void SetScissor ( int x, int y, int width, int height )
         {
             GL.Scissor(
                 x * this.devicePixelRatio,
@@ -428,7 +434,11 @@
 
         }
 
-	    private void enableScissorTest  ( bool enable )
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="enable"></param>
+	    public void EnableScissorTest  ( bool enable )
 	    {
 	        if (enable)
 	            GL.Enable(EnableCap.ScissorTest);
@@ -519,22 +529,17 @@
 		    this._currentHeight = height;
         }
 
-        private void UpdateRenderTargetMipmap (OpenTKRenderTarget renderTarget ) {
-
+        private void UpdateRenderTargetMipmap (OpenTKRenderTarget renderTarget )
+        {
 		    if ( renderTarget is OpenTKRenderTargetCube ) {
-
 			    GL.BindTexture(TextureTarget.TextureCubeMap, renderTarget.__webglTexture );
 			    GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
 			    GL.BindTexture(TextureTarget.TextureCubeMap, 0 );
-
 		    } else {
-
 			    GL.BindTexture(TextureTarget.Texture2D, renderTarget.__webglTexture );
 			    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 			    GL.BindTexture(TextureTarget.Texture2D, 0 );
-
 		    }
-
 	    }
 
         /// <summary>
@@ -611,14 +616,14 @@
             this.RenderPlugins(this.renderPluginsPre, scene, camera);
 
             //
-            this.info.render.Calls = 0;
-            this.info.render.Vertices = 0;
-            this.info.render.Faces = 0;
-            this.info.render.Points = 0;
+            this.Info.render.Calls = 0;
+            this.Info.render.Vertices = 0;
+            this.Info.render.Faces = 0;
+            this.Info.render.Points = 0;
 
             this.SetRenderTarget(renderTarget);
 
-            if (this.autoClear || forceClear)
+            if (this.AutoClear || forceClear)
             {
                 Clear(this.autoClearColor, this.autoClearDepth, this.autoClearStencil);
             }
@@ -746,7 +751,7 @@
         /// <param name="color"></param>
         /// <param name="depth"></param>
         /// <param name="stencil"></param>
-        private static void Clear(bool color, bool depth, bool stencil)
+        public void Clear(bool color = true, bool depth = true, bool stencil = true)
         {
             ClearBufferMask bits = 0;
 
@@ -828,16 +833,15 @@
         {
             if (null == material) return false;
 
-            foreach (DictionaryEntry entry in material.attributes)
+            foreach (var entry in material.Attributes)
             {
 
-                var attribute = material.attributes[entry.Key] as Hashtable;
-                Debug.Assert(null != attribute, "Failed to cast material.attributes[{0}] to Hashtable", (string)entry.Key);
+                var attribute = material.Attributes[entry.Key];
+                Debug.Assert(null != attribute, "Failed to cast material.Attributes[{0}] to Hashtable", (string)entry.Key);
 
-                var needsUpdate = attribute["needsUpdate"];
-                if (null != needsUpdate)
+                if (attribute.ContainsKey("needsUpdate"))
                 {
-                    if ((bool)needsUpdate)
+                    if ((bool)attribute["needsUpdate"])
                         return true;
                 }
             }
@@ -853,12 +857,12 @@
         {
             if (null == material) return;
 
-            foreach (DictionaryEntry entry in material.attributes)
+            foreach (var entry in material.Attributes)
             {
-                var attribute = material.attributes[entry.Key] as Hashtable;
-                Debug.Assert(null != attribute, "Failed to cast material.attributes[{0}] to Hashtable", (string)entry.Key);
+                var attribute = material.Attributes[entry.Key];
+                Debug.Assert(null != attribute, "Failed to cast material.Attributes[{0}] to Hashtable", (string)entry.Key);
 
-                if (null != attribute["needsUpdate"])
+                if (attribute.ContainsKey("needsUpdate"))
                 {
                     attribute["needsUpdate"] = false;
                 }
@@ -1015,7 +1019,7 @@
             GL.GenBuffers(1, out geometry.__webglColorBuffer);
             GL.GenBuffers(1, out geometry.__webglLineDistanceBuffer);
 
-            this.info.memory.Geometries++;
+            this.Info.memory.Geometries++;
         }
 
         /// <summary>
@@ -1045,7 +1049,7 @@
             GL.GenBuffers(1, out geometry.__webglVertexBuffer);
             GL.GenBuffers(1, out geometry.__webglColorBuffer);
 
-            this.info.memory.Geometries++;
+            this.Info.memory.Geometries++;
         }
 
         /// <summary>
@@ -1076,43 +1080,47 @@
         {
 		    var nvertices = geometry.Vertices.Count;
 
-		    var material = object3D.Material;
-/*
-		    if ( material.attributes ) {
+		    var material = object3D.Material as ShaderMaterial;
+
+		    if (null != material.Attributes ) {
 
 			    if ( geometry.__webglCustomAttributesList == null ) {
-				    geometry.__webglCustomAttributesList = [];
+                    geometry.__webglCustomAttributesList = new List<Shaders.Attribute>();
 			    }
 
-			    foreach ( var a in material.attributes )
-                {
-				    var attribute = material.attributes[ a ];
+                foreach (var a in material.Attributes)
+			    {
+                    var attribute = material.Attributes[a.Key];
 
-				    if ( ! attribute.__webglInitialized || attribute.createUniqueBuffers )
+                    if (!attribute.ContainsKey("__webglInitialized") || attribute.ContainsKey("createUniqueBuffers")) 
                     {
-					    attribute.__webglInitialized = true;
+                        attribute["__webglInitialized"] = true;
 
-					    var size = 1;   // "f" and "i"
+                        var size = 1;   // "f" and "i"
 
-					    if ( attribute.type == "v2" ) size = 2;
-					    else if ( attribute.type == "v3" ) size = 3;
-					    else if ( attribute.type == "v4" ) size = 4;
-					    else if ( attribute.type == "c"  ) size = 3;
+                        if ((string)attribute["type"] == "v2") size = 2;
+                        else if ((string)attribute["type"] == "v3") size = 3;
+                        else if ((string)attribute["type"] == "v4") size = 4;
+                        else if ((string)attribute["type"] == "c") size = 3;
 
-					    attribute.size = size;
+                        attribute["size"] = size;
 
-					    attribute.array = new float[ nvertices * size ];
+                        attribute["array"] = new float[nvertices * size];
 
-					    attribute.buffer = _gl.createBuffer();
-					    attribute.buffer.belongsToAttribute = a;
+                        int bufferId = 0;
+                        GL.GenBuffers(1, out bufferId);
 
-					    attribute.needsUpdate = true;
-				    }
+                        attribute["buffer"] = new Hashtable();
 
-				    geometry.__webglCustomAttributesList.Add( attribute );
+                        ((Hashtable)attribute["buffer"]).Add("id", bufferId);
+                        ((Hashtable)attribute["buffer"]).Add("belongsToAttribute", a.Key);
+
+                        attribute["needsUpdate"] = true;
+                    }
+
+			        geometry.__webglCustomAttributesList.Add(attribute);
 			    }
 		    }
- * */
         }
 
         /// <summary>
@@ -1120,15 +1128,15 @@
         /// <param name="geometry"></param>
         private static void InitDirectBuffers(BufferGeometry geometry)
         {
-            foreach (DictionaryEntry entry in geometry.attributes) 
+            foreach (var entry in geometry.Attributes) 
             {
                 var bufferType = (entry.Key.Equals("index")) ? BufferTarget.ElementArrayBuffer : BufferTarget.ArrayBuffer;
 
                 //// Note: Investigate use of dynamic (supported on Mono MaxOS and Ubuntu?)
                 //var type = attribute.array.GetType();
-                if (geometry.attributes[entry.Key] is BufferAttribute<ushort>)
+                if (geometry.Attributes[entry.Key] is BufferAttribute<ushort>)
                 {
-                    var attribute = geometry.attributes[entry.Key] as BufferAttribute<ushort>;
+                    var attribute = geometry.Attributes[entry.Key] as BufferAttribute<ushort>;
 
                     int buffer = 0;
                     GL.GenBuffers(1, out buffer);
@@ -1138,12 +1146,11 @@
                     GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(ushort)), attribute.Array, BufferUsageHint.StaticDraw);
 
                     Debug.WriteLine("BufferData for attribute.buffer ushort {0}", attribute.buffer);
-
                 }
 
-                if (geometry.attributes[entry.Key] is BufferAttribute<uint>)
+                if (geometry.Attributes[entry.Key] is BufferAttribute<uint>)
                 {
-                    var attribute = geometry.attributes[entry.Key] as BufferAttribute<uint>;
+                    var attribute = geometry.Attributes[entry.Key] as BufferAttribute<uint>;
 
                     int buffer = 0;
                     GL.GenBuffers(1, out buffer);
@@ -1156,9 +1163,9 @@
 
                 }
 
-                if (geometry.attributes[entry.Key] is BufferAttribute<float>)
+                if (geometry.Attributes[entry.Key] is BufferAttribute<float>)
                 {
-                    var attribute = geometry.attributes[entry.Key] as BufferAttribute<float>;
+                    var attribute = geometry.Attributes[entry.Key] as BufferAttribute<float>;
 
                     int buffer = 0;
                     GL.GenBuffers(1, out buffer);
@@ -1326,7 +1333,7 @@
         /// <param name="material"></param>
         /// <param name="geometryGroup"></param>
         /// <param name="object3D"></param>
-        private void RenderBuffer(Camera camera, IEnumerable<Light> lights, Fog fog, Material material, GeometryGroup geometryGroup, Object3D object3D)
+        private void RenderBuffer(Camera camera, IEnumerable<Light> lights, Fog fog, Material material, BaseGeometry geometryGroup, Object3D object3D)
         {
             Debug.Assert(null != camera, "");
             Debug.Assert(null != lights, "");
@@ -1345,9 +1352,9 @@
             var updateBuffers = false;
             
             var wireframeBit = 0;
-            var frameable = material as IWirerframe;
+            var frameable = material as IWireframe;
             if (frameable != null)
-                wireframeBit = frameable.wireframe ? 1 : 0;
+                wireframeBit = frameable.Wireframe ? 1 : 0;
 
             var geometryGroupHash = (geometryGroup.Id * 0xffffff) + (program.Id * 2) + wireframeBit;
 
@@ -1404,10 +1411,12 @@
                         {
                             var id = (int)buffer["id"];
                             var location = (int)attributesLocation[belongsTo];
-                            
-                            //GL.BindBuffer(BufferTarget.ArrayBuffer, id);
-                            //enableAttribute(location);
-                            //GL.VertexAttribPointer(location, (int)attribute["size"], VertexAttribPointerType.Float, false, 0, 0);
+
+                            var size = (int)attribute["size"];
+
+                            GL.BindBuffer(BufferTarget.ArrayBuffer, id);
+                            this.EnableAttribute(location);
+                            GL.VertexAttribPointer(location, size, VertexAttribPointerType.Float, false, 0, 0);
                         }
                     }
                 }
@@ -1518,10 +1527,10 @@
 
                 if (wireframeBit > 0)
                 {
-                    var wireFrameMaterial = material as IWirerframe;
+                    var wireFrameMaterial = material as IWireframe;
                     Debug.Assert(null != wireFrameMaterial, "casting material to IWireFrameable failed");
 
-                    this.SetLineWidth(wireFrameMaterial.wireframeLinewidth);
+                    this.SetLineWidth(wireFrameMaterial.WireframeLinewidth);
                     if (updateBuffers)
                     {
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, geometryGroup.__webglLineBuffer);
@@ -1539,11 +1548,11 @@
                     }
                     GL.DrawElements(BeginMode.Triangles, geometryGroup.__webglFaceCount, DrawElementsType.UnsignedShort, 0);
 
-                    this.info.render.Vertices += geometryGroup.__webglFaceCount;
-                    this.info.render.Faces += geometryGroup.__webglFaceCount / 3;
+                    this.Info.render.Vertices += geometryGroup.__webglFaceCount;
+                    this.Info.render.Faces += geometryGroup.__webglFaceCount / 3;
                 }
 
-                this.info.render.Calls++;
+                this.Info.render.Calls++;
 
             }
             else if (object3D is Line)
@@ -1556,7 +1565,7 @@
 
                 //GL.DrawArrays(mode, 0, geometryGroup.__webglLineCount);
 
-                this.info.render.Calls ++;
+                this.Info.render.Calls ++;
 
             }
             else if (object3D is PointCloud)
@@ -1565,8 +1574,8 @@
 
                 GL.DrawArrays(BeginMode.Points, 0, geometryGroup.__webglParticleCount);
 
-                this.info.render.Calls ++;
-                this.info.render.Points += geometryGroup.__webglParticleCount;
+                this.Info.render.Calls ++;
+                this.Info.render.Points += geometryGroup.__webglParticleCount;
             }
         }
 
@@ -1659,8 +1668,6 @@
 
 		    var programAttributes = program.AttributesLocation;
 
-		    var geometryAttributes = geometry.attributes;
-
             var updateBuffers = false;
             var wireframeBit = 0;//material.wireframe ? 1 : 0;
 			var geometryHash = ( geometry.Id * 0xffffff ) + ( program.Id * 2 ) + wireframeBit;
@@ -1681,10 +1688,9 @@
 		    if ( object3D is Mesh )
             {
 
-                var index = geometryAttributes["index"] as IBufferAttribute;
-
-			    if (null != index) 
+                if (geometry.Attributes.ContainsKey("index")) 
                 {
+                    var index = geometry.Attributes["index"] as IBufferAttribute;
 
 				    // indexed triangles
 
@@ -1707,16 +1713,16 @@
 
 					    if ( updateBuffers ) {
 
-						    this.setupVertexAttributes( material, programAttributes, geometryAttributes, 0 );
+                            this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
 						    GL.BindBuffer( BufferTarget.ElementArrayBuffer, index.buffer );
 
 					    }
 
                         GL.DrawElements(BeginMode.Triangles, index.length, type, 0);
 
-                        this.info.render.Calls ++;
-                        this.info.render.Vertices += index.length; // not really true, here vertices can be shared
-                        this.info.render.Faces += index.length / 3;
+                        this.Info.render.Calls ++;
+                        this.Info.render.Vertices += index.length; // not really true, here vertices can be shared
+                        this.Info.render.Faces += index.length / 3;
 
 				    } else {
 
@@ -1732,7 +1738,7 @@
 
 						    if ( updateBuffers ) {
 
-							    this.setupVertexAttributes( material, programAttributes, geometryAttributes, startIndex );
+                                this.setupVertexAttributes(material, programAttributes, geometry.Attributes, startIndex);
 							    GL.BindBuffer( BufferTarget.ElementArrayBuffer, index.buffer );
 
 						    }
@@ -1741,9 +1747,9 @@
 
 						    GL.DrawElements( BeginMode.Triangles, offsets[ i ].Count, type, offsets[ i ].Start * size );
 
-                            this.info.render.Calls ++;
-                            this.info.render.Vertices += offsets[ i ].Count; // not really true, here vertices can be shared
-                            this.info.render.Faces += offsets[ i ].Count / 3;
+                            this.Info.render.Calls ++;
+                            this.Info.render.Vertices += offsets[ i ].Count; // not really true, here vertices can be shared
+                            this.Info.render.Faces += offsets[ i ].Count / 3;
 
 					    }
 
@@ -1754,18 +1760,18 @@
 				    // non-indexed triangles
 
 				    if ( updateBuffers ) {
-					    this.setupVertexAttributes( material, programAttributes, geometryAttributes, 0 );
+                        this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
 				    }
 
-                    var position = geometryAttributes["position"] as BufferAttribute<float>;
+                    var position = geometry.Attributes["position"] as BufferAttribute<float>;
 
 				    // render non-indexed triangles
 
 				    GL.DrawArrays( BeginMode.Triangles, 0, position.length );
 
-                    this.info.render.Calls ++;
-                    this.info.render.Vertices += position.length;
-                    this.info.render.Faces += position.length / 3;
+                    this.Info.render.Calls ++;
+                    this.Info.render.Vertices += position.length;
+                    this.Info.render.Faces += position.length / 3;
 			    }
 
 		    } 
@@ -1774,26 +1780,27 @@
 			    // render particles
 
 			    if ( updateBuffers ) {
-				    this.setupVertexAttributes( material, programAttributes, geometryAttributes, 0 );
+                    this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
 			    }
 
-                var position = geometryAttributes["position"] as BufferAttribute<float>;
+                var position = geometry.Attributes["position"] as BufferAttribute<float>;
 
 			    // render particles
 			    GL.DrawArrays( BeginMode.Points, 0, position.length );
 
-                this.info.render.Calls ++;
-                this.info.render.Points += position.length / 3;
+                this.Info.render.Calls ++;
+                this.Info.render.Points += position.length / 3;
 		    } 
             else if ( object3D is Line ) 
             {
                 var mode = (((Line)object3D).Type == Three.LineStrip) ? BeginMode.LineStrip : BeginMode.Lines;
 
-                this.SetLineWidth( ((LineBasicMaterial)material).linewidth );
+                this.SetLineWidth( ((LineBasicMaterial)material).Linewidth );
 
-			    var index = geometryAttributes["index"];
 
-			    if ( null != index ) {
+                if (geometry.Attributes.ContainsKey("index"))
+                {
+                    var index = geometry.Attributes["index"];
 
 				    // indexed lines
 
@@ -1817,7 +1824,7 @@
 
 					    if ( updateBuffers )
                         {
-						    this.setupVertexAttributes( material, programAttributes, geometryAttributes, 0 );
+                            this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
 
                             if (index is ushort[])
                                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<ushort>)index).buffer);
@@ -1831,8 +1838,8 @@
 
                         GL.DrawElements(mode, length, type, 0); // 2 bytes per Uint16Array
 
-                        this.info.render.Calls ++;
-                        this.info.render.Vertices += length; // not really true, here vertices can be shared
+                        this.Info.render.Calls ++;
+                        this.Info.render.Vertices += length; // not really true, here vertices can be shared
 
 				    } else {
 
@@ -1849,7 +1856,7 @@
 
 						    if ( updateBuffers ) 
                             {
-							    this.setupVertexAttributes( material, programAttributes, geometryAttributes, startIndex );
+                                this.setupVertexAttributes(material, programAttributes, geometry.Attributes, startIndex);
 
                                 if (index is ushort[])
                                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<ushort>)index).buffer);
@@ -1863,8 +1870,8 @@
 
 						    GL.DrawElements( mode, offsets[ i ].Count, type, offsets[ i ].Start * size ); // 2 bytes per Uint16Array
 
-                            this.info.render.Calls ++;
-                            this.info.render.Vertices += offsets[ i ].Count; // not really true, here vertices can be shared
+                            this.Info.render.Calls ++;
+                            this.Info.render.Vertices += offsets[ i ].Count; // not really true, here vertices can be shared
 					    }
 
 				    }
@@ -1874,17 +1881,17 @@
 				    // non-indexed lines
 
 				    if ( updateBuffers ) {
-					    this.setupVertexAttributes( material, programAttributes, geometryAttributes, 0 );
+                        this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
 				    }
 
-                    var position = geometryAttributes["position"] as BufferAttribute<float>;
+                    var position = geometry.Attributes["position"] as BufferAttribute<float>;
 
 			        var array = position.Array;
 
                     GL.DrawArrays(mode, 0, array.Length / 3);
 
-			        this.info.render.Calls ++;
-                    this.info.render.Points += array.Length / 3;
+			        this.Info.render.Calls ++;
+                    this.Info.render.Points += array.Length / 3;
 			    }
 
 		    }
@@ -1970,7 +1977,7 @@
                 }
                 else
                 {
-                    this.RenderBuffer(camera, lights, fog, material, webglObject.buffer as GeometryGroup, object3D);
+                    this.RenderBuffer(camera, lights, fog, material, webglObject.buffer, object3D);
                 }
             }
         }
@@ -2206,7 +2213,7 @@
             if (material is MeshBasicMaterial)
             {
                 var m = material as MeshBasicMaterial;
-                if (null == m.envMap)
+                if (null == m.EnvMap)
                     return -1;
             }
 
@@ -2232,29 +2239,29 @@
             if (material is MeshBasicMaterial)
             {
                 var m = material as MeshBasicMaterial;
-                if (null != m.map
-                ||  null != m.specularMap
-                ||  null != m.alphaMap) return true;
+                if (null != m.Map
+                ||  null != m.SpecularMap
+                ||  null != m.AlphaMap) return true;
             }
 
             if (material is MeshLambertMaterial)
             {
                 var m = material as MeshLambertMaterial;
                 if (null != m.map
-                || null != m.lightMap
-                || null != m.specularMap
-                || null != m.alphaMap) return true;
+                || null != m.LightMap
+                || null != m.SpecularMap
+                || null != m.AlphaMap) return true;
             }
 
             if (material is MeshPhongMaterial)
             {
                 var m = material as MeshPhongMaterial;
-                if (null != m.map
-                || null != m.lightMap
-                || null != m.bumpMap
-                || null != m.normalMap
-                || null != m.specularMap
-                || null != m.alphaMap) return true;
+                if (null != m.Map
+                || null != m.LightMap
+                || null != m.BumpMap
+                || null != m.NormalMap
+                || null != m.SpecularMap
+                || null != m.AlphaMap) return true;
             }
 
             if (material is ShaderMaterial)
@@ -2275,36 +2282,36 @@
             if (material is LineBasicMaterial)
             {
                 var m = material as LineBasicMaterial;
-                if (null != m.vertexColors)
-                    return m.vertexColors.Length;
+                if (null != m.VertexColors)
+                    return m.VertexColors.Length;
             }
 
             if (material is PointCloudMaterial)
             {
                 var m = material as PointCloudMaterial;
-                if (null != m.vertexColors)
-                    return m.vertexColors.Length;
+                if (null != m.VertexColors)
+                    return m.VertexColors.Length;
             }
 
             if (material is MeshPhongMaterial)
             {
                 var m = material as MeshPhongMaterial;
-                if (null != m.vertexColors)
-                    return m.vertexColors.Length;
+                if (null != m.VertexColors)
+                    return m.VertexColors.Length;
             }
 
             if (material is MeshLambertMaterial)
             {
                 var m = material as MeshLambertMaterial;
-                if (null != m.vertexColors)
-                    return m.vertexColors.Length;
+                if (null != m.VertexColors)
+                    return m.VertexColors.Length;
             }
 
             if (material is MeshBasicMaterial)
             {
                 var m = material as MeshBasicMaterial;
-                if (null != m.vertexColors)
-                    return m.vertexColors.Length;
+                if (null != m.VertexColors)
+                    return m.VertexColors.Length;
             }
 
             return -1;
@@ -2351,7 +2358,7 @@
                 }
             }
 
-            this.info.memory.Geometries++;
+            this.Info.memory.Geometries++;
         }
 
         /// <summary>
@@ -2481,9 +2488,9 @@
         {
             var textureUnit = this._usedTextureUnits;
 
-            if (textureUnit >= this.maxTextures)
+            if (textureUnit >= this.MaxTextures)
             {
-                Trace.TraceWarning("WebGLRenderer: trying to use " + textureUnit + " texture units while this GPU supports only " + this.maxTextures);
+                Trace.TraceWarning("WebGLRenderer: trying to use " + textureUnit + " texture units while this GPU supports only " + this.MaxTextures);
             }
 
             this._usedTextureUnits += 1;
@@ -2509,7 +2516,7 @@
         /// <param name="hint"></param>
         private static void SetDirectBuffers(BufferGeometry geometry, BufferUsageHint hint)
         {
-            foreach (DictionaryEntry attribute in geometry.attributes)
+            foreach (var attribute in geometry.Attributes)
 		    {
 		        var attributeItem = attribute.Value as IBufferAttribute;
                 Debug.Assert(null != attributeItem, "casting to IBufferAttribute failed");
@@ -2626,9 +2633,9 @@
 
                 material.__webglShader = new WebGlShader
                 {
-                    Uniforms = sm.uniforms,
-                    VertexShader = sm.vertexShader,
-                    FragmentShader = sm.fragmentShader
+                    Uniforms = sm.Uniforms,
+                    VertexShader = sm.VertexShader,
+                    FragmentShader = sm.FragmentShader
                 };
             }
 
@@ -2669,23 +2676,23 @@
             var meshBasicMaterial = material as MeshBasicMaterial;
             if (null != meshBasicMaterial)
             {
-                parameters.Add("map", meshBasicMaterial.map != null);
-                parameters.Add("useFog", meshBasicMaterial.fog);
-                parameters.Add("envMap", meshBasicMaterial.envMap != null);
-                parameters.Add("lightMap", meshBasicMaterial.lightMap != null);
-                parameters.Add("specularMap", meshBasicMaterial.specularMap != null);
-                parameters.Add("alphaMap", meshBasicMaterial.alphaMap != null);
-                parameters.Add("vertexColors", meshBasicMaterial.vertexColors);
-                parameters.Add("skinning", meshBasicMaterial.skinning);
-                parameters.Add("morphTargets", meshBasicMaterial.morphTargets);
+                parameters.Add("map", meshBasicMaterial.Map != null);
+                parameters.Add("useFog", meshBasicMaterial.Fog);
+                parameters.Add("envMap", meshBasicMaterial.EnvMap != null);
+                parameters.Add("lightMap", meshBasicMaterial.LightMap != null);
+                parameters.Add("specularMap", meshBasicMaterial.SpecularMap != null);
+                parameters.Add("alphaMap", meshBasicMaterial.AlphaMap != null);
+                parameters.Add("vertexColors", meshBasicMaterial.VertexColors);
+                parameters.Add("skinning", meshBasicMaterial.Skinning);
+                parameters.Add("morphTargets", meshBasicMaterial.MorphTargets);
                 parameters.Add("alphaTest", meshBasicMaterial.alphaTest);
             }
 
             var lineBasicMaterial = material as LineBasicMaterial;
             if (null != lineBasicMaterial)
             {
-                parameters.Add("useFog", lineBasicMaterial.fog);
-                parameters.Add("vertexColors", lineBasicMaterial.vertexColors);
+                parameters.Add("useFog", lineBasicMaterial.Fog);
+                parameters.Add("vertexColors", lineBasicMaterial.VertexColors);
             }
 
             var shaderMaterial = material as ShaderMaterial;
@@ -2703,12 +2710,12 @@
             var pointCloudMaterial = material as PointCloudMaterial;
             if (null != pointCloudMaterial)
             {
-                parameters.Add("map", pointCloudMaterial.map != null);
-                parameters.Add("useFog", pointCloudMaterial.fog);
-                parameters.Add("vertexColors", pointCloudMaterial.vertexColors);
+                parameters.Add("map", pointCloudMaterial.Map != null);
+                parameters.Add("useFog", pointCloudMaterial.Fog);
+                parameters.Add("vertexColors", pointCloudMaterial.VertexColors);
                 parameters.Add("alphaTest", pointCloudMaterial.alphaTest);
                 
-                parameters.Add("sizeAttenuation", pointCloudMaterial.sizeAttenuation);
+                parameters.Add("sizeAttenuation", pointCloudMaterial.SizeAttenuation);
             }
 
             var meshNormalMaterial = material as MeshNormalMaterial;
@@ -2723,37 +2730,37 @@
             if (null != meshLambertMaterial)
             {
                 parameters.Add("map", meshLambertMaterial.map != null);
-                parameters.Add("useFog", meshLambertMaterial.fog);
-                parameters.Add("envMap", meshLambertMaterial.envMap != null);
-                parameters.Add("lightMap", meshLambertMaterial.lightMap != null);
-                parameters.Add("specularMap", meshLambertMaterial.specularMap != null);
-                parameters.Add("alphaMap", meshLambertMaterial.alphaMap != null);
-                parameters.Add("vertexColors", meshLambertMaterial.vertexColors);
-                parameters.Add("skinning", meshLambertMaterial.skinning);
-                parameters.Add("morphTargets", meshLambertMaterial.morphTargets);
+                parameters.Add("useFog", meshLambertMaterial.Fog);
+                parameters.Add("envMap", meshLambertMaterial.EnvMap != null);
+                parameters.Add("lightMap", meshLambertMaterial.LightMap != null);
+                parameters.Add("specularMap", meshLambertMaterial.SpecularMap != null);
+                parameters.Add("alphaMap", meshLambertMaterial.AlphaMap != null);
+                parameters.Add("vertexColors", meshLambertMaterial.VertexColors);
+                parameters.Add("skinning", meshLambertMaterial.Skinning);
+                parameters.Add("morphTargets", meshLambertMaterial.MorphTargets);
                 parameters.Add("alphaTest", meshLambertMaterial.alphaTest);
                 
                 parameters.Add("wrapAround", meshLambertMaterial.WrapAround);
-                parameters.Add("morphNormals", meshLambertMaterial.morphNormals);
+                parameters.Add("morphNormals", meshLambertMaterial.MorphNormals);
             }
 
             var meshPhongMaterial = material as MeshPhongMaterial;
             if (null != meshPhongMaterial)
             {
-                parameters.Add("map", meshPhongMaterial.map != null);
-                parameters.Add("useFog", meshPhongMaterial.fog);
-                parameters.Add("envMap", meshPhongMaterial.envMap != null);
-                parameters.Add("lightMap", meshPhongMaterial.lightMap != null);
-                parameters.Add("specularMap", meshPhongMaterial.specularMap != null);
-                parameters.Add("alphaMap", meshPhongMaterial.alphaMap != null);
-                parameters.Add("vertexColors", meshPhongMaterial.vertexColors);
-                parameters.Add("skinning", meshPhongMaterial.skinning);
-                parameters.Add("morphTargets", meshPhongMaterial.morphTargets);
+                parameters.Add("map", meshPhongMaterial.Map != null);
+                parameters.Add("useFog", meshPhongMaterial.Fog);
+                parameters.Add("envMap", meshPhongMaterial.EnvMap != null);
+                parameters.Add("lightMap", meshPhongMaterial.LightMap != null);
+                parameters.Add("specularMap", meshPhongMaterial.SpecularMap != null);
+                parameters.Add("alphaMap", meshPhongMaterial.AlphaMap != null);
+                parameters.Add("vertexColors", meshPhongMaterial.VertexColors);
+                parameters.Add("skinning", meshPhongMaterial.Skinning);
+                parameters.Add("morphTargets", meshPhongMaterial.MorphTargets);
                 parameters.Add("alphaTest", meshPhongMaterial.alphaTest);
                 
                 parameters.Add("metal", meshPhongMaterial.Metal);
                 parameters.Add("wrapAround", meshPhongMaterial.WrapAround);
-                parameters.Add("morphNormals", meshPhongMaterial.morphNormals);
+                parameters.Add("morphNormals", meshPhongMaterial.MorphNormals);
             }
 
             // Generate code
@@ -2768,8 +2775,8 @@
             {
                 if (null != shaderMaterial)
                 {
-                    chunks.Add(shaderMaterial.fragmentShader);
-                    chunks.Add(shaderMaterial.vertexShader);
+                    chunks.Add(shaderMaterial.FragmentShader);
+                    chunks.Add(shaderMaterial.VertexShader);
                 }
             }
 
@@ -2814,16 +2821,16 @@
 
                 Console.WriteLine("New Shader Program {0}", program.Id);
 
-                this.info.memory.Programs = this._programs.Count;
+                this.Info.memory.Programs = this._programs.Count;
             }
 
             material.program = program;
 
             var attributes = material.program.AttributesLocation;
 
-            if (null != meshBasicMaterial && meshBasicMaterial.morphTargets) 
+            if (null != meshBasicMaterial && meshBasicMaterial.MorphTargets) 
             {
-                meshBasicMaterial.numSupportedMorphTargets = 0;
+                meshBasicMaterial.NumSupportedMorphTargets = 0;
 
                 var basis = "morphTarget";
 
@@ -2832,7 +2839,7 @@
                     var id = basis + i;
                     if ((int)attributes[id] >= 0)
                     {
-                        meshBasicMaterial.numSupportedMorphTargets++;
+                        meshBasicMaterial.NumSupportedMorphTargets++;
                     }
                 }
             }
@@ -2952,33 +2959,33 @@
             geometryGroup.__webglFaceCount = ntris * 3;
             geometryGroup.__webglLineCount = nlines * 2;
 
-            // custom attributes
+            // custom Attributes
             
-		    if (material is IAttributes &&  ((IAttributes)material).attributes != null) 
+		    if (material is IAttributes &&  ((IAttributes)material).Attributes != null) 
             {
                 var attributesMaterial = material as IAttributes;
 
 			    if ( geometryGroup.__webglCustomAttributesList == null ) {
-				    geometryGroup.__webglCustomAttributesList = new List<Hashtable>();
+                    geometryGroup.__webglCustomAttributesList = new List<Shaders.Attribute>();
 			    }
 
-                foreach (DictionaryEntry a in attributesMaterial.attributes)
+                foreach (var a in attributesMaterial.Attributes)
 			    {
-			        var originalAttribute = a.Value as Hashtable;
+			        var originalAttribute = a.Value ;
 
 				    // Do a shallow copy of the attribute object so different geometryGroup chunks use different
 				    // attribute buffers which are correctly indexed in the setMeshBuffers function
 
-				    var attribute = new Hashtable();
+				    var attribute = new ThreeCs.Renderers.Shaders.Attribute();
 
-                    foreach (DictionaryEntry entry in originalAttribute)
+                    foreach (var entry in originalAttribute)
                     {
                         var property = entry.Key;
 
                         attribute[property] = originalAttribute[property];
                     }
 
-				    if ( null == attribute["__webglInitialized"] || null != attribute["createUniqueBuffers"] ) 
+                    if (!attribute.ContainsKey("__webglInitialized") || attribute.ContainsKey("createUniqueBuffers")) 
                     {
 					    attribute["__webglInitialized"] = true;
 
@@ -3109,6 +3116,7 @@
                             break;
 
                         case "f":
+                            var uuu = Convert.ToSingle(value);
                             GL.Uniform1(location, Convert.ToSingle(value));
                             break;
 
@@ -3395,120 +3403,119 @@
             {
                 var m = material as MeshBasicMaterial;
 
-                Uniforms.SetValue(uniforms, "diffuse", this.gammaInput ? this.copyGammaToLinear(m.color) : m.color);
+                Uniforms.SetValue(uniforms, "diffuse", this.gammaInput ? this.copyGammaToLinear(m.Color) : m.Color);
 
-                Uniforms.SetValue(uniforms, "map", m.map);
-                Uniforms.SetValue(uniforms, "lightMap", m.lightMap);
-                Uniforms.SetValue(uniforms, "specularMap", m.specularMap);
-                Uniforms.SetValue(uniforms, "alphaMap", m.alphaMap);
+                Uniforms.SetValue(uniforms, "map", m.Map);
+                Uniforms.SetValue(uniforms, "lightMap", m.LightMap);
+                Uniforms.SetValue(uniforms, "specularMap", m.SpecularMap);
+                Uniforms.SetValue(uniforms, "alphaMap", m.AlphaMap);
 
-                if (null != m.map)
-                    uvScaleMap = m.map;
-                else if (null != m.specularMap)
-                    uvScaleMap = m.specularMap;
-                else if (null != m.alphaMap)
-                    uvScaleMap = m.alphaMap;
+                if (null != m.Map)
+                    uvScaleMap = m.Map;
+                else if (null != m.SpecularMap)
+                    uvScaleMap = m.SpecularMap;
+                else if (null != m.AlphaMap)
+                    uvScaleMap = m.AlphaMap;
 
-                Uniforms.SetValue(uniforms, "envMap", m.envMap);
+                Uniforms.SetValue(uniforms, "envMap", m.EnvMap);
 
-                Uniforms.SetValue(uniforms, "flipEnvMap", ( m.envMap is OpenTKRenderTargetCube ) ? 1 : - 1);
+                Uniforms.SetValue(uniforms, "flipEnvMap", ( m.EnvMap is OpenTKRenderTargetCube ) ? 1 : - 1);
 
                 if (this.gammaInput)
                 {
-                    Uniforms.SetValue(uniforms, "reflectivity", m.reflectivity * m.reflectivity);
+                    Uniforms.SetValue(uniforms, "reflectivity", m.Reflectivity * m.Reflectivity);
                 }
                 else
                 {
-                    Uniforms.SetValue(uniforms, "reflectivity", m.reflectivity);
+                    Uniforms.SetValue(uniforms, "reflectivity", m.Reflectivity);
                 }
 
-                Uniforms.SetValue(uniforms, "refractionRatio", m.refractionRatio);
+                Uniforms.SetValue(uniforms, "refractionRatio", m.RefractionRatio);
 
-                Uniforms.SetValue(uniforms, "combine", m.combine);
-                Uniforms.SetValue(uniforms, "useRefract", false /*m.envMap && (m.envMap.mapping is CubeRefractionMapping) */);
+                Uniforms.SetValue(uniforms, "combine", m.Combine);
+                Uniforms.SetValue(uniforms, "useRefract", 0 /*m.envMap && (m.envMap.mapping is CubeRefractionMapping) */);
             }
 
             if (material is MeshPhongMaterial)
             {
                 var m = material as MeshPhongMaterial;
 
-                Uniforms.SetValue(uniforms, "diffuse", this.gammaInput ? this.copyGammaToLinear(m.color) : m.color);
+                Uniforms.SetValue(uniforms, "diffuse", this.gammaInput ? this.copyGammaToLinear(m.Color) : m.Color);
 
-                Uniforms.SetValue(uniforms, "map", m.map);
-                Uniforms.SetValue(uniforms, "lightMap", m.lightMap);
-                Uniforms.SetValue(uniforms, "specularMap", m.specularMap);
-                Uniforms.SetValue(uniforms, "alphaMap", m.alphaMap);
+                Uniforms.SetValue(uniforms, "map", m.Map);
+                Uniforms.SetValue(uniforms, "lightMap", m.LightMap);
+                Uniforms.SetValue(uniforms, "specularMap", m.SpecularMap);
+                Uniforms.SetValue(uniforms, "alphaMap", m.AlphaMap);
 
-                if (null != m.bumpMap)
+                if (null != m.BumpMap)
                 {
-                    Uniforms.SetValue(uniforms, "bumpMap", m.bumpMap);
-                    Uniforms.SetValue(uniforms, "bumpScale", m.bumpScale);
+                    Uniforms.SetValue(uniforms, "bumpMap", m.BumpMap);
+                    Uniforms.SetValue(uniforms, "bumpScale", m.BumpScale);
                 }
 
-                if (null != m.normalMap) 
+                if (null != m.NormalMap) 
                 {
-                    Uniforms.SetValue(uniforms, "normalMap", m.normalMap);
-                    Uniforms.SetValue(uniforms, "normalScale", m.normalScale);
+                    Uniforms.SetValue(uniforms, "normalMap", m.NormalMap);
+                    Uniforms.SetValue(uniforms, "normalScale", m.NormalScale);
                 }
 
-                Uniforms.SetValue(uniforms, "envMap", m.envMap);
+                Uniforms.SetValue(uniforms, "envMap", m.EnvMap);
 
-                Uniforms.SetValue(uniforms, "flipEnvMap", (m.envMap is OpenTKRenderTargetCube) ? 1 : -1);
+                Uniforms.SetValue(uniforms, "flipEnvMap", (m.EnvMap is OpenTKRenderTargetCube) ? 1 : -1);
 
                 if (this.gammaInput)
                 {
-                    Uniforms.SetValue(uniforms, "reflectivity", m.reflectivity * m.reflectivity);
+                    Uniforms.SetValue(uniforms, "reflectivity", m.Reflectivity * m.Reflectivity);
                 }
                 else
                 {
-                    Uniforms.SetValue(uniforms, "reflectivity", m.reflectivity);
+                    Uniforms.SetValue(uniforms, "reflectivity", m.Reflectivity);
                 }
 
-                Uniforms.SetValue(uniforms, "refractionRatio", m.refractionRatio);
+                Uniforms.SetValue(uniforms, "refractionRatio", m.RefractionRatio);
 
-                Uniforms.SetValue(uniforms, "combine", m.combine);
-                Uniforms.SetValue(uniforms, "useRefract", false /*m.envMap && (m.envMap.mapping is CubeRefractionMapping) */);
+                Uniforms.SetValue(uniforms, "combine", m.Combine);
+                Uniforms.SetValue(uniforms, "useRefract", 0 /*m.envMap && (m.envMap.mapping is CubeRefractionMapping) */);
             }
 
-
-
-            // uv repeat and offset setting priorities
             //  1. color map
             //  2. specular map
             //  3. normal map
             //  4. bump map
             //  5. alpha map
-/*
-            if (null != m.map)
+
+            var imap = material as IMap;
+            if (null != imap)
             {
-                uvScaleMap = m.map;
+                if (null != imap.Map)
+                {
+                    uvScaleMap = imap.Map;
+                }
+                else if (null != imap.SpecularMap)
+                {
+                    uvScaleMap = imap.SpecularMap;
+                }
+                else if (null != imap.NormalMap)
+                {
+                    uvScaleMap = imap.NormalMap;
+                }
+                else if (null != imap.BumpMap)
+                {
+                    uvScaleMap = imap.BumpMap;
+                }
+                else if (null != imap.AlphaMap)
+                {
+                    uvScaleMap = imap.AlphaMap;
+                }
+
+                if (uvScaleMap != null)
+                {
+                    var offset = uvScaleMap.Offset;
+                    var repeat = uvScaleMap.Repeat;
+
+                    uniforms["offsetRepeat"]["value"] = new Vector4(offset.X, offset.Y, repeat.X, repeat.Y);
+                }
             }
-            else if (null != m.specularMap)
-            {
-                uvScaleMap = m.specularMap;
-
-                //} else if ( null != m.normalMap ) {
-
-                //    uvScaleMap = m.normalMap;
-
-                //} else if ( null != m.bumpMap ) {
-
-                //    uvScaleMap = null != m.bumpMap;
-            }
-            else if (null != m.alphaMap)
-            {
-                uvScaleMap = m.alphaMap;
-            }
-*/
-            if (uvScaleMap != null)
-            {
-                var offset = uvScaleMap.Offset;
-                var repeat = uvScaleMap.Repeat;
-
-                uniforms["offsetRepeat"]["value"] = new Vector4(offset.X, offset.Y, repeat.X, repeat.Y);
-            }
-
-
         }
 
         /// <summary>
@@ -3519,6 +3526,8 @@
         {
             if (this._contextGlobalCompositeOperation != value)
             {
+                throw new NotImplementedException();
+
                 if (value == Three.NormalBlending)
                 {
                     //                   _context.globalCompositeOperation = "source-over";
@@ -4151,9 +4160,11 @@
             {
                 for (var i = 0; i < customAttributes.Count; i++)
                 {
-                    var customAttribute = customAttributes[i] as Hashtable;
+                    var customAttribute = customAttributes[i];
 
-                    if (! (bool)((Hashtable)customAttribute["__original"])["needsUpdate"]) continue;
+                    var original = customAttribute["__original"] as ThreeCs.Renderers.Shaders.Attribute;
+
+                    if (!(bool)((original)["needsUpdate"])) continue;
 
                     offset_custom = 0;
                     offset_customSrc = 0; // not used
@@ -4162,8 +4173,7 @@
 
                     if (size == 1)
                     {
-
-                        if (customAttribute["boundTo"] == null || (string)customAttribute["boundTo"] == "vertices")
+                        if (!customAttribute.ContainsKey("boundTo") || (string)customAttribute["boundTo"] == "vertices")
                         {
                             var array  = (float[])customAttribute["array"];
                             var values = (float[])customAttribute["f"];
@@ -4480,6 +4490,7 @@
             if (dispose)
             {
                 //delete geometryGroup.__inittedArrays;
+                //delete geometryGroup.__inittedArrays;
                 //delete geometryGroup.__colorArray;
                 //delete geometryGroup.__normalArray;
                 //delete geometryGroup.__tangentArray;
@@ -4579,13 +4590,13 @@
         private void RefreshUniformsFog ( Uniforms uniforms, Fog fog ) 
         {
 
-            uniforms["fogColor"]["value"] = fog.color;
+            uniforms["fogColor"]["value"] = fog.Color;
 
             if (fog is Fog)
             {
 
-                uniforms["fogNear"]["value"] = fog.near;
-                uniforms["fogFar"]["value"] = fog.far;
+                uniforms["fogNear"]["value"] = fog.Near;
+                uniforms["fogFar"]["value"] = fog.Far;
 
             }
             else if (fog is FogExp2)
@@ -4604,24 +4615,24 @@
         /// <param name="material"></param>
         private void RefreshUniformsPhong ( Uniforms uniforms, MeshPhongMaterial material ) 
         {
-            uniforms["shininess"]["value"] = material.shininess;
+            uniforms["shininess"]["value"] = material.Shininess;
 
             if (this.gammaInput)
             {
-                uniforms["ambient"]["value"] = this.copyGammaToLinear(material.ambient);
-                uniforms["emissive"]["value"] = this.copyGammaToLinear(material.emissive);
-                uniforms["specular"]["value"] = this.copyGammaToLinear(material.specular);
+                uniforms["ambient"]["value"] = this.copyGammaToLinear(material.Ambient);
+                uniforms["emissive"]["value"] = this.copyGammaToLinear(material.Emissive);
+                uniforms["specular"]["value"] = this.copyGammaToLinear(material.Specular);
             }
             else
             {
-                uniforms["ambient"]["value"] = material.ambient;
-                uniforms["emissive"]["value"] = material.emissive;
-                uniforms["specular"]["value"] = material.specular;
+                uniforms["ambient"]["value"] = material.Ambient;
+                uniforms["emissive"]["value"] = material.Emissive;
+                uniforms["specular"]["value"] = material.Specular;
             }
 
             if (material.WrapAround)
             {
-                uniforms["wrapRGB"]["value"] = material.wrapRGB;
+                uniforms["wrapRGB"]["value"] = material.WrapRgb;
             }
 	    }
 
@@ -4923,10 +4934,10 @@
 
                 uniforms["psColor"]["value"] = m.color;
                 uniforms["opacity"]["value"] = m.opacity;
-                uniforms["size"]["value"] = m.size;
+                uniforms["size"]["value"] = m.Size;
                 uniforms["scale"]["value"] = this._currentHeight / 2.0f; // TODO: Cache this.
 
-                uniforms["map"]["value"] = m.map;
+                uniforms["map"]["value"] = m.Map;
 
                 return;
             }
@@ -4943,13 +4954,13 @@
         {
             if (this.gammaInput)
             {
-                uniforms["ambient"]["value"] = this.copyGammaToLinear(material.ambient);
-                uniforms["emissive"]["value"] = this.copyGammaToLinear(material.emissive);
+                uniforms["ambient"]["value"] = this.copyGammaToLinear(material.Ambient);
+                uniforms["emissive"]["value"] = this.copyGammaToLinear(material.Emissive);
             }
             else
             {
-                uniforms["ambient"]["value"] = material.ambient;
-                uniforms["emissive"]["value"] = material.emissive;
+                uniforms["ambient"]["value"] = material.Ambient;
+                uniforms["emissive"]["value"] = material.Emissive;
             }
 
             if (material.WrapAround)
@@ -5070,7 +5081,7 @@
             }
 
             var meshBasicMaterial = material as MeshBasicMaterial;
-            if (null != meshBasicMaterial && meshBasicMaterial.morphTargets)
+            if (null != meshBasicMaterial && meshBasicMaterial.MorphTargets)
             {
                 if (null == object3D.__webglMorphTargetInfluences)
                 {
@@ -5127,11 +5138,12 @@
                 if (null != uniformLocation)
                     GL.UniformMatrix4((int)uniformLocation, 1, false, camera.ProjectionMatrix.Elements);
 
-                //if ( _logarithmicDepthBuffer ) {
+                if (_logarithmicDepthBuffer)
+                {
+                    throw new NotImplementedException();
+                 //   GL.Uniform1(p_uniforms["logDepthBufFC"], 2.0 / (Math.Log(camera.far + 1.0) / Math.LN2));
 
-                //   GL.Uniform1( p_uniforms["logDepthBufFC"], 2.0 / ( Math.Log( camera.far + 1.0 ) / Math.LN2 ) );
-
-                //}
+                }
 
                 if (camera != this._currentCamera)
                 {
@@ -5225,7 +5237,7 @@
             {
                 // refresh uniformsLocation common to several materials
 
-                if (null != fog && material is MeshPhongMaterial && ((MeshPhongMaterial)material).fog)
+                if (null != fog && material is MeshPhongMaterial && ((MeshPhongMaterial)material).Fog)
                 {
                     RefreshUniformsFog(m_uniforms, fog);
                 }
@@ -5326,7 +5338,7 @@
 
                     texture.__webglTexture = GL.GenTexture();
 
-                    this.info.memory.Textures++;
+                    this.Info.memory.Textures++;
                 }
 
                 GL.ActiveTexture(TextureUnit.Texture0 + slot);
@@ -5337,6 +5349,8 @@
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, texture.UnpackAlignment);
 
                 var bitmap = texture.Image;
+
+if (null == bitmap) return;
 
                 var isImagePowerOfTwo = IsPowerOfTwo(bitmap.Width) && IsPowerOfTwo(bitmap.Height);
 
@@ -5354,10 +5368,12 @@
                     {
                         for (var i = 0; i < mipmaps.Count; i++)
                         {
+                            throw new NotImplementedException();
+
                             //var mipmap = mipmaps[i];
                             //GL.TexImage2D(TextureTarget.Texture2D, i, texture.internalFormat, mipmap.width, mipmap.height, 0, texture.format, texture.type, mipmap.data);
                         }
-                        texture.generateMipmaps = false;
+                        texture.GenerateMipmaps = false;
                     }
                     else
                     {
@@ -5368,17 +5384,18 @@
                 }
                 else if (texture is CompressedTexture)
                 {
-                    //for (var i = 0; i < mipmaps.Count; i++)
-                    //{
-                    //    var mipmap = mipmaps[i];
-                    //    if (texture.format != PixelFormat.Rgba)
-                    //    {
-                    //        GL.CompressedTexImage2D(TextureTarget.Texture2D, i, texture.format, mipmap.width, mipmap.height, 0, mipmap.data);
-                    //    } else {
-                    //        GL.TexImage2D(TextureTarget.Texture2D, i, texture.internalFormat, mipmap.width, mipmap.height, 0, texture.format, texture.type, mipmap.data);
-                    //    }
-
-                    //}
+                    for (var level = 0; level < mipmaps.Count; level++)
+                    {
+                        var mipmap = mipmaps[level];
+                        if (texture.Format != OpenTK.Graphics.OpenGL.PixelFormat.Rgba)
+                        {
+                            GL.CompressedTexImage2D(TextureTarget.Texture2D, level, texture.InternalFormat, mipmap.Width, mipmap.Height, 0, mipmap.Data.Length, mipmap.Data);
+                        }
+                        else
+                        {
+                            GL.TexImage2D(TextureTarget.Texture2D, level, texture.InternalFormat, mipmap.Width, mipmap.Height, 0, texture.Format, texture.Type, mipmap.Data);
+                        }
+                    }
                 }
                 else
                 {
@@ -5390,12 +5407,14 @@
 
                     if (null != mipmaps && mipmaps.Count > 0 && isImagePowerOfTwo)
                     {
-                        for (var i = 0; i < mipmaps.Count; i ++)
+                        for (var i = 0; i < mipmaps.Count; i++)
                         {
+                            throw new NotImplementedException();
+
                             var mipmap = mipmaps[i];
                             // GL.TexImage2D(TextureTarget.Texture2D, i, texture.internalFormat, image.Width, image.Height, 0, texture.format, texture.type, mipmap);
                         }
-                        texture.generateMipmaps = false;
+                        texture.GenerateMipmaps = false;
                     }
                     else
                     {
@@ -5405,7 +5424,7 @@
                     }
                 }
 
-                if (texture.generateMipmaps && isImagePowerOfTwo)
+                if (texture.GenerateMipmaps && isImagePowerOfTwo)
                 {
                     GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                 }
@@ -5445,10 +5464,10 @@
 
             if ( this.glExtensionTextureFilterAnisotropic && (texture.Type != PixelType.Float) ) 
             {
-                if ( texture.anisotropy > 1 || texture.__oldAnisotropy > 1 )
+                if ( texture.Anisotropy > 1 || texture.__oldAnisotropy < 0 )
                 {
-                    GL.TexParameter(textureTarget, (TextureParameterName)ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, Math.Min(texture.anisotropy, this.MaxAnisotropy));
-                    texture.__oldAnisotropy = texture.anisotropy;
+                    GL.TexParameter(textureTarget, (TextureParameterName)ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, Math.Min(texture.Anisotropy, this.MaxAnisotropy));
+                    texture.__oldAnisotropy = texture.Anisotropy;
                 }
             }
         }
@@ -6092,7 +6111,7 @@
                         this.InitMeshBuffers(geometryGroup, object3D);
                     }                 
 
-                    var customAttributesDirty = (material is IAttributes && (null != ((IAttributes)material).attributes) && AreCustomAttributesDirty( material as IAttributes));
+                    var customAttributesDirty = (material is IAttributes && (null != ((IAttributes)material).Attributes) && AreCustomAttributesDirty( material as IAttributes));
 
                     if (geometry.VerticesNeedUpdate || geometry.MorphTargetsNeedUpdate || geometry.ElementsNeedUpdate
                     || geometry.UvsNeedUpdate || geometry.NormalsNeedUpdate || geometry.ColorsNeedUpdate
@@ -6112,7 +6131,7 @@
 
                 geometry.BuffersNeedUpdate = false;
 
-                if (material is IAttributes && (null != ((IAttributes)material).attributes))
+                if (material is IAttributes && (null != ((IAttributes)material).Attributes))
                     ClearCustomAttributes(material as IAttributes);
             }
             else if (object3D is Line)
@@ -6121,7 +6140,7 @@
                 
                 material = this.getBufferMaterial(object3D, geometry);
 
-                var customAttributesDirty = (material is IAttributes && (null != ((IAttributes)material).attributes) && AreCustomAttributesDirty(material as IAttributes));
+                var customAttributesDirty = (material is IAttributes && (null != ((IAttributes)material).Attributes) && AreCustomAttributesDirty(material as IAttributes));
 
                 if (geometry.VerticesNeedUpdate || geometry.ColorsNeedUpdate || geometry.LineDistancesNeedUpdate || customAttributesDirty)
                 {
@@ -6132,7 +6151,7 @@
                 geometry.ColorsNeedUpdate = false;
                 geometry.LineDistancesNeedUpdate = false;
 
-                if (material is IAttributes && (null != ((IAttributes)material).attributes))
+                if (material is IAttributes && (null != ((IAttributes)material).Attributes))
                     ClearCustomAttributes(material as IAttributes);
             }
             else if (object3D is PointCloud)
@@ -6142,7 +6161,7 @@
 
                 material = this.getBufferMaterial(object3D, geometry);
 
-                var customAttributesDirty = (material is IAttributes && (null != ((IAttributes)material).attributes) && AreCustomAttributesDirty(material as IAttributes));
+                var customAttributesDirty = (material is IAttributes && (null != ((IAttributes)material).Attributes) && AreCustomAttributesDirty(material as IAttributes));
 
                 if ( geometry.VerticesNeedUpdate || geometry.ColorsNeedUpdate || pointCloud.sortParticles || customAttributesDirty )
                 {
@@ -6152,7 +6171,7 @@
                 geometry.VerticesNeedUpdate = false;
                 geometry.ColorsNeedUpdate = false;
 
-                if (material is IAttributes && (null != ((IAttributes)material).attributes))
+                if (material is IAttributes && (null != ((IAttributes)material).Attributes))
                     ClearCustomAttributes(material as IAttributes);
             }
         }

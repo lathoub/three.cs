@@ -185,9 +185,9 @@ namespace Demo.WebGL
             {
                 var material = new ShaderMaterial()
                     {
-                        uniforms = uniforms.Value,
-                        vertexShader = VertexShader,
-                        fragmentShader = fragmentShaders[i],
+                        Uniforms = uniforms.Value,
+                        VertexShader = VertexShader,
+                        FragmentShader = fragmentShaders[i],
                     };
 
                 var mesh = new Mesh(geometry, material);
@@ -214,7 +214,7 @@ namespace Demo.WebGL
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

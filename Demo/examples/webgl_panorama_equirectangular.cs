@@ -48,7 +48,7 @@
             geometry.ApplyMatrix(new Matrix4().MakeScale(-1, 1, 1));
 
             var material = new MeshBasicMaterial {
-                map = ImageUtils.LoadTexture(@"examples/textures/2294472375_24a3b8ef46_o.jpg")
+                Map = ImageUtils.LoadTexture(@"examples/textures/2294472375_24a3b8ef46_o.jpg")
             };
 
             this.mesh = new Mesh(geometry, material);
@@ -68,7 +68,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         private float onPointerDownPointerX, onPointerDownPointerY;

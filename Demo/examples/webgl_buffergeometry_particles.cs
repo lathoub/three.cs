@@ -39,16 +39,15 @@
 
             //
 
-            const int particles = 500000;
+            const int Particles = 500000;
 
-            var positions = new float[particles * 3];
-            var colors = new float[particles * 3];
+            var positions = new float[Particles * 3];
+            var colors    = new float[Particles * 3];
 
             var n = 1000; var n2 = n / 2; // particles spread in the cube
 
             for (var i = 0; i < positions.Length; i += 3)
             {
-
                 // positions
 
                 var x = Mat.Random() * n - n2;
@@ -79,14 +78,14 @@
 
             //
 
-            var material = new PointCloudMaterial() { size = 15, vertexColors = new Color[Three.VertexColors] };
+            var material = new PointCloudMaterial() { Size = 15, VertexColors = new Color[Three.VertexColors] };
 
             particleSystem = new PointCloud(geometry, material);
             scene.Add(particleSystem);
 
             //
 
-            renderer.SetClearColor(scene.Fog.color);
+            renderer.SetClearColor(scene.Fog.Color);
         }
 
         /// <summary>
@@ -101,7 +100,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

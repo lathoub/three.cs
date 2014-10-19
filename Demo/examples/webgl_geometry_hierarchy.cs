@@ -82,7 +82,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

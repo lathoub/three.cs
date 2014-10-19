@@ -1,7 +1,6 @@
 ﻿namespace ThreeCs.Core
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
 
     using ThreeCs.Math;
@@ -9,6 +8,8 @@
     public abstract class BaseGeometry
     {
         public Guid Uuid = Guid.NewGuid();
+
+        public int Id;
 
         public string Name;
 
@@ -64,7 +65,7 @@
         public int __webglLineCount;
         public int __webglParticleCount;
 
-        public List<Hashtable> __webglCustomAttributesList;
+        public List<ThreeCs.Renderers.Shaders.Attribute> __webglCustomAttributesList;
 
         public bool __inittedArrays;
 

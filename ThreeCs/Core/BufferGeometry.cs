@@ -1,11 +1,11 @@
 ﻿namespace ThreeCs.Core
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
 
     using ThreeCs.Materials;
     using ThreeCs.Math;
+    using ThreeCs.Renderers.Shaders;
 
     public struct Offset
     {
@@ -18,19 +18,11 @@
     {
         protected static int BufferGeometryIdCount;
 
-        public int Id = BufferGeometryIdCount++;
-
-
-
-
-
         // IAttributes
 
-        public Hashtable attributes { get; set; }
+        public Attributes Attributes { get; set; }
 
-
-
-
+        //
 
         public IList<Offset> Drawcalls = new List<Offset>();
 
@@ -41,8 +33,10 @@
         /// </summary>
         public BufferGeometry()
         {
+            Id = BufferGeometryIdCount++;
+
             // IAttributes
-            attributes = new Hashtable();
+            this.Attributes = new Attributes();
 
             this.Offsets = this.Drawcalls;
         }
@@ -52,9 +46,9 @@
         /// </summary>
         /// <param name="name"></param>
         /// <param name="attribute"></param>
-        public void AddAttribute(string name, IBufferAttribute attribute)
+        public void AddAttribute(string name, ThreeCs.Renderers.Shaders.Attribute attribute)
         {
-            this.attributes[name] = attribute;
+            this.Attributes[name] = attribute;
         }
 
         /// <summary>
@@ -69,7 +63,7 @@
                 this.BoundingSphere = new Sphere();
             }
 
-            var bufferAttribute = this.attributes["position"] as BufferAttribute<float>;
+            var bufferAttribute = this.Attributes["position"] as BufferAttribute<float>;
             var positions = bufferAttribute.Array as float[];
 
             if (null  != positions)
@@ -114,17 +108,19 @@
         public override void ApplyMatrix(Matrix4 matrix)
         {
 
-            var position = ((BufferAttribute<float>)this.attributes["position"]);
-		    if ( position != null )
+		    if (this.Attributes.ContainsKey("position"))
 		    {
-		        matrix.ApplyToVector3Array(position.Array);
+                var position = (BufferAttribute<float>)this.Attributes["position"];
+
+                matrix.ApplyToVector3Array(position.Array);
 			    position.needsUpdate = true;
 		    }
 
-            var normal = ((BufferAttribute<float>)this.attributes["normal"]);
-		    if ( normal != null )
+		    if (this.Attributes.ContainsKey("normal"))
 		    {
-		        var normalMatrix = new Matrix3().GetNormalMatrix(matrix);
+                var normal = (BufferAttribute<float>)this.Attributes["normal"];
+
+                var normalMatrix = new Matrix3().GetNormalMatrix(matrix);
 
 		        normalMatrix.ApplyToVector3Array(normal.Array);
 			    normal.needsUpdate = true;

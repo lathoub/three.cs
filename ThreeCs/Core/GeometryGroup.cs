@@ -1,5 +1,6 @@
 ﻿namespace ThreeCs.Core
 {
+    using System;
     using System.Collections.Generic;
 
     using ThreeCs.Math;
@@ -7,20 +8,6 @@
     public class GeometryGroup : BaseGeometry
     {
         protected static int GeometryGroupIdCount;
-
-        public int Id = GeometryGroupIdCount++;
-
-
-        public override void ComputeBoundingSphere()
-        {
-        }
-
-        public override void ApplyMatrix(Matrix4 matrix)
-        {
-        }
-
-
-
 
         public List<int> Faces3;
 
@@ -31,5 +18,32 @@
         public int NumMorphTargets;
 
         public int NumMorphNormals;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public override void ComputeBoundingSphere()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="matrix"></param>
+        public override void ApplyMatrix(Matrix4 matrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public GeometryGroup()
+        {
+            Id = GeometryGroupIdCount++;
+        }
+
+
     }
 }

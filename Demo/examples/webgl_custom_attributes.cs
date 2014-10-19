@@ -1,15 +1,12 @@
 ﻿namespace Demo
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
 
     using Examples;
-
-    using OpenTK.Graphics.OpenGL;
 
     using ThreeCs.Cameras;
     using ThreeCs.Extras;
@@ -21,7 +18,7 @@
     using ThreeCs.Scenes;
     using ThreeCs.Textures;
 
-    [Example("webgl_custom_attributes", ExampleCategory.OpenTK, "custom", 0.7f)]
+    [Example("webgl_custom_attributes", ExampleCategory.OpenTK, "custom", 0.4f)]
     class webgl_custom_attributes : Example
     {
         private PerspectiveCamera camera;
@@ -30,7 +27,7 @@
 
         private Mesh sphere;
 
-        private Hashtable attributes;
+        private Attributes attributes;
 
         private Uniforms uniforms;
 
@@ -90,9 +87,9 @@
 
 			scene = new Scene();
 
-            attributes = new Hashtable
+            attributes = new Attributes
             {
-                { "displacement", new Hashtable() { { "type", "f" }, { "value", null } } }
+                { "displacement", new ThreeCs.Renderers.Shaders.Attribute() { { "type", "f" }, { "value", null } } }
             };
 
             uniforms = new Uniforms
@@ -102,15 +99,15 @@
                 { "texture",   new Uniform() { {"type", "t"},  {"value", ImageUtils.LoadTexture(@"examples\textures/water.jpg")} }},
             };
 
-            //((Texture)uniforms["texture"].Value).WrapS = ThreeCs.Three.RepeatWrapping;
-            //((Texture)uniforms["texture"].Value).WrapT = ThreeCs.Three.RepeatWrapping;
+            var texture = uniforms["texture"]["value"] as Texture;
+            texture.WrapS = texture.WrapT = ThreeCs.Three.RepeatWrapping;
 
             var shaderMaterial = new ShaderMaterial
             {
-	            uniforms = 		 uniforms,
-	            attributes =     attributes,
-                vertexShader =   VertexShader,
-                fragmentShader = FragmentShader,
+	            Uniforms = 		 uniforms,
+	            Attributes =     attributes,
+                VertexShader =   VertexShader,
+                FragmentShader = FragmentShader,
             };
 
             const float Radius = 50.0f; const int Segments = 128; const int Rings = 64;
@@ -130,8 +127,7 @@
                 noise[v] = Mat.Random() * 5;
             }
 
-            ((Hashtable)attributes["displacement"])["f"] = values;
-
+            attributes["displacement"]["f"] = values;
 
             scene.Add(sphere);
 
@@ -150,7 +146,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>
@@ -167,7 +163,7 @@
             uniforms["amplitude"]["value"] = 2.5f * Math.Sin(this.sphere.Rotation.Y * 0.125);
             uniforms["color"]["value"] = ((Color)uniforms["color"]["value"]).OffsetHSL(512 * 0.0005f, 0, 0);
 
-            var displacement = attributes["displacement"] as Hashtable;
+            var displacement = attributes["displacement"];
             var values = (float[])displacement["f"];
 
             for (var i = 0; i < values.Length; i++)

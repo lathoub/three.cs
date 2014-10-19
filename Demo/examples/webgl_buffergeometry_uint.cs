@@ -159,18 +159,18 @@
 
             var material = new MeshPhongMaterial
             {
-                color = (Color)colorConvertor.ConvertFromString("#aaaaaa"),
-                ambient = (Color)colorConvertor.ConvertFromString("#aaaaaa"),
-                specular = (Color)colorConvertor.ConvertFromString("#ffffff"),
-                shininess = 250,
+                Color = (Color)colorConvertor.ConvertFromString("#aaaaaa"),
+                Ambient = (Color)colorConvertor.ConvertFromString("#aaaaaa"),
+                Specular = (Color)colorConvertor.ConvertFromString("#ffffff"),
+                Shininess = 250,
                 side = Three.DoubleSide,
-                vertexColors = new Color[Three.VertexColors]
+                VertexColors = new Color[Three.VertexColors]
             };
 
             this.mesh = new Mesh(geometry, material);
             scene.Add(mesh);
 
-            renderer.SetClearColor(scene.Fog.color);
+            renderer.SetClearColor(scene.Fog.Color);
 
             renderer.gammaInput = true;
             renderer.gammaOutput = true;
@@ -188,7 +188,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

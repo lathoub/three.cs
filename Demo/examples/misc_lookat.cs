@@ -98,7 +98,7 @@ namespace Demo.Misc
                 perspectiveCamera.UpdateProjectionMatrix();
             }
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

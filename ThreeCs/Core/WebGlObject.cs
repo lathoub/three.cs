@@ -6,7 +6,7 @@
     {
         public long id;
 
-        public object buffer;
+        public BaseGeometry buffer;
 
         public Object3D object3D;
 

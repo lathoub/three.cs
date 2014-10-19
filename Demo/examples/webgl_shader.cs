@@ -1,6 +1,5 @@
 ﻿namespace Demo
 {
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -89,9 +88,9 @@
 
             var material = new ShaderMaterial(null)
             {
-                uniforms = uniforms,
-                vertexShader = VertexShader,
-                fragmentShader = FragmentShader,
+                Uniforms = uniforms,
+                VertexShader = VertexShader,
+                FragmentShader = FragmentShader,
             };
 
             mesh = new Mesh(geometry, material);
@@ -117,7 +116,7 @@
 
             uniforms["resolution"]["value"] = new Vector2(clientSize.Width, clientSize.Height);
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

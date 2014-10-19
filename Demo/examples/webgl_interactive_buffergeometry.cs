@@ -161,15 +161,19 @@
 			}
 
 			geometry.AddAttribute( "position", new BufferAttribute<float>( positions, 3 ) );
-			geometry.AddAttribute( "normal", new BufferAttribute<float>( normals, 3 ) );
-			geometry.AddAttribute( "color", new BufferAttribute<float>( colors, 3 ) );
+			geometry.AddAttribute( "normal",   new BufferAttribute<float>( normals, 3 ) );
+			geometry.AddAttribute( "color",    new BufferAttribute<float>( colors, 3 ) );
 
 			geometry.ComputeBoundingSphere();
 
-			var material = new MeshPhongMaterial() {
-					    color = (Color)colorConvertor.ConvertFromString("#aaaaaa"), ambient = (Color)colorConvertor.ConvertFromString("#aaaaaa"), specular = Color.White, shininess = 250,
-					    side = Three.DoubleSide, vertexColors = new Color[Three.VertexColors]
-			        };
+			var material = new MeshPhongMaterial()
+            {
+				Color = (Color)colorConvertor.ConvertFromString("#aaaaaa"), 
+                Ambient = (Color)colorConvertor.ConvertFromString("#aaaaaa"), 
+                Specular = Color.White, 
+                Shininess = 250,
+				side = Three.DoubleSide, VertexColors = new Color[Three.VertexColors]
+			};
 
 			mesh = new Mesh( geometry, material );
 			scene.Add( mesh );
@@ -184,12 +188,12 @@
 			var geometry2 = new BufferGeometry();
             geometry2.AddAttribute("position", new BufferAttribute<float>(new float[4 * 3], 3));
 
-            var material2 = new LineBasicMaterial() { Color = Color.White, linewidth = 2, transparent = true };
+            var material2 = new LineBasicMaterial() { Color = Color.White, Linewidth = 2, transparent = true };
 
             line = new Line(geometry2, material2);
             scene.Add(line);
 
-            renderer.SetClearColor(scene.Fog.color);
+            renderer.SetClearColor(scene.Fog.Color);
         }
 
         /// <summary>
@@ -204,7 +208,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>
@@ -241,10 +245,10 @@
 
                 var object3D = intersect.Object3D;
                 var bg = object3D.Geometry as BufferGeometry;
-                var positions = ((BufferAttribute<float>)bg.attributes["position"]).Array;
+                var positions = ((BufferAttribute<float>)bg.Attributes["position"]).Array;
 
                 var bg2 = line.Geometry as BufferGeometry;
-                var array = ((BufferAttribute<float>)bg2.attributes["position"]).Array;
+                var array = ((BufferAttribute<float>)bg2.Attributes["position"]).Array;
 
                 for (int i = 0, j = 0; i < 4; i++, j+=3)
                 {

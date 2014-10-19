@@ -33,10 +33,10 @@
         /// </summary>
         /// <param name="geometry"></param>
         /// <param name="material"></param>
-        public Mesh(BaseGeometry geometry, Material material)
+        public Mesh(BaseGeometry geometry = null, Material material = null)
         {
-            this.Geometry = geometry;
-            this.Material = material ?? new MeshBasicMaterial(null) { color = new Color().Random() };
+            this.Geometry = geometry ?? new Geometry();
+            this.Material = material ?? new MeshBasicMaterial() { Color = new Color().Random() };
 
             UpdateMorphTargets();
         }
@@ -209,7 +209,7 @@
 
             if (material == null) return;
 
-            var attributes = geometry.attributes;
+            var attributes = geometry.Attributes;
 
             var precision = raycaster.Precision;
 
@@ -217,7 +217,7 @@
             var vB = new Vector3();
             var vC = new Vector3();
 
-            if (attributes["index"] != null)
+            if (attributes.ContainsKey("index"))
             {
 
                 var indices = ((BufferAttribute<short>)attributes["index"]).Array;

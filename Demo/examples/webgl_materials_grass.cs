@@ -88,8 +88,8 @@ namespace Demo.Misc
 			for ( var i = 0; i < 15; i ++ ) {
 
 				var material = new MeshBasicMaterial() {
-                    color = new HSLColor(0.3f, 0.75f, (i / 15.0f) * 0.4f + 0.1f),
-					map = texture,
+                    Color = new HSLColor(0.3f, 0.75f, (i / 15.0f) * 0.4f + 0.1f),
+					Map = texture,
 					depthTest = false,
 					depthWrite = false,
 					transparent = true
@@ -122,7 +122,7 @@ namespace Demo.Misc
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

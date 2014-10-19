@@ -286,8 +286,8 @@ namespace ThreeCs.Annotations
   }
 
   /// <summary>
-  /// Should be used on attributes and causes ReSharper
-  /// to not mark symbols marked with such attributes as unused
+  /// Should be used on Attributes and causes ReSharper
+  /// to not mark symbols marked with such Attributes as unused
   /// (as well as by other usage inspections)
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
@@ -403,7 +403,7 @@ namespace ThreeCs.Annotations
     [NotNull] public string BasePath { get; private set; }
   }
 
-  // ASP.NET MVC attributes
+  // ASP.NET MVC Attributes
 
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
   public sealed class AspMvcAreaMasterLocationFormatAttribute : Attribute
@@ -602,7 +602,7 @@ namespace ThreeCs.Annotations
     [NotNull] public string Name { get; private set; }
   }
 
-  // Razor attributes
+  // Razor Attributes
 
   /// <summary>
   /// Razor attribute. Indicates that a parameter or a method is a Razor section.

@@ -5,83 +5,94 @@
 
     using ThreeCs.Textures;
 
-    public class MeshBasicMaterial : Material, IWirerframe
+    public class MeshBasicMaterial : Material, IWireframe, IMap
     {
-        public Texture map;
 
-        public Texture lightMap;
+        // IMap
 
-        public Texture specularMap;
+        public Texture Map { get; set; }
 
-        public Texture alphaMap;
+        public Texture AlphaMap { get; set; }
 
-        public Texture envMap;
+        public Texture SpecularMap { get; set; }
 
-        public Color color;
+        public Texture NormalMap { get; set; } // TODO: not in ThreeJs, just to be an IMap. Must be NULL
 
-        public int combine;
+        public Texture BumpMap { get; set; } // TODO: not in ThreeJs, just to be an IMap.  Must be NULL
 
-        public float reflectivity;
 
-        public float refractionRatio;
 
-        public bool fog;
+        public Texture LightMap;
 
-        public int shading;
+
+
+        public Texture EnvMap;
+
+        public Color Color;
+
+        public int Combine;
+
+        public float Reflectivity;
+
+        public float RefractionRatio;
+
+        public bool Fog;
+
+        public int Shading;
 
         // IWireFrameable
 
-        public bool wireframe { get; set; }
+        public bool Wireframe { get; set; }
 
-        public float wireframeLinewidth { get; set; }
+        public float WireframeLinewidth { get; set; }
 
         //
 
-        public string wireframeLinecap;
+        public string WireframeLinecap;
 
-        public string wireframeLinejoin;
+        public string WireframeLinejoin;
 
-        public Color[] vertexColors;
+        public Color[] VertexColors;
 
-        public bool skinning;
+        public bool Skinning;
 
-        public bool morphTargets;
+        public bool MorphTargets;
 
-        public int numSupportedMorphTargets;
+        public int NumSupportedMorphTargets;
 
         /// <summary>
         /// 
         /// </summary>
         public MeshBasicMaterial(Hashtable parameters = null)
         {
-	        this.color = Color.White; // emissive
+	        this.Color = Color.White; // emissive
 
-	        this.map = null;
+	        this.Map = null;
 
-	        this.lightMap = null;
+	        this.LightMap = null;
 
-	        this.specularMap = null;
+	        this.SpecularMap = null;
 
-	        this.alphaMap = null;
+	        this.AlphaMap = null;
 
-	        this.envMap = null;
-	        this.combine = Three.MultiplyOperation;
-	        this.reflectivity = 1;
-	        this.refractionRatio = 0.98f;
+	        this.EnvMap = null;
+	        this.Combine = Three.MultiplyOperation;
+	        this.Reflectivity = 1;
+	        this.RefractionRatio = 0.98f;
 
-	        this.fog = true;
+	        this.Fog = true;
 
-            this.shading = Three.SmoothShading;
+            this.Shading = Three.SmoothShading;
 
             // IWireFrameable
-            wireframe = false;
-            wireframeLinewidth = 1;
+            this.Wireframe = false;
+            this.WireframeLinewidth = 1;
             
-            this.wireframeLinecap = "round";
-	        this.wireframeLinejoin = "round";
+            this.WireframeLinecap = "round";
+	        this.WireframeLinejoin = "round";
 
-	        this.skinning = false;
-	        this.morphTargets = false;
+	        this.Skinning = false;
+	        this.MorphTargets = false;
 
             this.SetValues(parameters);
         }

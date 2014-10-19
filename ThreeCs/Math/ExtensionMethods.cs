@@ -8,7 +8,9 @@ namespace ThreeCs.Math
     {
         private static Random random = new Random();
 
-        public const double PI2 = (2 * 3.14159265358979323846); 
+        public const double PI2 = (2 * 3.14159265358979323846);
+
+        public const double HalfPI = (3.14159265358979323846 / 2.0f); 
 
         public static double RadToDeg(double rad)
         {
@@ -21,6 +23,13 @@ namespace ThreeCs.Math
         }
 
         public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
+        {
+            if (val.CompareTo(min) < 0) return min;
+            else if (val.CompareTo(max) > 0) return max;
+            else return val;
+        }
+
+        public static float Clamp(float val, float min, float max) 
         {
             if (val.CompareTo(min) < 0) return min;
             else if (val.CompareTo(max) > 0) return max;

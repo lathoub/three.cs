@@ -1,7 +1,7 @@
 ﻿namespace ThreeCs.Textures
 {
     using System;
-    using System.Collections;
+    using System.Collections.Generic;
     using System.Drawing;
     using System.IO;
 
@@ -9,7 +9,16 @@
 
     using OpenTK.Graphics.OpenGL;
 
-    
+    public class MipMap
+    {
+        public byte[] Data;
+
+        public int Width;
+
+        public int Height;
+    }
+
+
     public class Texture : ICloneable
     {
         #region Static Fields
@@ -24,13 +33,13 @@
 
         public int __webglTexture;
 
-        public int anisotropy = 1;
+        public int Anisotropy = 1;
 
         public int __oldAnisotropy = -1;
 
         public bool flipY = true;
 
-        public bool generateMipmaps = true;
+        public bool GenerateMipmaps = true;
 
         public int Id = TextureIdCount++;
 
@@ -44,7 +53,7 @@
 
         public Bitmap Image;
 
-        public Hashtable Mipmaps;
+        public List<MipMap> Mipmaps;
 
         //this.mapping = mapping !== undefined ? mapping : Three.Texture.DEFAULT_MAPPING;
 
@@ -85,7 +94,7 @@
         /// <summary>
         /// Constructor
         /// </summary>
-        public Texture(Bitmap image, object mapping = null , bool wrapS = false, bool wrapT = false/* magFilter, minFilter, format, type, int anisotropy */)
+        public Texture(Bitmap image, object mapping = null, int wrapS = 0, int wrapT = 0, int magFilter = 0, int minFilter = 0, int format = 0,int  type = 0, int anisotropy = 1)
         {
             this.Image = image;
         }

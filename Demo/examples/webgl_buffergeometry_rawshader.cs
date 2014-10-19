@@ -1,6 +1,5 @@
 ﻿namespace Demo
 {
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -109,9 +108,9 @@
 
             var material = new RawShaderMaterial()
             {
-                uniforms = new Uniforms { { "time", new Uniform() { {"type", "f"}, {"value", 1.0f} } } },
-                vertexShader = VertexShader,
-                fragmentShader = FragmentShader,
+                Uniforms = new Uniforms { { "time", new Uniform() { {"type", "f"}, {"value", 1.0f} } } },
+                VertexShader = VertexShader,
+                FragmentShader = FragmentShader,
                 side = Three.DoubleSide,
                 transparent = true,
             };
@@ -134,7 +133,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>
@@ -148,7 +147,7 @@
 
             object3D.Rotation.Y = time * 0.0005f;
 
-            ((ShaderMaterial)object3D.Material).uniforms["time"]["value"] = time * 0.005;
+            ((IUniforms)object3D.Material).Uniforms["time"]["value"] = time * 0.005;
 
             renderer.Render(scene, camera);
         }

@@ -1,23 +1,25 @@
 ﻿namespace ThreeCs.Scenes
 {
     using System;
+    using System.Diagnostics;
     using System.Drawing;
 
+     [DebuggerDisplay("Color = {Color}, Near = {Near}, Far = {Far}")]
     public class Fog : ICloneable
     {
         #region Fields
 
         
-        public Color color = Color.White;
+        public Color Color = Color.White;
 
         
-        public float far;
+        public float Far;
 
         
         public string name;
 
         
-        public float near;
+        public float Near;
 
         #endregion
 
@@ -33,18 +35,18 @@
         /// </summary>
         public Fog(Color color, float near = 1, float far = 2000)
         {
-            this.color = color;
-            this.near = near;
-            this.far = far;
+            this.Color = color;
+            this.Near = near;
+            this.Far = far;
         }
 
         /// <summary>
         /// </summary>
         protected Fog(Fog other)
         {
-            this.color = other.color;
-            this.near = other.near;
-            this.far = other.far;
+            this.Color = other.Color;
+            this.Near = other.Near;
+            this.Far = other.Far;
         }
 
         #endregion

@@ -52,7 +52,7 @@
 		    this.line.MatrixAutoUpdate = false;
             this.Add(this.line);
 
-		    this.cone = new Mesh( coneGeometry, new MeshBasicMaterial() { color = color } ) ;
+		    this.cone = new Mesh( coneGeometry, new MeshBasicMaterial() { Color = color } ) ;
 		    this.cone.MatrixAutoUpdate = false;
             this.Add(this.cone);
 

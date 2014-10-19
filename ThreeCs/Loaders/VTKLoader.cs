@@ -10,17 +10,17 @@
     using ThreeCs.Core;
     using ThreeCs.Math;
 
-    public class LoaderEventArgs : EventArgs
+    public class GeometryLoaderEventArgs : EventArgs
     {
         #region Constructors and Destructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoaderEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="GeometryLoaderEventArgs"/> class.
         /// </summary>
         /// <param name="geometry">
         /// The channel carrier.
         /// </param>
-        public LoaderEventArgs(Geometry geometry)
+        public GeometryLoaderEventArgs(Geometry geometry)
         {
             this.Geometry = geometry;
         }
@@ -39,14 +39,14 @@
 
     public class VTKLoader
     {
-        public event EventHandler<LoaderEventArgs> Loaded;
+        public event EventHandler<GeometryLoaderEventArgs> Loaded;
 
         protected virtual void RaiseLoaded(Geometry geometry)
         {
             var handler = this.Loaded;
             if (handler != null)
             {
-                handler(this, new LoaderEventArgs(geometry));
+                handler(this, new GeometryLoaderEventArgs(geometry));
             }
         }
 

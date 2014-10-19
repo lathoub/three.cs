@@ -5,23 +5,21 @@
 
     using ThreeCs.Renderers.Shaders;
 
-    public class ShaderMaterial : Material, IWirerframe, IAttributes
+    public class ShaderMaterial : Material, IWireframe, IAttributes, IUniforms
     {
         public Hashtable defines = new Hashtable();
 
-        public Uniforms uniforms = new Uniforms();
+        public Uniforms Uniforms { get; set; }
 
         // IAttributes
 
-        public Hashtable attributes { get; set; }
+        public Attributes Attributes { get; set; }
 
+        //
 
+        public string VertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
 
-
-
-        public string vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}";
-
-        public string fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
+        public string FragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}";
 
         public int Shading = Three.SmoothShading;
 
@@ -29,9 +27,9 @@
 
         // IWireFrameable
 
-        public bool wireframe { get; set; }
+        public bool Wireframe { get; set; }
 
-        public float wireframeLinewidth { get; set; }
+        public float WireframeLinewidth { get; set; }
 
         //
 
@@ -47,7 +45,7 @@
 
         public bool morphNormals = false; // set to use morph normals
 
-        // When rendered geometry doesn"t include these attributes but the material does,
+        // When rendered geometry doesn"t include these Attributes but the material does,
         // use these default values in WebGL. This avoids errors when buffer data is missing.
         //public object defaultAttributeValues = {
         //"color": [ 1, 1, 1 ],
@@ -64,11 +62,14 @@
         public ShaderMaterial(Hashtable parameters = null)
         {
             // IAttributes
-            attributes = new Hashtable();
+            this.Attributes = new Attributes();
+
+            // IUniforms
+            Uniforms = new Uniforms();
 
             // IWireFrameable
-            wireframe = false;
-            wireframeLinewidth = 1;
+            this.Wireframe = false;
+            this.WireframeLinewidth = 1;
             
             this.SetValues(parameters);
         }

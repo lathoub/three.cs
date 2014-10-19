@@ -292,6 +292,20 @@
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="callback"></param>
+        public void Traverse(Action<Object3D> callback)
+        {
+            callback(this);
+
+		    for ( var i = 0; i < this.Children.Count; i ++ )
+		    {
+		        this.Children[i].Traverse(callback);
+		    }
+	    }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="vector"></param>
         public virtual void LookAt(Vector3 vector) 
         {

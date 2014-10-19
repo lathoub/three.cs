@@ -1,14 +1,90 @@
 ﻿namespace ThreeCs.Core
 {
-    public class BufferAttribute<T> : IBufferAttribute
+    using ThreeCs.Renderers.Shaders;
+
+    public class BufferAttribute<T> : Attribute, IBufferAttribute
     {
-        public T[] Array;
+        public T[] Array
+        {
+            get
+            {
+                return (T[])this["array"];
+            }
+            set
+            {
+                this["array"] = value;
+            }
+        }
 
-        public int ItemSize;
+        public string Type
+        {
+            get
+            {
+                return (string)this["type"];
+            }
+            set
+            {
+                this["type"] = value;
+            }
+        }
 
-        public int buffer { get; set; }
+        public int ItemSize
+        {
+            get
+            {
+                return (int)this["itemSize"];
+            }
+            set
+            {
+                this["itemSize"] = value;
+            }
+        }
 
-        public bool needsUpdate { get; set; }
+        public int buffer
+        {
+            get
+            {
+                return (int)this["buffer"];
+            }
+            set
+            {
+                this["buffer"] = value;
+            }
+        }
+
+        public bool needsUpdate
+        {
+            get
+            {
+                return (bool)this["needsUpdate"];
+            }
+            set
+            {
+                this["needsUpdate"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public BufferAttribute()
+        {
+            this.Add("array", null);
+            this.Add("itemSize", -1);
+            this.Add("buffer", -1);
+            this.Add("needsUpdate", false);
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="itemSize"></param>
+        public BufferAttribute(T[] array, int itemSize) : this()
+        {
+            this.Array = array;
+            this.ItemSize = itemSize;
+        }
 
         public int length
         {
@@ -18,11 +94,6 @@
             }
         }
 
-        public BufferAttribute(T[] array, int itemSize)
-        {
-            this.Array = array;
-            this.ItemSize = itemSize;
-        }
 
         public BufferAttribute<T> SetXY(int index, T x, T y)
         {

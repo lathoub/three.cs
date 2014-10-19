@@ -21,7 +21,7 @@ namespace Demo.WebGL
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
-    [Example("webgl_interactive_draggablecubes", ExampleCategory.OpenTK, "Interactive", 0.4f)]
+    [Example("webgl_interactive_draggablecubes", ExampleCategory.OpenTK, "Interactive", 0.0f)]
     class webgl_interactive_draggablecubes : Example
     {
         private PerspectiveCamera camera;
@@ -88,9 +88,9 @@ namespace Demo.WebGL
 
 			for ( var i = 0; i < 200; i ++ ) {
 
-                var object3D = new Mesh(geometry, new MeshLambertMaterial() { color = new Color().Random() });
+                var object3D = new Mesh(geometry, new MeshLambertMaterial() { Color = new Color().Random() });
 
-			    ((MeshLambertMaterial)object3D.Material).ambient = ((MeshLambertMaterial)object3D.Material).color;
+			    ((MeshLambertMaterial)object3D.Material).Ambient = ((MeshLambertMaterial)object3D.Material).Color;
 
 			    object3D.Position.X = Mat.Random() * 1000 - 500;
 			    object3D.Position.Y = Mat.Random() * 600 - 300;
@@ -112,7 +112,7 @@ namespace Demo.WebGL
 			    object3Ds.Add(object3D);
 			}
 
-			plane = new Mesh( new PlaneGeometry( 2000, 2000, 8, 8 ), new MeshBasicMaterial() { color = Color.Black, opacity = 0.25f, transparent = true, wireframe = true } );
+			plane = new Mesh( new PlaneGeometry( 2000, 2000, 8, 8 ), new MeshBasicMaterial() { Color = Color.Black, opacity = 0.25f, transparent = true, Wireframe = true } );
 			plane.Visible = false;
             scene.Add(plane);
 
@@ -137,7 +137,7 @@ namespace Demo.WebGL
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

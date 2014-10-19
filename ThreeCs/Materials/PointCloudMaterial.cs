@@ -9,15 +9,15 @@
     {
         public Color color = Color.White;
 
-        public Texture map;
+        public Texture Map;
 
-        public float size = 1;
+        public float Size = 1;
 
-        public bool sizeAttenuation = true;
+        public bool SizeAttenuation = true;
 
-        public Color[] vertexColors;
+        public Color[] VertexColors;
 
-        public bool fog = true;
+        public bool Fog = true;
         
         /// <summary>
         /// 

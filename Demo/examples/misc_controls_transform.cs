@@ -44,7 +44,7 @@
             scene.Add(light);
 
             var texture = ImageUtils.LoadTexture(@"examples\textures/crate.gif");
-            texture.anisotropy = renderer.MaxAnisotropy;
+            texture.Anisotropy = renderer.MaxAnisotropy;
 
             var geometry = new BoxGeometry(200, 200, 200);
             var material = new MeshLambertMaterial(null) { map = texture };

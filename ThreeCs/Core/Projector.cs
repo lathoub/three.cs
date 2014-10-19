@@ -8,7 +8,6 @@ namespace Three.Core
     using ThreeCs.Core;
     using ThreeCs.Lights;
     using ThreeCs.Math;
-    using ThreeCs.Objects;
     using ThreeCs.Renderers.Renderables;
     using ThreeCs.Scenes;
 

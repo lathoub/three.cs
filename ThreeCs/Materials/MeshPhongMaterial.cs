@@ -6,71 +6,75 @@
     using ThreeCs.Math;
     using ThreeCs.Textures;
 
-    public class MeshPhongMaterial : Material, IWirerframe
+    public class MeshPhongMaterial : Material, IWireframe, IMap
     {
-        public Color color = Color.White; // diffuse
+        public Color Color = Color.White; // diffuse
 
-        public Color ambient = Color.White;
+        public Color Ambient = Color.White;
 
-        public Color emissive = Color.Black;
+        public Color Emissive = Color.Black;
 
-        public Color specular = Color.DarkSlateBlue;
+        public Color Specular = Color.DarkSlateBlue;
 
-        public float shininess = 30;
+        public float Shininess = 30;
 
         public bool Metal = false;
 
         public bool WrapAround = false;
 
-        public Vector3 wrapRGB = new Vector3( 1, 1, 1 );
+        public Vector3 WrapRgb = new Vector3( 1, 1, 1 );
 
-        public Texture map = null;
+        // IMap
 
-        public Texture lightMap = null;
+        public Texture Map  { get; set; }
 
-        public Texture bumpMap = null;
+        public Texture AlphaMap { get; set; }
 
-        public float bumpScale = 1;
+        public Texture SpecularMap { get; set; }
 
-        public Texture normalMap = null;
+        public Texture NormalMap { get; set; }
 
-        public Vector2 normalScale = new Vector2( 1, 1 );
-
-        public Texture specularMap = null;
-
-        public Texture alphaMap = null;
-
-        public Texture envMap = null;
-
-        public int combine = Three.MultiplyOperation;
-
-        public float reflectivity = 1;
-
-        public float refractionRatio = 0.98f;
-
-        public bool fog = true;
-
-        public int shading = Three.SmoothShading;
-
-        // IWireFrameable
-
-        public bool wireframe { get; set; }
-
-        public float wireframeLinewidth { get; set; }
+        public Texture BumpMap { get; set; }
 
         //
 
-        public string wireframeLinecap = "round";
+        public Texture LightMap = null;
 
-        public string wireframeLinejoin = "round";
+        public float BumpScale = 1;
 
-        public Color[] vertexColors;
+        public Vector2 NormalScale = new Vector2( 1, 1 );
 
-        public bool skinning = false;
+        public Texture EnvMap = null;
 
-        public bool morphTargets = false;
+        public int Combine = Three.MultiplyOperation;
 
-        public bool morphNormals = false;
+        public float Reflectivity = 1;
+
+        public float RefractionRatio = 0.98f;
+
+        public bool Fog = true;
+
+        public int Shading = Three.SmoothShading;
+
+        // IWireFrameable
+
+        public bool Wireframe { get; set; }
+
+        public float WireframeLinewidth { get; set; }
+
+        //
+
+        public string WireframeLinecap = "round";
+
+        public string WireframeLinejoin = "round";
+
+        public Color[] VertexColors;
+
+        public bool Skinning = false;
+
+        public bool MorphTargets = false;
+
+        public bool MorphNormals = false;
 
         /// <summary>
         /// 
@@ -79,8 +83,8 @@
         public MeshPhongMaterial(Hashtable parameters = null)
         {
             // IWireFrameable
-            wireframe = false;
-            wireframeLinewidth = 1;
+            this.Wireframe = false;
+            this.WireframeLinewidth = 1;
 
             this.SetValues(parameters);
         }

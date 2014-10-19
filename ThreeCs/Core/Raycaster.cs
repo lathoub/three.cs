@@ -1,7 +1,6 @@
 ﻿
 namespace Three.Core
 {
-    using System;
     using System.Collections.Generic;
 
     using ThreeCs.Core;

@@ -39,9 +39,9 @@
             var geometry = new BoxGeometry(200, 200, 200);
 
             var texture = ImageUtils.LoadTexture(@"examples/textures/crate.gif");
-            texture.anisotropy = this.renderer.MaxAnisotropy;
+            texture.Anisotropy = this.renderer.MaxAnisotropy;
 
-            var material = new MeshBasicMaterial { map = texture };
+            var material = new MeshBasicMaterial { Map = texture };
 
             this.mesh = new Mesh(geometry, material);
             this.scene.Add(mesh);
@@ -59,7 +59,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

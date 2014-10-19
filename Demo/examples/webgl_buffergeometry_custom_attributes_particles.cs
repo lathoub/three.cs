@@ -1,7 +1,5 @@
 ﻿namespace Demo.WebGL
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -77,10 +75,10 @@
 
             scene = new Scene();
 
-            var attributes = new Hashtable 
+            var attributes = new Attributes 
             {
-                { "size",        new Hashtable() { { "f", null } } }, 
-                { "customcolor", new Hashtable() { { "c", null } } } 
+                { "size",        new Attribute() { { "f", null } } }, 
+                { "customcolor", new Attribute() { { "c", null } } } 
             };
 
             uniforms = new Uniforms
@@ -90,10 +88,10 @@
             };
 
 			var shaderMaterial = new ShaderMaterial() {
-				uniforms =       uniforms,
-				attributes =     attributes,
-				vertexShader =   VertexShader,
-				fragmentShader = FragmentShader,
+				Uniforms =       uniforms,
+				Attributes =     attributes,
+				VertexShader =   VertexShader,
+				FragmentShader = FragmentShader,
 
 				blending =       ThreeCs.Three.AdditiveBlending,
 				depthTest =      false,
@@ -118,9 +116,8 @@
                 positions[v * 3 + 1] = (Mat.Random() * 2 - 1) * radius;
                 positions[v * 3 + 2] = (Mat.Random() * 2 - 1) * radius;
 
-                color = new HSLColor(v / (float)Particles, 1.0f, 0.5f);
-
-                color = Color.Tomato;
+                color = new HSLColor(512 * v / (float)Particles, 1.0f, 0.5f);
+                color = Color.DeepPink;
 
                 values_color[v * 3 + 0] = color.R;
                 values_color[v * 3 + 1] = color.G;
@@ -148,7 +145,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>
@@ -163,7 +160,7 @@
 
             particleSystem.Rotation.Z = 0.01f * time;
 
-            var size = geometry.attributes["size"] as BufferAttribute<float>;
+            var size = geometry.Attributes["size"] as BufferAttribute<float>;
             Debug.Assert(null != size);
             
             for (var i = 0; i < Particles; i++)

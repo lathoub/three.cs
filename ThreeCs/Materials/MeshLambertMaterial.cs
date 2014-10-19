@@ -6,13 +6,13 @@
     using ThreeCs.Math;
     using ThreeCs.Textures;
 
-    public class MeshLambertMaterial : Material, IWirerframe
+    public class MeshLambertMaterial : Material, IWireframe
     { 
-        public Color color = Color.White; // diffuse
+        public Color Color = Color.White; // diffuse
 
-        public Color ambient = Color.White;
+        public Color Ambient = Color.White;
 
-        public Color emissive = Color.Black;
+        public Color Emissive = Color.Black;
 
         public bool WrapAround = false;
 
@@ -20,43 +20,43 @@
 
         public object map = null;
 
-        public Texture lightMap = null;
+        public Texture LightMap = null;
 
-        public Texture specularMap = null;
+        public Texture SpecularMap = null;
 
-        public Texture alphaMap = null;
+        public Texture AlphaMap = null;
 
-        public Texture envMap = null;
+        public Texture EnvMap = null;
 
-        public int combine = Three.MultiplyOperation;
+        public int Combine = Three.MultiplyOperation;
 
-        public float reflectivity = 1;
+        public float Reflectivity = 1;
 
-        public float refractionRatio = 0.98f;
+        public float RefractionRatio = 0.98f;
 
-        public bool fog = true;
+        public bool Fog = true;
 
-        public int shading = Three.SmoothShading;
+        public int Shading = Three.SmoothShading;
 
         // IWireFrameable
 
-        public bool wireframe { get; set; }
+        public bool Wireframe { get; set; }
 
-        public float wireframeLinewidth { get; set; }
+        public float WireframeLinewidth { get; set; }
 
         //
 
-        public string wireframeLinecap = "round";
+        public string WireframeLinecap = "round";
 
-        public string wireframeLinejoin = "round";
+        public string WireframeLinejoin = "round";
 
-        public Color[] vertexColors;
+        public Color[] VertexColors;
 
-        public bool skinning = false;
+        public bool Skinning = false;
 
-        public bool morphTargets = false;
+        public bool MorphTargets = false;
 
-        public bool morphNormals = false;
+        public bool MorphNormals = false;
  
         /// <summary>
         /// 
@@ -65,8 +65,8 @@
         public MeshLambertMaterial(Hashtable parameters = null)
         {
             // IWireFrameable
-            wireframe = false;
-            wireframeLinewidth = 1;
+            this.Wireframe = false;
+            this.WireframeLinewidth = 1;
             
             this.SetValues(parameters);
         }

@@ -7,15 +7,15 @@
     {
         public Color Color;
 
-        public float linewidth;
+        public float Linewidth;
 
-        public string linecap;
+        public string Linecap;
 
-        public string linejoin;
+        public string Linejoin;
 
-        public bool fog;
+        public bool Fog;
 
-        public Color[] vertexColors;
+        public Color[] VertexColors;
 
         /// <summary>
         /// 
@@ -25,11 +25,11 @@
         {
             this.Color = Color.White;
 
-            this.linewidth = 1.0f;
-            this.linecap = "round";
-            this.linejoin = "round";
+            this.Linewidth = 1.0f;
+            this.Linecap = "round";
+            this.Linejoin = "round";
 
-            this.fog = true;
+            this.Fog = true;
 
             this.SetValues( parameters );
         }

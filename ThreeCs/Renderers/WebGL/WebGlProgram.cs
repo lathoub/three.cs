@@ -456,7 +456,7 @@
                 if (material is IAttributes)
                 {
                     var attributesMaterial = material as IAttributes;
-                    foreach (DictionaryEntry entry in attributesMaterial.attributes)
+                    foreach (var entry in attributesMaterial.Attributes)
                     {
                         identifiers.Add(entry.Key as string);
                     }

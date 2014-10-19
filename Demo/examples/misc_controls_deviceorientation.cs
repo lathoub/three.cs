@@ -47,13 +47,13 @@ namespace Demo.Misc
             geometry = new SphereGeometry(500, 16, 8);
             geometry.ApplyMatrix(new Matrix4().MakeScale(-1, 1, 1));
 
-            var material = new MeshBasicMaterial() { map = ImageUtils.LoadTexture( @"examples\textures/2294472375_24a3b8ef46_o.jpg" ) };
+            var material = new MeshBasicMaterial() { Map = ImageUtils.LoadTexture( @"examples\textures/2294472375_24a3b8ef46_o.jpg" ) };
 
             mesh = new Mesh(geometry, material);
             scene.Add(mesh);
 
             var geometry2 = new BoxGeometry( 100, 100, 100, 4, 4, 4 );
-            var material2 = new MeshBasicMaterial() { color = Color.Purple, side = Three.BackSide, wireframe = true };
+            var material2 = new MeshBasicMaterial() { Color = Color.Purple, side = Three.BackSide, Wireframe = true };
             var mesh2 = new Mesh( geometry2, material2 );
             scene.Add(mesh2);
 
@@ -72,7 +72,7 @@ namespace Demo.Misc
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

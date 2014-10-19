@@ -1,7 +1,5 @@
 ﻿namespace Demo.WebGL
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -40,7 +38,7 @@
 
         private Vector2 mouse = new Vector2();
 
-        private Hashtable attributes;
+        private Attributes attributes;
 
         private int intersect;
 
@@ -62,8 +60,7 @@
 
 				gl_Position = projectionMatrix * mvPosition;
 
-			}
-";
+			}";
 
         private const string FragmentShader = @"
 			uniform vec3 color;
@@ -79,8 +76,7 @@
 
 				if ( gl_FragColor.a < ALPHATEST ) discard;
 
-			}
-";
+			}";
 
         /// <summary>
         /// 
@@ -96,10 +92,10 @@
             scene = new Scene();
             scene.Fog = new Fog((Color)colorConvertor.ConvertFromString("#050505"), 2000, 3500);
 
-            attributes = new Hashtable
+            attributes = new Attributes
             { 
-                { "size",        new Hashtable() { {"type", "f"},  {"value", null}} },
-                { "customColor", new Hashtable() { {"type", "c"},  {"value", Color.White}} },
+                { "size",        new Attribute() { {"type", "f"},  {"value", null}} },
+                { "customColor", new Attribute() { {"type", "c"},  {"value", Color.White}} },
             };
 
             uniforms = new Uniforms 
@@ -109,19 +105,18 @@
             };
    
         	var shaderMaterial = new ShaderMaterial() {
-                    uniforms = uniforms,
-					attributes = attributes,
-					vertexShader = VertexShader,
-					fragmentShader = FragmentShader,
-
+                    Uniforms = uniforms,
+					Attributes = attributes,
+					VertexShader = VertexShader,
+					FragmentShader = FragmentShader,
 					alphaTest = 0.9f };
 
             var geometry = new BoxGeometry(200, 200, 200, 16, 16, 16);
 
             particles = new PointCloud(geometry, shaderMaterial);
 
-        //    var values_size = ((BufferAttribute<float>)attributes["size"]).array;
-        //    var values_color = ((BufferAttribute<float>)attributes["customColor"]).array;
+        //    var values_size = ((BufferAttribute<float>)Attributes["size"]).array;
+        //    var values_color = ((BufferAttribute<float>)Attributes["customColor"]).array;
 
         //    var vertices = particles.Geometry.Vertices;
 
@@ -151,7 +146,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>
@@ -187,22 +182,22 @@
               //  if (intersect != intersects[0].index)
               //  {
 
-              ////      var positions = ((BufferAttribute<float>)bg.attributes["position"]).array;
+              ////      var positions = ((BufferAttribute<float>)bg.Attributes["position"]).array;
 
-              //      ((BufferAttribute<float>)attributes["size"]).array[intersect] = PARTICLE_SIZE;
+              //      ((BufferAttribute<float>)Attributes["size"]).array[intersect] = PARTICLE_SIZE;
 
               //      intersect = intersects[0].index;
 
-              //      ((BufferAttribute<float>)attributes["size"]).array[intersect] = PARTICLE_SIZE * 1.25f;
-              //      ((BufferAttribute<float>)attributes["size"]).needsUpdate = true;
+              //      ((BufferAttribute<float>)Attributes["size"]).array[intersect] = PARTICLE_SIZE * 1.25f;
+              //      ((BufferAttribute<float>)Attributes["size"]).needsUpdate = true;
 
               //  }
 
             }
             else if (intersect != null)
             {
-                //((BufferAttribute<float>)attributes["size"]).array[intersect] = PARTICLE_SIZE;
-                //((BufferAttribute<float>)attributes["size"]).needsUpdate = true;
+                //((BufferAttribute<float>)Attributes["size"]).array[intersect] = PARTICLE_SIZE;
+                //((BufferAttribute<float>)Attributes["size"]).needsUpdate = true;
                 //intersect = null;
 			}
 

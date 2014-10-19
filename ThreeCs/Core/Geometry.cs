@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Drawing;
 
     using ThreeCs.Math;
@@ -9,9 +10,6 @@
     public class Geometry : BaseGeometry, ICloneable
     {
         protected static int GeometryIdCount;
-
-        public int Id = GeometryIdCount++;
-
 
 
 
@@ -97,6 +95,8 @@
         /// </summary>
         public Geometry()
         {
+            Id = GeometryIdCount++;
+
             this.FaceVertexUvs.Add(new List<List<Vector2>>());
         }
 
@@ -274,9 +274,108 @@
         /// <summary>
         /// 
         /// </summary>
-        public void Merge()
+        public void Merge(Geometry geometry, Matrix4 matrix = null)
         {
-            throw new NotImplementedException();
+            Merge(geometry, matrix, 0);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Merge(Geometry geometry, Matrix4 matrix, int materialIndexOffset)
+        {
+		    if (geometry == null)
+		    {
+		        Trace.TraceError("THREE.Geometry.merge(): geometry not an instance of THREE.Geometry.");
+			    return;
+		    }
+
+            var vertexOffset = this.Vertices.Count;
+            var vertices1 = this.Vertices;
+            var vertices2 = geometry.Vertices;
+            var faces1 = this.Faces;
+            var faces2 = geometry.Faces;
+            var uvs1 = this.FaceVertexUvs[0];
+            var uvs2 = geometry.FaceVertexUvs[0];
+
+            Matrix3 normalMatrix = null;
+
+            if ( matrix != null ) {
+			    normalMatrix = new Matrix3().GetNormalMatrix( matrix );
+		    }
+
+		    // vertices
+
+		    for ( var i = 0; i < vertices2.Count; i ++ )
+		    {
+		        var vertex = vertices2[i];
+
+		        var vertexCopy = (Vector3)vertex.Clone();
+
+		        if (matrix != null) vertexCopy.ApplyMatrix4(matrix);
+
+		        vertices1.Add(vertexCopy);
+		    }
+
+		    // faces
+
+		    for (int i = 0; i < faces2.Count; i ++ )
+		    {
+
+		        var face = faces2[i];//, faceCopy, normal, color;
+		        var faceVertexNormals = face.VertexNormals;
+			    var faceVertexColors = face.VertexColors;
+
+		        var faceCopy = new Face3(face.a + vertexOffset, face.b + vertexOffset, face.c + vertexOffset);
+		        faceCopy.Normal.Copy(face.Normal);
+
+			    if ( normalMatrix != null ) {
+				    faceCopy.Normal.ApplyMatrix3( normalMatrix ).Normalize();
+			    }
+
+			    for ( var j = 0; j < faceVertexNormals.Count; j ++ ) {
+
+				    var normal = (Vector3)faceVertexNormals[ j ].Clone();
+
+				    if ( normalMatrix != null ) {
+					    normal.ApplyMatrix3( normalMatrix ).Normalize();
+				    }
+				    faceCopy.VertexNormals.Add( normal );
+			    }
+
+                //faceCopy.color.Copy(face.color);
+                faceCopy.color = face.color;
+
+			    for ( var j = 0; j < faceVertexColors.Length; j ++ )
+			    {
+			        var color = faceVertexColors[j];
+                    faceCopy.VertexColors[j] = color;
+                }
+
+			    faceCopy.MaterialIndex = face.MaterialIndex + materialIndexOffset;
+
+			    faces1.Add( faceCopy );
+		    }
+
+
+		    // uvs
+
+		    for (int i = 0; i < uvs2.Count; i++ )
+		    {
+
+		        var uv = uvs2[i]; var uvCopy = new List<Vector2>();
+
+			    if ( uv == null ) continue;
+
+			    for ( var j = 0; j < uv.Count; j ++ )
+			    {
+			        uvCopy.Add(new Vector2(uv[j].X, uv[j].Y));
+			    }
+
+		        uvs1.Add(uvCopy);
+
+		    }
         }
 
         /// <summary>

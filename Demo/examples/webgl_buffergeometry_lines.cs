@@ -42,7 +42,7 @@
             const int segments = 10000;
 
             var geometry = new BufferGeometry();
-            var material = new LineBasicMaterial { vertexColors = new Color[Three.VertexColors] };
+            var material = new LineBasicMaterial { VertexColors = new Color[Three.VertexColors] };
 
             var positions = new float[segments * 3];
             var colors = new float[segments * 3];
@@ -93,7 +93,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

@@ -1,6 +1,5 @@
 ﻿namespace Demo.WebGL
 {
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
@@ -14,9 +13,10 @@
     using ThreeCs.Materials;
     using ThreeCs.Math;
     using ThreeCs.Objects;
+    using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
-    [Example("webgl_materials_wireframe", ExampleCategory.OpenTK, "materials", 0.4f)]
+    [Example("webgl_materials_wireframe", ExampleCategory.OpenTK, "materials")]
     class webgl_materials_wireframe : Example
     {
         private PerspectiveCamera camera;
@@ -29,7 +29,8 @@
 
         private Mesh meshMixed;
 
-        private string vertex_shader = @"			
+        private const string VertexShader = @"
+
             attribute vec3 center;
 			varying vec3 vCenter;
 
@@ -40,7 +41,8 @@
 
 			}";
 
-        private string fragment_shader = @"
+        private const string FragmentShader = @"
+
 			#extension GL_OES_standard_derivatives : enable
 
 			varying vec3 vCenter;
@@ -72,14 +74,14 @@
 
             scene = new Scene();
  
-        	const int size = 150;
+        	const int Size = 150;
 
-			var geometryLines = new BoxGeometry( size, size, size );
-			var geometryTris  = new BoxGeometry( size, size, size );
+			var geometryLines = new BoxGeometry( Size, Size, Size );
+			var geometryTris  = new BoxGeometry( Size, Size, Size );
 
 			// wireframe using gl.LINES
 
-			var materialLines = new MeshBasicMaterial() { wireframe = true };
+			var materialLines = new MeshBasicMaterial() { Wireframe = true };
 
 			meshLines = new Mesh( geometryLines, materialLines );
 			meshLines.Position.X = -150;
@@ -87,13 +89,13 @@
 
 			// wireframe using gl.TRIANGLES (interpreted as triangles)
 
-            var attributesTris = new Hashtable();
-            attributesTris.Add("center", new Hashtable { { "type", "v3" }, { "boundTo", "faceVertices" }, { "value", new List<List<Vector3>>() } });
-            var valuesTris = (List<List<Vector3>>)((Hashtable)attributesTris["center"])["value"];
+            var attributesTris = new Attributes
+            {
+                { "center", new Attribute { { "type", "v3" }, { "value", new List<List<Vector3>>() }, { "boundTo", "faceVertices" }, } }
+            };
+            SetupAttributes(geometryTris, (List<List<Vector3>>)(attributesTris["center"])["value"]);
 
-			SetupAttributes( geometryTris, valuesTris );
-
-            var materialTris = new ShaderMaterial() { attributes = attributesTris, vertexShader = vertex_shader, fragmentShader= fragment_shader };
+            var materialTris = new ShaderMaterial() { Attributes = attributesTris, VertexShader = VertexShader, FragmentShader= FragmentShader };
             
             meshTris = new Mesh( geometryTris, materialTris );
             meshTris.Position.X = 150;
@@ -101,19 +103,19 @@
 
             // wireframe using gl.TRIANGLES (mixed triangles and quads)
 
-            var mixedGeometry = new SphereGeometry( size / 2.0f, 32, 16 );
+            var mixedGeometry = new SphereGeometry( Size / 2, 32, 16 );
 
-            var attributesMixed = new Hashtable();
-            attributesMixed.Add("center", new Hashtable { { "type", "v3" }, { "boundTo", "faceVertices" }, { "value", new List<List<Vector3>>() } });
-            var valuesMixed = (List<List<Vector3>>)((Hashtable)attributesMixed["center"])["value"];
+            var attributesMixed = new Attributes
+            {
+                { "center", new Attribute { { "type", "v3" }, { "value", new List<List<Vector3>>() }, { "boundTo", "faceVertices" },  } }
+            };
+            SetupAttributes( mixedGeometry, (List<List<Vector3>>)attributesMixed["center"]["value"] );
 
-            SetupAttributes( mixedGeometry, valuesMixed );
-
-            var materialMixed = new ShaderMaterial() { attributes = attributesMixed, vertexShader = vertex_shader, fragmentShader = fragment_shader };
+            var materialMixed = new ShaderMaterial() { Attributes = attributesMixed, VertexShader = VertexShader, FragmentShader = FragmentShader };
 
             meshMixed = new Mesh( mixedGeometry, materialMixed );
             meshMixed.Position.X = -150;
-   //         scene.Add( meshMixed );
+            scene.Add( meshMixed );
         }
 
         /// <summary>
@@ -121,16 +123,11 @@
         /// </summary>
         /// <param name="geometry"></param>
         /// <param name="values"></param>
-        private static void SetupAttributes(Geometry geometry, List<List<Vector3>> values)
+        private static void SetupAttributes(Geometry geometry, ICollection<List<Vector3>> values)
         {
             for( var f = 0; f < geometry.Faces.Count; f ++ )
             {
-                var vs = new List<Vector3>();
-                vs.Add(new Vector3(1, 0, 0));
-                vs.Add(new Vector3(0, 1, 0));
-                vs.Add(new Vector3(0, 0, 1));
-
-                values.Add(vs);
+                values.Add(new List<Vector3> { new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1) });
             }
         }
 
@@ -146,7 +143,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
         }
 
         /// <summary>

@@ -14,7 +14,7 @@
     using ThreeCs.Lights;
     using ThreeCs.Math;
 
-    [Example("webgl_loader_vtk", ExampleCategory.OpenTK, "loader", 0.5f)]
+    [Example("webgl_loader_vtk", ExampleCategory.OpenTK, "loader", 0.0f)]
     class webgl_loader_vtk : Example
     {
         private PerspectiveCamera camera;
@@ -58,7 +58,7 @@
             camera.Add(dirLight);
             camera.Add(dirLight.target);
 
-            var material = new MeshLambertMaterial() { color = Color.White, side = ThreeCs.Three.DoubleSide };
+            var material = new MeshLambertMaterial() { Color = Color.White, side = ThreeCs.Three.DoubleSide };
 
             // Link in the loader
 
@@ -69,7 +69,7 @@
                 mesh.Position.Y = -0.09f;
                 scene.Add(mesh);
             };
-            loader.Load(@"data\models/vtk/bunny.vtk");
+            loader.Load(@"examples\models/vtk/bunny.vtk");
         }
 
         /// <summary>
@@ -84,7 +84,7 @@
             this.camera.Aspect = clientSize.Width / (float)clientSize.Height;
             this.camera.UpdateProjectionMatrix();
 
-            this.renderer.size = clientSize;
+            this.renderer.Size = clientSize;
 
             //controls.handleResize();
         }

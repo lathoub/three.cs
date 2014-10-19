@@ -6,14 +6,7 @@
     using System.Diagnostics;
     using System.Reflection;
 
-    using ThreeCs.Renderers.Shaders;
     using ThreeCs.Renderers.WebGL;
-
-    public struct UniformLocation
-    {
-        public Uniform Uniform;
-        public int Location;
-    }
 
     public class Material : ICloneable
     {

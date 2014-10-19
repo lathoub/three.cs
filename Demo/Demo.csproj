@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,6 +49,10 @@
     <Compile Include="ExampleAttribute.cs" />
     <Compile Include="ExampleInfo.cs" />
     <Compile Include="examples\cs\controls\DeviceOrientationControls.cs" />
+    <Compile Include="examples\webgl_custom_attributes_particles3.cs" />
+    <Compile Include="examples\webgl_geometry_hierarchy2.cs" />
+    <Compile Include="examples\webgl_materials_texture_anisotropy.cs" />
+    <Compile Include="examples\webgl_materials_texture_compressed.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -147,6 +151,40 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="examples\textures\water.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="examples\textures\Sprites\ball.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="examples\textures\compressed\disturb_argb_mip.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\textures\compressed\disturb_argb_nomip.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\textures\compressed\disturb_dxt1_mip.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\textures\compressed\disturb_dxt1_nomip.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\textures\compressed\explosion_dxt5_mip.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\textures\compressed\hepatica_dxt3_mip.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\textures\compressed\Mountains.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\textures\compressed\Mountains_argb_mip.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\textures\compressed\Mountains_argb_nomip.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
