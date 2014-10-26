@@ -15,7 +15,6 @@
 
         public bool SizeAttenuation = true;
 
-        public Color[] VertexColors;
 
         public bool Fog = true;
         
@@ -25,6 +24,8 @@
         /// <param name="parameters"></param>
         public PointCloudMaterial(Hashtable parameters = null)
         {
+            this.type = "PointCloudMaterial";
+
             this.SetValues(parameters);
         }
     }

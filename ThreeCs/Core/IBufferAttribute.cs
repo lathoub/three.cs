@@ -7,5 +7,7 @@
         int buffer { get; set; }
 
         int length { get; }
+
+        int ItemSize { get; }
     }
 }

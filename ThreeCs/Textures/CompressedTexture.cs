@@ -18,7 +18,7 @@
         /// <param name="magFilter"></param>
         /// <param name="minFilter"></param>
         /// <param name="anisotropy"></param>
-        public CompressedTexture(List<MipMap> mipmaps = null, int width = 0, int height = 0, int format = 0, int type = 0, object mapping = null, int wrapS = 0, int wrapT = 0, int magFilter = 0, int minFilter = 0, int anisotropy = 1) 
+        public CompressedTexture(List<MipMap> mipmaps = null, int width = 0, int height = 0, int format = 0, int type = 0, TextureMapping mapping = null, int wrapS = 0, int wrapT = 0, int magFilter = 0, int minFilter = 0, int anisotropy = 1) 
             : base (null, mapping, wrapS, wrapT , magFilter , minFilter , format ,  type , anisotropy)
         {
        //     this.Image = { width: width, height: height }; // new Bitmap ????

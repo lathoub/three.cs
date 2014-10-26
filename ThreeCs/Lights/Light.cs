@@ -21,6 +21,8 @@
         /// </summary>
         public Light(Color color)
         {
+            this.type = "Light";
+            
             this.color = color;
         }
 

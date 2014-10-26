@@ -21,7 +21,7 @@
         public GridHelper(float size, float step)
         {
             var geometry = new Geometry();
-            var material = new LineBasicMaterial { VertexColors = new Color[Three.VertexColors] };
+            var material = new LineBasicMaterial { VertexColors = Three.VertexColors };
 
             this.Color1 = Color.Aquamarine;
             this.Color2 = Color.Fuchsia;
@@ -42,7 +42,7 @@
 
             this.Geometry = geometry;
             this.Material = material;
-            this.Type = this.LinePieces;
+            this.Mode = this.LinePieces;
         }
 
         /// <summary>

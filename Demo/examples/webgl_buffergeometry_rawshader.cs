@@ -111,8 +111,8 @@
                 Uniforms = new Uniforms { { "time", new Uniform() { {"type", "f"}, {"value", 1.0f} } } },
                 VertexShader = VertexShader,
                 FragmentShader = FragmentShader,
-                side = Three.DoubleSide,
-                transparent = true,
+                Side = Three.DoubleSide,
+                Transparent = true,
             };
 
             mesh = new Mesh(geometry, material);

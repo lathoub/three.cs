@@ -93,12 +93,12 @@
 				VertexShader =   VertexShader,
 				FragmentShader = FragmentShader,
 
-				blending =       ThreeCs.Three.AdditiveBlending,
-				depthTest =      false,
-				transparent =    true
+				Blending =       ThreeCs.Three.AdditiveBlending,
+				DepthTest =      false,
+				Transparent =    true
 			};
 
-			var radius = 200;
+			const int Radius = 200;
 
 			geometry = new BufferGeometry();
 
@@ -112,9 +112,9 @@
             {
 				values_size[ v ] = 20;
 
-                positions[v * 3 + 0] = (Mat.Random() * 2 - 1) * radius;
-                positions[v * 3 + 1] = (Mat.Random() * 2 - 1) * radius;
-                positions[v * 3 + 2] = (Mat.Random() * 2 - 1) * radius;
+                positions[v * 3 + 0] = (Mat.Random() * 2 - 1) * Radius;
+                positions[v * 3 + 1] = (Mat.Random() * 2 - 1) * Radius;
+                positions[v * 3 + 2] = (Mat.Random() * 2 - 1) * Radius;
 
                 color = new HSLColor(512 * v / (float)Particles, 1.0f, 0.5f);
                 color = Color.DeepPink;

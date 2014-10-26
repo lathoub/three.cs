@@ -164,16 +164,15 @@
 
             camera.LookAt(scene.Position);
 
-            root.Traverse(this.SetRotation);
+            root.Traverse(
+                child =>
+                    {
+                        child.Rotation.X = rx;
+                        child.Rotation.Y = ry;
+                        child.Rotation.Z = rz;
+                    });
 
             renderer.Render(scene, camera);
-        }
-
-        private void SetRotation(Object3D object3D)
-        {
-            object3D.Rotation.X = rx;
-            object3D.Rotation.Y = ry;
-            object3D.Rotation.Z = rz;
         }
 
         /// <summary>

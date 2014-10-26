@@ -4,24 +4,26 @@
     using System.Drawing;
     using System.Windows.Forms;
 
+    using Demo.examples.cs.controls;
+    using Demo.examples.loaders;
+
     using Examples;
 
     using ThreeCs.Cameras;
-    using ThreeCs.Loaders;
     using ThreeCs.Materials;
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
     using ThreeCs.Lights;
     using ThreeCs.Math;
 
-    [Example("webgl_loader_vtk", ExampleCategory.OpenTK, "loader", 0.0f)]
+    [Example("webgl_loader_vtk", ExampleCategory.OpenTK, "loader", 0.6f)]
     class webgl_loader_vtk : Example
     {
         private PerspectiveCamera camera;
 
         private Scene scene;
 
-//        private TrackballControls controls;
+        private TrackballControls controls;
         
         /// <summary>
         /// 
@@ -33,19 +35,19 @@
 
             camera = new PerspectiveCamera(60, control.Width / (float)control.Height, 0.1f, 1000000.0f);
             this.camera.Position.Z = 0.2f;
-/*
-            controls = new TrackballControls(camera);
 
-            controls.rotateSpeed = 5.0;
-            controls.zoomSpeed = 5;
-            controls.panSpeed = 2;
+            controls = new TrackballControls(control, camera);
 
-            controls.noZoom = false;
-            controls.noPan = false;
+            controls.RotateSpeed = 5.0f;
+            controls.ZoomSpeed = 5;
+            controls.PanSpeed = 2;
 
-            controls.staticMoving = true;
-            controls.dynamicDampingFactor = 0.3;
-*/
+            controls.NoZoom = false;
+            controls.NoPan = false;
+
+            controls.StaticMoving = true;
+            controls.DynamicDampingFactor = 0.3f;
+
             scene = new Scene();
 
             scene.Add(camera);
@@ -58,14 +60,16 @@
             camera.Add(dirLight);
             camera.Add(dirLight.target);
 
-            var material = new MeshLambertMaterial() { Color = Color.White, side = ThreeCs.Three.DoubleSide };
+            var material = new MeshLambertMaterial() { Color = Color.White, Side = ThreeCs.Three.DoubleSide };
 
             // Link in the loader
 
             var loader = new VTKLoader();
             loader.Loaded += (o, args) =>
             {
-                var mesh = new Mesh(args.Geometry, material);
+                args.BufferGeometry.ComputeVertexNormals();
+
+                var mesh = new Mesh(args.BufferGeometry, material);
                 mesh.Position.Y = -0.09f;
                 scene.Add(mesh);
             };
@@ -96,7 +100,7 @@
         {
             Debug.Assert(null != this.renderer);
 
-           // controls.update();
+           controls.Update();
 
             renderer.Render(scene, camera);
         }

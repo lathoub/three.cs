@@ -37,13 +37,12 @@
 
         public bool Lights = false; // set to use scene lights
 
-        public Color[] VertexColors; // set to use "color" attribute stream
 
-        public bool skinning = false; // set to use skinning attribute streams
+        public bool Skinning = false; // set to use skinning attribute streams
 
-        public bool morphTargets = false; // set to use morph targets
+        public bool MorphTargets = false; // set to use morph targets
 
-        public bool morphNormals = false; // set to use morph normals
+        public bool MorphNormals = false; // set to use morph normals
 
         // When rendered geometry doesn"t include these Attributes but the material does,
         // use these default values in WebGL. This avoids errors when buffer data is missing.
@@ -53,7 +52,7 @@
         //"uv2": [ 0, 0 ]
         //};
 
-        public object index0AttributeName = null;
+        public string Index0AttributeName = null;
       
         /// <summary>
         /// 
@@ -61,6 +60,8 @@
         /// <param name="parameters"></param>
         public ShaderMaterial(Hashtable parameters = null)
         {
+            this.type = "ShaderMaterial";
+
             // IAttributes
             this.Attributes = new Attributes();
 

@@ -47,7 +47,7 @@
             texture.Anisotropy = renderer.MaxAnisotropy;
 
             var geometry = new BoxGeometry(200, 200, 200);
-            var material = new MeshLambertMaterial(null) { map = texture };
+            var material = new MeshLambertMaterial(null) { Map = texture };
 
             //control = new TransformControls( camera, renderer.domElement );
 

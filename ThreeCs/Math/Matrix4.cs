@@ -124,7 +124,11 @@ namespace ThreeCs.Math
         /// <param name="right"></param>
         public Matrix4 MultiplyMatrices(Matrix4 left, Matrix4 right)
         {
-            return left * right;
+            var qq = left * right;
+
+            this.Set(qq.Elements);
+
+            return this;
         }
 
         public Matrix4 Identity()
@@ -573,6 +577,14 @@ namespace ThreeCs.Math
 		    this.Elements[ 15 ] = 1;
 
 		    return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Matrix4 GetInverse(Matrix4 m)
+        {
+            return m.GetInverse();
         }
 
         /// <summary>

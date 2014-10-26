@@ -13,5 +13,7 @@
         Texture NormalMap { get; set; }
 
         Texture BumpMap { get; set; }
+
+        Texture LightMap { get; set; }
     }
 }

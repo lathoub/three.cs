@@ -22,6 +22,8 @@
         public PointLight(Color color, float intensity = 1, float distance = 0)
             : base(color)
         {
+            this.type = "PointLight";
+            
             this.intensity = intensity;
             this.distance = distance;
         }

@@ -1,4 +1,6 @@
-﻿namespace ThreeCs.Core
+﻿using ThreeCs.Math;
+
+namespace ThreeCs.Core
 {
     using System;
     using System.Collections.Generic;
@@ -38,6 +40,8 @@
         public Vector3 DefaultUp = new Vector3( 0, 1, 0 );
 
         public Vector3 Up;
+
+        public string type = "Object3D";
 
         //var scope = this;
 
@@ -263,22 +267,6 @@
             throw new NotImplementedException();
         }
 
-
-        public void TranslateX()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void translateY()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void translateZ()
-        {
-            throw new NotImplementedException();
-        }
-
         public void localToWorld()
         {
             throw new NotImplementedException();
@@ -287,6 +275,58 @@
         public void worldToLocal()
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="distance"></param>
+        public Object3D TranslateX(float distance)
+        {
+            var v1 = new Vector3(1, 0, 0);
+
+            return this.translateOnAxis(v1, distance);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="distance"></param>
+        public Object3D TranslateY(float distance)
+        {
+            var v1 = new Vector3(0, 1, 0);
+
+            return this.translateOnAxis(v1, distance);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="distance"></param>
+        public Object3D TranslateZ(float distance)
+        {
+            var v1 = new Vector3(0, 0, 1);
+
+            return this.translateOnAxis(v1, distance);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="axis"></param>
+        /// <param name="distance"></param>
+        public Object3D translateOnAxis(Vector3 axis, float distance)
+        {
+            // translate object by distance along axis in object space
+            // axis is assumed to be normalized
+
+            var v1 = new Vector3();
+
+            v1.Copy(axis).ApplyQuaternion(this.Quaternion);
+
+            this.Position.Add(v1.MultiplyScalar(distance));
+
+            return this;
         }
 
         /// <summary>
@@ -332,6 +372,64 @@
         /// <param name="intersects"></param>
         public virtual void Raycast(Raycaster raycaster, ref List<Intersect> intersects)
         {
+            var inverseMatrix = new Matrix4();
+            var ray = new Ray();
+            var sphere = new Sphere();
+
+            var precision = raycaster.LinePrecision;
+            var precisionSq = precision * precision;
+
+            var geometry = this.Geometry as Geometry;
+            Debug.Assert(null != geometry, "this.Geometry as Geometry cast failed");
+
+            if (geometry.BoundingSphere == null) geometry.ComputeBoundingSphere();
+
+            // Checking boundingSphere distance to ray
+
+            sphere.Copy(geometry.BoundingSphere);
+            sphere.ApplyMatrix4(this.MatrixWorld);
+
+            if (raycaster.Ray.IsIntersectionSphere(sphere) == false)
+            {
+                return;
+            }
+
+            inverseMatrix = this.MatrixWorld.GetInverse();
+            ray.Copy(raycaster.Ray).ApplyMatrix4(inverseMatrix);
+
+            /* if ( geometry instanceof THREE.BufferGeometry ) {
+     
+  		    } else */
+            if (geometry is Geometry)
+            {
+                var vertices = geometry.Vertices;
+                var nbVertices = vertices.Count;
+                var interSegment = new Vector3();
+                var interRay = new Vector3();
+                var step = (this is Line && ((Line)this).Mode == Three.LineStrip ? 1 : 2);
+
+                for (var i = 0; i < nbVertices - 1; i = i + step)
+                {
+                    var distSq = ray.DistanceSqToSegment(vertices[i], vertices[i + 1], interRay, interSegment);
+
+                    if (distSq > precisionSq) continue;
+
+                    var distance = ray.Origin.DistanceTo(interRay);
+
+                    if (distance < raycaster.Near || distance > raycaster.Far) continue;
+
+                    intersects.Add(new Intersect()
+                    {
+                        Distance = distance,
+                        // What do we want? intersection point on the ray or on the segment??
+                        // point: raycaster.ray.at( distance ),
+                        Point = ((Vector3)interSegment.Clone()).ApplyMatrix4(this.MatrixWorld),
+                        Face = null,
+                        FaceIndex = -1,
+                        Object3D = this
+                    });
+                }
+            }
         }
 
         /// <summary>
@@ -367,24 +465,6 @@
 			//    object3D.dispatchEvent( { type: 'added' } );
 
 			    this.Children.Add( object3D );
-
-			    // add to scene
-
-			    var scene = this;
-
-			    while ( scene.Parent != null ) 
-                {
-
-				    scene = scene.Parent;
-
-			    }
-
-			    if ( scene != null && scene is Scene ) 
-                {
-
-				    ((Scene)scene).__addObject( object3D );
-
-			    }
 
 		    } 
             else
@@ -424,13 +504,6 @@
 				    scene = scene.Parent;
 
 			    }
-
-			    if ( (scene != null) && scene is Scene ) {
-
-				    ((Scene)scene).__removeObject( object3D );
-
-			    }
-
 		    }
         }
 
@@ -477,6 +550,103 @@
                 this.Children[i].UpdateMatrixWorld(force);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="optionalTarget"></param>
+        /// <returns></returns>
+        public virtual Vector3 GetWorldPosition(Vector3 optionalTarget) 
+        {
+            var result = new Vector3();
+            if (optionalTarget != null) 
+                result = optionalTarget;
+
+		    this.UpdateMatrixWorld( true );
+
+		    return result.SetFromMatrixPosition( this.MatrixWorld );
+	    }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="optionalTarget"></param>
+        /// <returns></returns>
+        public virtual Quaternion GetWorldQuaternion(Quaternion optionalTarget)
+        {
+		    var position = new Vector3();
+		    var scale = new Vector3();
+
+
+            var result = new Quaternion();
+            if (optionalTarget != null) 
+                result = optionalTarget;
+
+			this.UpdateMatrixWorld( true );
+
+			this.MatrixWorld.Decompose( position, result, scale );
+
+			return result;
+
+		}
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="optionalTarget"></param>
+        /// <returns></returns>
+        public virtual Euler GetWorldRotation(Euler optionalTarget) 
+        {
+		    var quaternion = new Quaternion();
+
+            var result = new Euler();
+            if (optionalTarget != null)
+                result = optionalTarget;
+
+            this.GetWorldQuaternion(quaternion);
+
+			return result.SetFromQuaternion( quaternion, this.Rotation.Order/*, false */);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="optionalTarget"></param>
+        /// <returns></returns>
+        public virtual Vector3 GetWorldScale(Vector3 optionalTarget)
+        {
+		    var position = new Vector3();
+		    var quaternion = new Quaternion();
+
+            var result = new Vector3();
+            if (optionalTarget != null)
+                result = optionalTarget;
+
+            this.UpdateMatrixWorld(true);
+
+			this.MatrixWorld.Decompose( position, quaternion, result );
+
+			return result;
+        }
+
+        /// <summary>
+        /// 
+        /// 
+        /// </summary>
+        /// <param name="optionalTarget"></param>
+        /// <returns></returns>
+        public virtual Vector3 GetWorldDirection(Vector3 optionalTarget)
+	    {
+	        var quaternion = new Quaternion();
+
+            var result = new Vector3();
+            if (optionalTarget != null)
+                result = optionalTarget;
+
+	        this.GetWorldQuaternion(quaternion);
+
+	        return result = new Vector3(0, 0, 1).ApplyQuaternion(quaternion);
+	    }
 
         #region IDisposable Members
         /// <summary>

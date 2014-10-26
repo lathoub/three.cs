@@ -35,6 +35,8 @@
         /// <param name="material"></param>
         public Mesh(BaseGeometry geometry = null, Material material = null)
         {
+            this.type = "Mesh";
+            
             this.Geometry = geometry ?? new Geometry();
             this.Material = material ?? new MeshBasicMaterial() { Color = new Color().Random() };
 
@@ -96,7 +98,7 @@
         private void Raycast(Raycaster raycaster, Ray ray, Geometry geometry, ref List<Intersect> intersects)
         {
             var isFaceMaterial = this.Material is MeshFaceMaterial;
-            var objectMaterials = isFaceMaterial == true ? ((MeshFaceMaterial)this.Material).materials : null;
+            var objectMaterials = isFaceMaterial == true ? ((MeshFaceMaterial)this.Material).Materials : null;
 
             var precision = raycaster.Precision;
 
@@ -161,7 +163,7 @@
                         }
 */
                 Vector3 intersectionPoint;
-                if (material.side == Three.BackSide)
+                if (material.Side == Three.BackSide)
                 {
 
                     intersectionPoint = ray.IntersectTriangle(c, b, a, true);
@@ -170,7 +172,7 @@
                 else
                 {
 
-                    intersectionPoint = ray.IntersectTriangle(a, b, c, material.side != Three.DoubleSide);
+                    intersectionPoint = ray.IntersectTriangle(a, b, c, material.Side != Three.DoubleSide);
 
                 }
 
@@ -262,7 +264,7 @@
                         );
 
                         Vector3 intersectionPoint;
-                        if (material.side == Three.BackSide)
+                        if (material.Side == Three.BackSide)
                         {
 
                             intersectionPoint = ray.IntersectTriangle(vC, vB, vA, true);
@@ -271,7 +273,7 @@
                         else
                         {
 
-                            intersectionPoint = ray.IntersectTriangle(vA, vB, vC, material.side != Three.DoubleSide);
+                            intersectionPoint = ray.IntersectTriangle(vA, vB, vC, material.Side != Three.DoubleSide);
 
                         }
 
@@ -331,7 +333,7 @@
                     );
 
                     Vector3 intersectionPoint;
-                    if (material.side == Three.BackSide)
+                    if (material.Side == Three.BackSide)
                     {
 
                         intersectionPoint = ray.IntersectTriangle(vC, vB, vA, true);
@@ -340,7 +342,7 @@
                     else
                     {
 
-                        intersectionPoint = ray.IntersectTriangle(vA, vB, vC, material.side != Three.DoubleSide);
+                        intersectionPoint = ray.IntersectTriangle(vA, vB, vC, material.Side != Three.DoubleSide);
 
                     }
 
@@ -381,7 +383,7 @@
                 geometry.ComputeBoundingSphere();
 
             var sphere = geometry.BoundingSphere;
-		    sphere.applyMatrix4( this.MatrixWorld );
+		    sphere.ApplyMatrix4( this.MatrixWorld );
 
 		    if ( raycaster.Ray.IsIntersectionSphere(sphere) == false ) {
 			    return;

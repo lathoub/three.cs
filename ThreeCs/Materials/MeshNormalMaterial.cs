@@ -20,6 +20,8 @@
         {
             Shading = Three.FlatShading;
 
+            this.type = "MeshNormalMaterial";
+
             this.Wireframe = false;
             this.WireframeLinewidth = 1;
 

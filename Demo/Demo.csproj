@@ -49,6 +49,14 @@
     <Compile Include="ExampleAttribute.cs" />
     <Compile Include="ExampleInfo.cs" />
     <Compile Include="examples\cs\controls\DeviceOrientationControls.cs" />
+    <Compile Include="examples\cs\controls\FlyControls.cs" />
+    <Compile Include="examples\cs\controls\TrackballControls.cs" />
+    <Compile Include="examples\cs\loaders\DDSLoader.cs" />
+    <Compile Include="examples\cs\loaders\OBJLoader.cs" />
+    <Compile Include="examples\cs\loaders\VTKLoader.cs" />
+    <Compile Include="examples\webgl_interactive_lines.cs" />
+    <Compile Include="examples\webgl_loader_obj.cs" />
+    <Compile Include="examples\webgl_lod.cs" />
     <Compile Include="examples\webgl_custom_attributes_particles3.cs" />
     <Compile Include="examples\webgl_geometry_hierarchy2.cs" />
     <Compile Include="examples\webgl_materials_texture_anisotropy.cs" />
@@ -98,6 +106,18 @@
     <None Include="examples\models\vtk\bunny.vtk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="examples\obj\male02\male02.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\male02.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\Male02_bin.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\male02_dds.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -120,7 +140,6 @@
   <ItemGroup>
     <Folder Include="examples\files\" />
     <Folder Include="examples\fonts\" />
-    <Folder Include="examples\obj\" />
     <Folder Include="examples\scenes\" />
     <Folder Include="examples\sounds\" />
   </ItemGroup>
@@ -185,6 +204,43 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="examples\textures\compressed\Mountains_argb_nomip.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="examples\obj\male02\01_-_Default1noCulling.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\01_-_Default1noCulling.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\male-02-1noCulling.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\male-02-1noCulling.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\Male02_bin.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\Male02_dds.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\Male02_slim.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\orig_02_-_Defaul1noCulling.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\orig_02_-_Defaul1noCulling.JPG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="examples\obj\male02\readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="examples\textures\UV_Grid_Sm.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

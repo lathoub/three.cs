@@ -266,6 +266,57 @@ namespace ThreeCs.Math
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        public float LengthSq () {
+
+            return this.X * this.X + this.Y * this.Y + this.Z * this.Z + this.W * this.W;
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public float Length () {
+
+            return (float)System.Math.Sqrt( this.X * this.X + this.Y * this.Y + this.Z * this.Z + this.W * this.W );
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Quaternion Normalize()
+        {
+		    var l = this.Length();
+
+		    if ( l == 0 ) {
+
+			    this.X = 0;
+			    this.Y = 0;
+			    this.Z = 0;
+			    this.W = 1;
+
+		    } else {
+
+			    l = 1 / l;
+
+			    this.X = this.X * l;
+			    this.Y = this.Y * l;
+			    this.Z = this.Z * l;
+			    this.W = this.W * l;
+
+		    }
+
+		    //this.onChangeCallback();
+
+		    return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="q"></param>
         /// <param name="p"></param>
         public Quaternion Multiply(Quaternion q, Quaternion p = null)

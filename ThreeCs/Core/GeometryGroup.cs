@@ -11,13 +11,29 @@
 
         public List<int> Faces3;
 
-        public long MaterialIndex;
+        public int MaterialIndex;
 
-        public long Vertices;
+        public int Vertices;
 
         public int NumMorphTargets;
 
         public int NumMorphNormals;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public override void ComputeBoundingBox()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public override void ComputeVertexNormals(bool areaWeighted = false)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// 

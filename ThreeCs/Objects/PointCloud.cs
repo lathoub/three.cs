@@ -14,6 +14,8 @@
         /// <param name="material"></param>
         public PointCloud(BaseGeometry geometry = null, Material material = null)
         {
+            this.type = "PointCloud";
+
             this.Geometry = geometry ?? new Geometry();
             this.Material = material ?? new PointCloudMaterial(); 
         }

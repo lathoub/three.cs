@@ -267,7 +267,7 @@
         /// </summary>
         /// <param name="box"></param>
         /// <returns></returns>
-        public bool IsIntersectionBox(Object3D box)
+        public bool IsIntersectionBox(Box3 box)
         {
             return this.IntersectBox( box, new Vector3() ) != null;
         }
@@ -278,7 +278,7 @@
         /// <param name="box"></param>
         /// <param name="optionalTarget"></param>
         /// <returns></returns>
-        public Vector3 IntersectBox(Object3D box, Vector3 optionalTarget)
+        public Vector3 IntersectBox(Box3 box, Vector3 optionalTarget)
         {
             throw new NotImplementedException();
         }

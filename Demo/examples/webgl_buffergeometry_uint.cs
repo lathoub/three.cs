@@ -163,8 +163,8 @@
                 Ambient = (Color)colorConvertor.ConvertFromString("#aaaaaa"),
                 Specular = (Color)colorConvertor.ConvertFromString("#ffffff"),
                 Shininess = 250,
-                side = Three.DoubleSide,
-                VertexColors = new Color[Three.VertexColors]
+                Side = Three.DoubleSide,
+                VertexColors = Three.VertexColors,
             };
 
             this.mesh = new Mesh(geometry, material);

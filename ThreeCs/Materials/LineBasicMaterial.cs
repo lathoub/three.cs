@@ -15,7 +15,6 @@
 
         public bool Fog;
 
-        public Color[] VertexColors;
 
         /// <summary>
         /// 
@@ -24,6 +23,8 @@
         public LineBasicMaterial(Hashtable parameters = null)
         {
             this.Color = Color.White;
+
+            this.type = "LineBasicMaterial";
 
             this.Linewidth = 1.0f;
             this.Linecap = "round";

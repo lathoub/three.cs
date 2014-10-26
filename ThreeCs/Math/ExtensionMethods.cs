@@ -2,15 +2,18 @@
 namespace ThreeCs.Math
 {
     using System;
+    using System.Collections.Generic;
     using System.Drawing;
 
     public static class Mat
     {
-        private static Random random = new Random();
+        private static readonly Random random = new Random();
 
         public const double PI2 = (2 * 3.14159265358979323846);
 
-        public const double HalfPI = (3.14159265358979323846 / 2.0f); 
+        public const double HalfPI = (3.14159265358979323846 / 2.0f);
+
+        public const double SQRT1_2 = (0.7071067811865476); 
 
         public static double RadToDeg(double rad)
         {
@@ -43,9 +46,17 @@ namespace ThreeCs.Math
 
         public static Color Random(this Color value)
         {
-            var random = new Random();
-
             return Color.FromArgb(255, random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="values"></param>
+        public static void Add(this List<float> list, params float[] values)
+        {
+            list.AddRange(values);
         }
 
         /// <summary>

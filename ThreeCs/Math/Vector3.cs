@@ -7,6 +7,7 @@ namespace ThreeCs.Math
     using System.Runtime.CompilerServices;
 
     using ThreeCs.Annotations;
+    using ThreeCs.Cameras;
 
     [DebuggerDisplay("X = {X}, Y = {Y}, Z = {Z}")]
     public class Vector3 : IEquatable<Vector3>, ICloneable, INotifyPropertyChanged
@@ -16,6 +17,8 @@ namespace ThreeCs.Math
         private float y;
 
         private float z;
+
+        public object UserData;
 
         /// <summary>
         /// 
@@ -37,14 +40,14 @@ namespace ThreeCs.Math
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="X"></param>
-        /// <param name="Y"></param>
-        /// <param name="Z"></param>
-        public Vector3(float X, float Y, float Z)
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        public Vector3(float x, float y, float z)
         {
-            this.X = X;
-            this.Y = Y;
-            this.Z = Z;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
         }
 
         /// <summary>
@@ -71,6 +74,18 @@ namespace ThreeCs.Math
         /// Defines an instance with all components set to 1.
         /// </summary>
    //     public static readonly Vector3 One = new Vector3(1, 1, 1);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="l"></param>
+        /// <returns></returns>
+        public Vector3 SetLength(float l)
+        {
+            Length = l;
+
+            return this;
+        }
 
         /// <summary>
         /// 
@@ -498,9 +513,22 @@ namespace ThreeCs.Math
         /// <returns></returns>
         public Vector3 Reflect(Vector3 vector)
         {
-            var V = new Vector3();
-            V.Copy(this).ProjectOnVector(vector).MultiplyScalar(2);
-            return this.SubtractVectors(V, this);
+            var v = new Vector3();
+            v.Copy(this).ProjectOnVector(vector).MultiplyScalar(2);
+            return this.SubtractVectors(v, this);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="camera"></param>
+        /// <returns></returns>
+        public Vector3 Unproject(Camera camera)
+        {
+            var matrix = new Matrix4();
+
+            matrix.MultiplyMatrices(camera.MatrixWorld, matrix.GetInverse(camera.ProjectionMatrix));
+            return this.ApplyProjection(matrix);
         }
 
         /// <summary>
@@ -847,12 +875,13 @@ namespace ThreeCs.Math
         /// 
         /// </summary>
         /// <param name="source"></param>
+        /// <param name="offset"></param>
         /// <returns></returns>
-        public Vector3 FromArray(float[] source)
+        public Vector3 FromArray(float[] source, int offset = 0)
         {
-            this.X = source[0];
-            this.Y = source[1];
-            this.Z = source[2];
+            this.X = source[offset];
+            this.Y = source[offset + 1];
+            this.Z = source[offset + 2];
 
             return this;
         }

@@ -53,7 +53,7 @@ namespace Demo.Misc
             scene.Add(mesh);
 
             var geometry2 = new BoxGeometry( 100, 100, 100, 4, 4, 4 );
-            var material2 = new MeshBasicMaterial() { Color = Color.Purple, side = Three.BackSide, Wireframe = true };
+            var material2 = new MeshBasicMaterial() { Color = Color.Purple, Side = Three.BackSide, Wireframe = true };
             var mesh2 = new Mesh( geometry2, material2 );
             scene.Add(mesh2);
 

@@ -1,5 +1,6 @@
 ﻿namespace Demo.WebGL
 {
+    using System.Collections;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -9,6 +10,7 @@
     using Three.Core;
 
     using ThreeCs.Cameras;
+    using ThreeCs.Core;
     using ThreeCs.Extras;
     using ThreeCs.Extras.Geometries;
     using ThreeCs.Materials;
@@ -94,8 +96,8 @@
 
             attributes = new Attributes
             { 
-                { "size",        new Attribute() { {"type", "f"},  {"value", null}} },
-                { "customColor", new Attribute() { {"type", "c"},  {"value", Color.White}} },
+                { "size",        new Attribute() { {"type", "f"},  {"value", new Hashtable() }} },
+                { "customColor", new Attribute() { {"type", "c"},  {"value", new Hashtable() }} },
             };
 
             uniforms = new Uniforms 
@@ -109,22 +111,22 @@
 					Attributes = attributes,
 					VertexShader = VertexShader,
 					FragmentShader = FragmentShader,
-					alphaTest = 0.9f };
+					AlphaTest = 0.9f };
 
             var geometry = new BoxGeometry(200, 200, 200, 16, 16, 16);
 
             particles = new PointCloud(geometry, shaderMaterial);
 
-        //    var values_size = ((BufferAttribute<float>)Attributes["size"]).array;
-        //    var values_color = ((BufferAttribute<float>)Attributes["customColor"]).array;
+            var values_size = attributes["size"]["value"] as Hashtable;
+            var values_color = attributes["customColor"]["value"] as Hashtable;
 
-        //    var vertices = particles.Geometry.Vertices;
+            var vertices = ((BoxGeometry)particles.Geometry).Vertices;
 
-        //    for (int v = 0, vl = vertices.Count; v < vertices.Count; v++)
-        //    {
-        //        values_size[v] = PARTICLE_SIZE * 0.5f;
-        ////        values_color[v] = new Color().setHSL(0.01f + 0.1f * (v / vl), 1.0f, 0.5f);
-        //    }
+            for (int v = 0; v < vertices.Count; v++)
+            {
+                values_size[v] = PARTICLE_SIZE * 0.5f;
+                values_color[v] = 0.76f;//   new Color().setHSL(0.01f + 0.1f * (v / vl), 1.0f, 0.5f);
+            }
 
             scene.Add(particles);
 
@@ -168,7 +170,7 @@
         {
  			particles.Rotation.X += 0.0005f;
 			particles.Rotation.Y += 0.001f;
-
+/*
 			var vector = new Vector3( mouse.X, mouse.Y, 0.5f );
 
 			projector.UnprojectVector( vector, camera );
@@ -200,7 +202,7 @@
                 //((BufferAttribute<float>)Attributes["size"]).needsUpdate = true;
                 //intersect = null;
 			}
-
+*/
 			renderer.Render( scene, camera );
        }
 

@@ -13,12 +13,17 @@
 
         public string Name;
 
-        public Object3D BoundingBox = null;
+        public string type;
+
+        public Box3 BoundingBox = null;
 
         public Sphere BoundingSphere = null;
 
-
         public abstract void ComputeBoundingSphere();
+
+        public abstract void ComputeBoundingBox();
+
+        public abstract void ComputeVertexNormals(bool areaWeighted = false);
 
         public abstract void ApplyMatrix(Matrix4 matrix);
 

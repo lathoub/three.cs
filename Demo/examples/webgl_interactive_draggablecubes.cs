@@ -21,7 +21,7 @@ namespace Demo.WebGL
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
-    [Example("webgl_interactive_draggablecubes", ExampleCategory.OpenTK, "Interactive", 0.0f)]
+    [Example("webgl_interactive_draggablecubes", ExampleCategory.OpenTK, "Interactive", 0.5f)]
     class webgl_interactive_draggablecubes : Example
     {
         private PerspectiveCamera camera;
@@ -112,7 +112,7 @@ namespace Demo.WebGL
 			    object3Ds.Add(object3D);
 			}
 
-			plane = new Mesh( new PlaneGeometry( 2000, 2000, 8, 8 ), new MeshBasicMaterial() { Color = Color.Black, opacity = 0.25f, transparent = true, Wireframe = true } );
+			plane = new Mesh( new PlaneGeometry( 2000, 2000, 8, 8 ), new MeshBasicMaterial() { Color = Color.Black, Opacity = 0.25f, Transparent = true, Wireframe = true } );
 			plane.Visible = false;
             scene.Add(plane);
 

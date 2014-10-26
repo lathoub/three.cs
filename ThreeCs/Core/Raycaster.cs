@@ -39,13 +39,8 @@ namespace Three.Core
         /// </summary>
         /// <param name="origin"></param>
         /// <param name="direction"></param>
-        /// <param name="near"></param>
-        /// <param name="far"></param>
-        public Raycaster(Vector3 origin, Vector3 direction, float near = 0, float far = float.PositiveInfinity)
+        public Raycaster(Vector3 origin, Vector3 direction)
         {
-            this.Near = near;
-            this.Far = far;
-
             this.Ray = new Ray(origin, direction);
             // direction is assumed to be normalized (for accurate distance calculations)
         }

@@ -20,13 +20,11 @@
 
         public Texture BumpMap { get; set; } // TODO: not in ThreeJs, just to be an IMap.  Must be NULL
 
-
-
-        public Texture LightMap;
+        public Texture LightMap { get; set; }
 
 
 
-        public Texture EnvMap;
+   //     public Texture EnvMap;
 
         public Color Color;
 
@@ -52,7 +50,6 @@
 
         public string WireframeLinejoin;
 
-        public Color[] VertexColors;
 
         public bool Skinning;
 
@@ -66,6 +63,8 @@
         public MeshBasicMaterial(Hashtable parameters = null)
         {
 	        this.Color = Color.White; // emissive
+
+            this.type = "MeshBasicMaterial";
 
 	        this.Map = null;
 

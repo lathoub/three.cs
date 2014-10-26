@@ -21,7 +21,8 @@
         public ShaderLib()
         {
             // cache files in Dictionary
-            var glslFiles = Directory.EnumerateFiles(@"renderers\shaders\ShaderChunk", "*.glsl");
+            var glslFiles = Directory.EnumerateFiles(@"C:\Users\Bart\Documents\GitHub\three.cs\Demo\bin\Debug\Renderers\shaders\ShaderChunk", "*.glsl");
+   //         var glslFiles = Directory.EnumerateFiles(@"renderers\shaders\ShaderChunk", "*.glsl");
             if (null == glslFiles)
             {
                 throw new FileNotFoundException(".glsl files not found - check the path in ShaderLib.cs, line 25");
@@ -233,7 +234,7 @@
 
             #endregion
 
-            #region fragmentShader
+            #region construct fragmentShader
 
             var fs = new List<string>();
 
@@ -259,7 +260,7 @@
 
             fs.Add("void main() {");
 
-                fs.Add("	gl_FragColor = vec4( vec3( 1.0 }, opacity );");
+                fs.Add("	gl_FragColor = vec4( vec3( 1.0 ), opacity );");
 
                 fs.Add(this.getChunk("logdepthbuf_fragment"));
 			    fs.Add(this.getChunk("map_fragment"));

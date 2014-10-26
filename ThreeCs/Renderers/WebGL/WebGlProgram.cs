@@ -4,11 +4,11 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Drawing;
-
-    using OpenTK.Graphics.OpenGL;
+    using System.Globalization;
 
     using ThreeCs.Materials;
+
+    using OpenTK.Graphics.OpenGL;
 
     public class WebGlProgram
     {
@@ -26,28 +26,30 @@
 		
         public int FragmentShader;
 
-        public Hashtable AttributesLocation = new Hashtable();
+        public Hashtable Attributes = new Hashtable();
 
-        public Hashtable UniformsLocation = new Hashtable();
+        public List<string> AttributesKeys = new List<string>();
+
+        public Hashtable Uniforms = new Hashtable();
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="defines"></param>
-        private string GenerateDefines(Hashtable defines)
+        private static string GenerateDefines(Hashtable defines)
         {
             if (defines.Count <= 0) 
                 return string.Empty;
 
-            var chunks = new Hashtable();
+            var chunks = new List<string>();
 
 		    foreach ( DictionaryEntry entry in defines ) {
 
-                //if ( value == false ) 
-                //    continue;
+                if ((bool)entry.Value == false)
+                    continue;
 
-                //var chunk = "#define " + d + " " + value;
-                //chunks.Add( chunk );
+                var chunk = string.Format("#define {0} {1}", entry.Key, entry.Value);
+                chunks.Add(chunk);
 
 		    }
 
@@ -60,25 +62,28 @@
         /// <param name="pgmid"></param>
         /// <param name="identifiers"></param>
         /// <returns></returns>
-        private void CacheUniformLocations(int pgmid, IEnumerable<string> identifiers) 
+        private static Hashtable CacheUniformLocations(int pgmid, IEnumerable<string> identifiers) 
         {
+            var uniformsLocation = new Hashtable();
+
             try
             {
                 foreach (var identifier in identifiers)
                 {
                     var location = GL.GetUniformLocation(pgmid, identifier);
                     if (location >= 0)
-                    {
-                        this.UniformsLocation[identifier] = location;
-                    }
-                    else this.UniformsLocation[identifier] = null;
+                        uniformsLocation[identifier] = location;
+                    else 
+                        uniformsLocation[identifier] = null;
                 }
             }
             catch (Exception e)
             {
                 Trace.TraceWarning(e.Message);
             }
-	    }
+
+            return uniformsLocation;
+        }
 
         /// <summary>
         /// 
@@ -86,23 +91,26 @@
         /// <param name="pgmid"></param>
         /// <param name="identifiers"></param>
         /// <returns></returns>
-        private void CacheAttributeLocations(int pgmid, IEnumerable<string> identifiers) 
+        private static Hashtable CacheAttributeLocations(int pgmid, IEnumerable<string> identifiers) 
         {
+            var attributes = new Hashtable();
             try
             {
                 foreach (var identifier in identifiers)
                 {
                     var location = GL.GetAttribLocation(pgmid, identifier);
                     if (location >= 0)
-                        this.AttributesLocation[identifier] = location;
+                        attributes[identifier] = location;
                     else
-                        this.AttributesLocation[identifier] = null;
+                        attributes[identifier] = null;
                 }
             }
             catch (Exception e)
             {
                 Trace.TraceWarning(e.Message);
             }
+
+            return attributes;
         }
 
         /// <summary>
@@ -115,7 +123,7 @@
         public WebGlProgram(OpenTKRenderer renderer, string code, Material material, Hashtable parameters)
         {
             Debug.Assert(null != material);
-            Debug.Assert(null != material.defines);
+            Debug.Assert(null != material.Defines);
             Debug.Assert(null != material.__webglShader);
             Debug.Assert(null != material.__webglShader.Uniforms);
             Debug.Assert(null != material.__webglShader.VertexShader);
@@ -123,20 +131,22 @@
 
             var _this = renderer;
 
-            var defines = material.defines; // undefined
+            var defines = material.Defines;
             var uniforms = material.__webglShader.Uniforms;
-
-//            var attributesLocation = material.attributesLocation; // undefined
 
             var vertexShader   = material.__webglShader.VertexShader;
             var fragmentShader = material.__webglShader.FragmentShader;
 
-            //var index0AttributeName = material.index0AttributeName; // ShaderMaterial
-            //if ( index0AttributeName == null && parameters.morphTargets == true ) 
-            //{
-            //    // programs with morphTargets displace position out of attribute 0
-            //    index0AttributeName = 'position';
-            //}
+            string index0AttributeName = null;
+            if (null != material as ShaderMaterial)
+            {
+                index0AttributeName = ((ShaderMaterial)material).Index0AttributeName;
+                if ( index0AttributeName == null && (bool)parameters["morphTargets"] == true ) 
+                {
+                    // programs with morphTargets displace position out of attribute 0
+                    index0AttributeName = "position";
+                }
+            }
 
             var shadowMapTypeDefine = "SHADOWMAP_TYPE_BASIC";
             if ((int)parameters["shadowMapType"] == Three.PCFShadowMap)
@@ -150,7 +160,7 @@
 
             // Trace.TraceInformation( "building new program " );
 
-            var customDefines = this.GenerateDefines(defines);
+            var customDefines = GenerateDefines(defines);
 
             var program = GL.CreateProgram();
 
@@ -197,7 +207,7 @@
                 pv.Add(parameters["normalMap"] != null && (bool)parameters["normalMap"] ? "#define USE_NORMALMAP" : "");
                 pv.Add(parameters["specularMap"] != null && (bool)parameters["specularMap"] ? "#define USE_SPECULARMAP" : "");
                 pv.Add(parameters["alphaMap"] != null && (bool)parameters["alphaMap"] ? "#define USE_ALPHAMAP" : "");
-                pv.Add(parameters["vertexColors"] != null && ((Color[])parameters["vertexColors"]).Length > 0 ? "#define USE_COLOR" : "");
+                pv.Add(parameters["vertexColors"] != null && (int)parameters["vertexColors"] > 0 ? "#define USE_COLOR" : "");
 
                 pv.Add(parameters["skinning"] != null && (bool)parameters["skinning"] ? "#define USE_SKINNING" : "");
                 pv.Add(parameters["useVertexTexture"] != null && (bool)parameters["useVertexTexture"] ? "#define BONE_TEXTURE" : "");
@@ -296,7 +306,7 @@
 
                 pf.Add("#define MAX_SHADOWS " + parameters["maxShadows"]);
 
-                pf.Add(parameters["alphaTest"] != null && ((float)parameters["alphaTest"] > 0) ? "#define ALPHATEST float(" + (float)parameters["alphaTest"] + ")" : ""); // TEVEEL
+                pf.Add(parameters["alphaTest"] != null && ((float)parameters["alphaTest"] > 0) ? "#define ALPHATEST " + ((float)parameters["alphaTest"]).ToString(CultureInfo.InvariantCulture) : ""); // TEVEEL
 
                 pf.Add(_this.gammaInput ? "#define GAMMA_INPUT" : "");
                 pf.Add(_this.gammaOutput ? "#define GAMMA_OUTPUT" : "");
@@ -311,7 +321,7 @@
                 pf.Add(parameters["normalMap"] != null && (bool)parameters["normalMap"] ? "#define USE_NORMALMAP" : "");
                 pf.Add(parameters["specularMap"] != null && (bool)parameters["specularMap"] ? "#define USE_SPECULARMAP" : "");
                 pf.Add(parameters["alphaMap"] != null && (bool)parameters["alphaMap"] ? "#define USE_ALPHAMAP" : "");
-                pf.Add(parameters["vertexColors"] != null && ((Color[])parameters["vertexColors"]).Length > 0 ? "#define USE_COLOR" : "");
+                pf.Add(parameters["vertexColors"] != null && (int)parameters["vertexColors"] > 0 ? "#define USE_COLOR" : "");
 
                 pf.Add(parameters["metal"] != null && (bool)parameters["metal"] ? "#define METAL" : "");
                 pf.Add(parameters["wrapAround"] != null && (bool)parameters["wrapAround"] ? "#define WRAP_AROUND" : "");
@@ -344,12 +354,13 @@
                 GL.AttachShader(program, glVertexShader);
                 GL.AttachShader(program, glFragmentShader);
 
-                //if ( index0AttributeName !== undefined ) {
-                //    // Force a particular attribute to index 0.
-                //    // because potentially expensive emulation is done by browser if attribute 0 is disabled.
-                //    // And, color, for example is often automatically bound to index 0 so disabling it
-                //    GL.BindAttribLocation( program, 0, index0AttributeName );
-                //}
+                if (index0AttributeName != null)
+                {
+                    // Force a particular attribute to index 0.
+                    // because potentially expensive emulation is done by browser if attribute 0 is disabled.
+                    // And, color, for example is often automatically bound to index 0 so disabling it
+                    GL.BindAttribLocation(program, 0, index0AttributeName);
+                }
 
                 GL.LinkProgram(program);
 
@@ -382,17 +393,10 @@
 
                 // cache uniform locations
 
-                var identifiers = new List<string>();
-
-                identifiers.Add("viewMatrix");
-                identifiers.Add("modelViewMatrix");
-                identifiers.Add("projectionMatrix");
-                identifiers.Add("normalMatrix");
-                identifiers.Add("modelMatrix");
-                identifiers.Add("cameraPosition");
-                identifiers.Add("morphTargetInfluences");
-                identifiers.Add("bindMatrix");
-                identifiers.Add("bindMatrixInverse");
+                var identifiers = new List<string> {
+                        "viewMatrix", "modelViewMatrix", "projectionMatrix", "normalMatrix", "modelMatrix", "cameraPosition",
+                        "morphTargetInfluences", "bindMatrix", "bindMatrixInverse"
+                };
 
                 if (parameters["useVertexTexture"] != null)
                 {
@@ -415,12 +419,12 @@
                     identifiers.Add(u.Key);
                 }
 
-                this.CacheUniformLocations(program, identifiers);
+                this.Uniforms = CacheUniformLocations(program, identifiers);
 
 #if DEBUG
 
                 Console.WriteLine("\nUniform Locations for Program {0}", program);
-                foreach (DictionaryEntry entry in this.UniformsLocation)
+                foreach (DictionaryEntry entry in this.Uniforms)
                 {
                     if (null != entry.Value)
                         Console.WriteLine("{1} \t {0}", entry.Key, entry.Value);
@@ -430,18 +434,10 @@
 
                 // cache attributesLocation locations
 
-                identifiers.Clear();
-
-                identifiers.Add("position");
-                identifiers.Add("normal");
-                identifiers.Add("uv");
-                identifiers.Add("uv2");
-                identifiers.Add("tangent");
-                identifiers.Add("color");
-                identifiers.Add("skinIndex");
-                identifiers.Add("skinWeight");
-                identifiers.Add("lineDistance");
-
+                identifiers = new List<string> {
+                    "position", "normal", "uv", "uv2", "tangent", "color",
+                    "skinIndex", "skinWeight", "lineDistance" 
+                };
 
                 for (var i = 0; i < (int)parameters["maxMorphTargets"]; i++)
                 {
@@ -462,12 +458,18 @@
                     }
                 }
 
-                this.CacheAttributeLocations(program, identifiers);
+                this.Attributes = CacheAttributeLocations(program, identifiers);
+
+                //this.AttributesKeys = Object.keys(this.Attributes);
+                this.AttributesKeys = new List<string>();
+                foreach (DictionaryEntry entry in this.Attributes)
+                    this.AttributesKeys.Add((string)entry.Key);
+
 
 #if DEBUG
 
                 Console.WriteLine("\nAttribute Locations for Program {0}", program);
-                foreach (DictionaryEntry entry in this.AttributesLocation)
+                foreach (DictionaryEntry entry in this.Attributes)
                 {
                     if (null != entry.Value)
                         Console.WriteLine("{1} \t {0}", entry.Key, entry.Value);

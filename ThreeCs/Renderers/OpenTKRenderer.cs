@@ -19,37 +19,12 @@
     using ThreeCs.Objects;
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Renderers.WebGL;
+    using ThreeCs.Renderers.WebGL.PlugIns;
     using ThreeCs.Scenes;
     using ThreeCs.Textures;
     using ThreeCs.Math;
 
-    using BeginMode = OpenTK.Graphics.OpenGL.BeginMode;
-    using BlendEquationMode = OpenTK.Graphics.OpenGL.BlendEquationMode;
-    using BlendingFactorDest = OpenTK.Graphics.OpenGL.BlendingFactorDest;
-    using BlendingFactorSrc = OpenTK.Graphics.OpenGL.BlendingFactorSrc;
-    using BufferTarget = OpenTK.Graphics.OpenGL.BufferTarget;
-    using BufferUsageHint = OpenTK.Graphics.OpenGL.BufferUsageHint;
-    using ClearBufferMask = OpenTK.Graphics.OpenGL.ClearBufferMask;
-    using CullFaceMode = OpenTK.Graphics.OpenGL.CullFaceMode;
-    using DepthFunction = OpenTK.Graphics.OpenGL.DepthFunction;
-    using DrawElementsType = OpenTK.Graphics.OpenGL.DrawElementsType;
-    using EnableCap = OpenTK.Graphics.OpenGL.EnableCap;
-    using ExtTextureFilterAnisotropic = OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic;
-    using FramebufferTarget = OpenTK.Graphics.OpenGL.FramebufferTarget;
-    using FrontFaceDirection = OpenTK.Graphics.OpenGL.FrontFaceDirection;
-    using GetPName = OpenTK.Graphics.OpenGL.GetPName;
-    using GL = OpenTK.Graphics.OpenGL.GL;
-    using PixelStoreParameter = OpenTK.Graphics.OpenGL.PixelStoreParameter;
-    using PixelType = OpenTK.Graphics.OpenGL.PixelType;
-    using StringName = OpenTK.Graphics.OpenGL.StringName;
-    using TextureMinFilter = OpenTK.Graphics.OpenGL.TextureMinFilter;
-    using TextureParameterName = OpenTK.Graphics.OpenGL.TextureParameterName;
-    using TextureTarget = OpenTK.Graphics.OpenGL.TextureTarget;
-    using TextureUnit = OpenTK.Graphics.OpenGL.TextureUnit;
-    using TextureWrapMode = OpenTK.Graphics.OpenGL.TextureWrapMode;
-    using VertexAttribPointerType = OpenTK.Graphics.OpenGL.VertexAttribPointerType;
-
-    // Based on version 68
+    // Based on version 68, 69
 
     public struct Info
     {
@@ -143,9 +118,7 @@
 
         private List<WebGlObject> opaqueObjects = new List<WebGlObject>();
 
-        private List<Object3D> renderPluginsPost = new List<Object3D>();
-
-        private List<Object3D> renderPluginsPre = new List<Object3D>();
+        //private List<Object3D> renderPluginsPost = new List<Object3D>();
 
         private ShaderLib shaderLib;
 
@@ -183,7 +156,7 @@
 
         private int _currentMaterialId;
 
-        private int _currentProgram = -1;
+        private int? _currentProgram = null;
 
         private int _currentFramebuffer = -1;
 
@@ -197,9 +170,9 @@
 
         private float _oldLineWidth = -1;
 
-        private int _oldDepthTest = -1;
+        private bool? _oldDepthTest = null;
         
-        private int _oldDepthWrite = -1;
+        private bool? _oldDepthWrite = null;
 
         private int _oldBlendDst = -1;
 
@@ -238,10 +211,6 @@
         private Color clearColor;
 
         private int[] compressedTextureFormats;
-
-        private bool depthTest;
-
-        private bool depthWrite;
 
         private float fragmentShaderPrecisionHighpFloat;
 
@@ -293,7 +262,25 @@
 
         private bool _lightsNeedUpdate = true;
 
+        private List<Light> lights = new List<Light>();
+
         private LightCollection _lights = new LightCollection();
+
+        private Dictionary<int, List<WebGlObject>> _webglObjects = new Dictionary<int, List<WebGlObject>>();
+
+        private List<WebGlObject> _webglObjectsImmediate = new List<WebGlObject>();
+
+        private List<Object3D> sprites = new List<Object3D>();
+
+        private List<Object3D> lensFlares = new List<Object3D>();
+
+        private ShadowMapPlugin shadowMapPlugin;
+
+        private SpritePlugin spritePlugin;
+
+        private LensFlarePlugin lensFlarePlugin;
+
+        private List<string> extensions;
 
         #endregion
 
@@ -304,7 +291,7 @@
         /// </summary>
         public OpenTKRenderer(Control control)
         {
-            //	        Trace.TraceInformation( "THREE.WebGLRenderer {0}", Three.Version );
+            //	        Trace.TraceInformation( "Three.WebGLRenderer {0}", Three.Version );
 
             this.shaderLib = new ShaderLib();
 
@@ -330,11 +317,6 @@
 
             this.SortObjects = true;
 
-            // custom render plugins
-
-            this.renderPluginsPre.Clear();
-            this.renderPluginsPost.Clear();
-
             // shadow map
 
             this.shadowMapEnabled = false;
@@ -353,9 +335,18 @@
 
             this.autoScaleCubemaps = true;
 
+            this.extensions = new List<string>((GL.GetString(StringName.Extensions)).Split(' '));
+
             this.InitGl();
 
             this.SetDefaultGlState();
+
+            // Plugins
+
+            this.shadowMapPlugin = new ShadowMapPlugin(this, this._lights, this._webglObjects, this._webglObjectsImmediate);
+
+            this.spritePlugin = new SpritePlugin(this, this.sprites);
+            this.lensFlarePlugin = new LensFlarePlugin(this, this.lensFlares);
 
             // GPU capabilities
 
@@ -456,7 +447,7 @@
         {
             this.SetRenderTarget(renderTarget);
 
-            Clear(color, depth, stencil);
+            this.Clear(color, depth, stencil);
         }
 
         /// <summary>
@@ -553,28 +544,26 @@
             Debug.Assert(null != scene, "OpenTKRenderer.Render: scene can not be null");
             Debug.Assert(null != camera, "OpenTKRenderer.Render: camera can not be null");
 
-            IEnumerable<Light> lights = scene.__lights;
+            //IEnumerable<Light> lights = scene.__lights;
             var fog = scene.Fog;
 
             // reset caching for this frame
 
+            this._currentGeometryGroupHash = -1;
             this._currentMaterialId = -1;
             this._currentCamera = null;
             this._lightsNeedUpdate = true;
 
             // update scene graph
 
-            if (scene.AutoUpdate)
-            {
-                scene.UpdateMatrixWorld();
-            }
+            if (scene.AutoUpdate) scene.UpdateMatrixWorld();
+
             // update camera matrices and frustum
-            if (null == camera.Parent)
-            {
-                camera.UpdateMatrixWorld();
-            }
+
+            if (null == camera.Parent) camera.UpdateMatrixWorld();
 
             // update Skeleton objects
+
             this.UpdateSkeletons(scene);
 
             camera.MatrixWorldInverse = camera.MatrixWorld.GetInverse();
@@ -582,38 +571,40 @@
             this._projScreenMatrix = camera.ProjectionMatrix * camera.MatrixWorldInverse;
         //    this._frustum = new Matrix4().FromMatrix(this._projScreenMatrix); // TODO
 
-            this.InitObjects(scene);
 
+            this.lights.Clear();
             this.opaqueObjects.Clear();
             this.transparentObjects.Clear();
+
+            this.sprites.Clear();
+            this.lensFlares.Clear();
 
             this.ProjectObject(scene, scene, camera);
 
             if (this.SortObjects)
             {
-                this.opaqueObjects.Sort(
-                    delegate(WebGlObject a, WebGlObject b)
+                this.opaqueObjects.Sort( (left, right) =>
                         {
-                            if (a.z != b.z)
+                            if (left.z != right.z)
                             {
-                                return (int)(b.z - a.z);
+                                return (int)(right.z - left.z);
                             }
-                            return (int)(a.id - b.id);
+                            return (int)(left.id - right.id);
                         });
 
-                this.transparentObjects.Sort(
-                    delegate(WebGlObject a, WebGlObject b)
+                this.transparentObjects.Sort( (left, right) =>
                         {
-                            if (a.z != b.z)
+                            if (left.z != right.z)
                             {
-                                return (int)(a.z - b.z);
+                                return (int)(left.z - right.z);
                             }
-                            return (int)(a.id - b.id);
+                            return (int)(left.id - right.id);
                         });
             }
 
             // custom render plugins (pre pass)
-            this.RenderPlugins(this.renderPluginsPre, scene, camera);
+
+            this.shadowMapPlugin.Render( scene, camera );
 
             //
             this.Info.render.Calls = 0;
@@ -625,61 +616,72 @@
 
             if (this.AutoClear || forceClear)
             {
-                Clear(this.autoClearColor, this.autoClearDepth, this.autoClearStencil);
+                this.Clear(this.autoClearColor, this.autoClearDepth, this.autoClearStencil);
             }
 
             // set matrices for regular objects (frustum culled)
 
             // set matrices for immediate objects
-            var renderList = scene.__webglObjectsImmediate;
 
-            foreach (var webglObject in renderList)
+            foreach (var webglObject in this._webglObjectsImmediate)
             {
                 var object3D = webglObject.object3D;
                 if (object3D.Visible)
                 {
                     SetupMatrices(object3D, camera);
-                    //unrollImmediateBufferMaterial( webglObject );
+
+                    //UnrollImmediateBufferMaterial( webglObject );
                 }
             }
 
             if (null != scene.OverrideMaterial)
             {
                 var material = scene.OverrideMaterial;
-                this.SetBlending(material.blending, material.blendEquation, material.blendSrc, material.blendDst);
-                this.depthTest = material.depthTest;
-                this.depthWrite = material.depthWrite;
-                this.SetPolygonOffset(material.polygonOffset, material.polygonOffsetFactor, material.polygonOffsetUnits);
-                this.RenderObjects(this.opaqueObjects, camera, lights, fog, true, material);
-                this.RenderObjects(this.transparentObjects, camera, lights, fog, true, material);
-                this.RenderObjectsImmediate(scene.__webglObjectsImmediate, string.Empty, camera, lights, fog, false, material);
+
+                this.SetBlending(material.Blending, material.BlendEquation, material.BlendSrc, material.BlendDst);
+                this.SetDepthTest(material.DepthTest);
+                this.SetDepthWrite(material.DepthWrite);
+                this.SetPolygonOffset(material.PolygonOffset, material.PolygonOffsetFactor, material.PolygonOffsetUnits);
+
+                this.RenderObjects(this.opaqueObjects, camera, this.lights, fog, true, material);
+                this.RenderObjects(this.transparentObjects, camera, this.lights, fog, true, material);
+                this.RenderObjectsImmediate(this._webglObjectsImmediate, string.Empty, camera, this.lights, fog, false, material);
             }
             else
             {
                 Material material = null;
+
                 // opaque pass (front-to-back Order)
+
                 this.SetBlending(Three.NoBlending);
-                this.RenderObjects(this.opaqueObjects, camera, lights, fog, false, material);
-                this.RenderObjectsImmediate(scene.__webglObjectsImmediate, "opaque", camera, lights, fog, false, material);
+
+                this.RenderObjects(this.opaqueObjects, camera, this.lights, fog, false, material);
+                this.RenderObjectsImmediate(this._webglObjectsImmediate, "opaque", camera, this.lights, fog, false, material);
+
                 // transparent pass (back-to-front Order)
-                this.RenderObjects(this.transparentObjects, camera, lights, fog, true, material);
-                this.RenderObjectsImmediate(scene.__webglObjectsImmediate, "transparent", camera, lights, fog, true, material);
+
+                this.RenderObjects(this.transparentObjects, camera, this.lights, fog, true, material);
+                this.RenderObjectsImmediate(this._webglObjectsImmediate, "transparent", camera, this.lights, fog, true, material);
             }
 
             // custom render plugins (post pass)
-            this.RenderPlugins(this.renderPluginsPost, scene, camera);
+
+            this.spritePlugin.Render( scene, camera );
+            this.lensFlarePlugin.Render( scene, camera, this._currentWidth, this._currentHeight );
+
 
             // Generate mipmap if we're using any kind of mipmap filtering
-            if ((null != renderTarget) && renderTarget.generateMipmaps 
-                                       && renderTarget.minFilter != TextureMinFilter.Nearest 
-                                       && renderTarget.minFilter != TextureMinFilter.Linear) 
+            if ((null != renderTarget) && renderTarget.GenerateMipmaps 
+                                       && renderTarget.MinFilter != TextureMinFilter.Nearest 
+                                       && renderTarget.MinFilter != TextureMinFilter.Linear) 
             {
                 this.UpdateRenderTargetMipmap( renderTarget );
             }
 
             // Ensure depth buffer writing is enabled so it can be cleared on next render
-            this.depthTest = true;
-            this.depthWrite = true;
+
+            this.SetDepthTest(true);
+            this.SetDepthWrite(true);
 
             // GL.finish();
         }
@@ -688,29 +690,27 @@
         /// </summary>
         public void InitGl()
         {
-            var extensions = new List<string>((GL.GetString(StringName.Extensions)).Split(' '));
-
-            if (extensions.Contains("OES_texture_float") || extensions.Contains("GL_ARB_texture_float"))
+            if (this.extensions.Contains("OES_texture_float") || this.extensions.Contains("GL_ARB_texture_float"))
             {
                 this.glExtensionTextureFloat = true;
             }
 
-            if (extensions.Contains("OES_standard_derivatives"))
+            if (this.extensions.Contains("OES_standard_derivatives"))
             {
                 this.glExtensionStandardDerivatives = true;
             }
 
-            if (extensions.Contains("EXT_texture_filter_anisotropic")
-                || extensions.Contains("GL_EXT_texture_filter_anisotropic")
-                || extensions.Contains("MOZ_EXT_texture_filter_anisotropic")
-                || extensions.Contains("WEBKIT_EXT_texture_filter_anisotropic"))
+            if (this.extensions.Contains("EXT_texture_filter_anisotropic")
+                || this.extensions.Contains("GL_EXT_texture_filter_anisotropic")
+                || this.extensions.Contains("MOZ_EXT_texture_filter_anisotropic")
+                || this.extensions.Contains("WEBKIT_EXT_texture_filter_anisotropic"))
             {
                 this.glExtensionTextureFilterAnisotropic = true;
             }
 
-            if (extensions.Contains("WEBGL_compressed_texture_s3tc")
-                || extensions.Contains("MOZ_WEBGL_compressed_texture_s3tc")
-                || extensions.Contains("WEBKIT_WEBGL_compressed_texture_s3tc") || extensions.Contains("GL_S3_s3tc"))
+            if (this.extensions.Contains("WEBGL_compressed_texture_s3tc")
+                || this.extensions.Contains("MOZ_WEBGL_compressed_texture_s3tc")
+                || this.extensions.Contains("WEBKIT_WEBGL_compressed_texture_s3tc") || this.extensions.Contains("GL_S3_s3tc"))
             {
                 this.glExtensionCompressedTextureS3TC = true;
             }
@@ -837,7 +837,7 @@
             {
 
                 var attribute = material.Attributes[entry.Key];
-                Debug.Assert(null != attribute, "Failed to cast material.Attributes[{0}] to Hashtable", (string)entry.Key);
+                Debug.Assert(null != attribute, "Failed to cast material.Attributes[{0}] to Hashtable", entry.Key);
 
                 if (attribute.ContainsKey("needsUpdate"))
                 {
@@ -860,7 +860,7 @@
             foreach (var entry in material.Attributes)
             {
                 var attribute = material.Attributes[entry.Key];
-                Debug.Assert(null != attribute, "Failed to cast material.Attributes[{0}] to Hashtable", (string)entry.Key);
+                Debug.Assert(null != attribute, "Failed to cast material.Attributes[{0}] to Hashtable", entry.Key);
 
                 if (attribute.ContainsKey("needsUpdate"))
                 {
@@ -879,9 +879,9 @@
 			     object3D is PointCloud ||
 			     object3D is Line ) 
             {
-	//		    removeInstancesWebglObjects( scene.__webglObjects, object3D );
+	//		    removeInstancesWebglObjects( this._webglObjects, object3D );
 		    } else if ( object3D is ImmediateRenderObject /* || object3D.immediateRenderCallback */ ) {
-			    this.RemoveInstances( scene.__webglObjectsImmediate, object3D );
+			    this.RemoveInstances( this._webglObjectsImmediate, object3D );
 		    }
 		    //delete object3D.__webglActive;
         }
@@ -912,101 +912,53 @@
 	    }
 
         /// <summary>
+        /// 
         /// </summary>
+        /// <param name="geometry"></param>
         /// <param name="object3D"></param>
-        /// <param name="scene"></param>
-        private void AddObject(Object3D object3D, Scene scene)
+        private static void InitLineBuffers(Geometry geometry, Object3D object3D)
         {
-            if (object3D.__webglInit == false)
-            {
-                object3D.__webglInit = true;
-                object3D.ModelViewMatrix = new Matrix4().Identity();
-                object3D.NormalMatrix = new Matrix3().Identity();
-            }
+		    var nvertices = geometry.Vertices.Count;
 
-            if (null == object3D.Geometry) //  geometry is er al in
-            {
-                // ImmediateRenderObject
-            }
-            else if (object3D.Geometry.__webglInit == false)
-            {
-                object3D.Geometry.__webglInit = true;
+		    geometry.__vertexArray = new float[ nvertices * 3 ];
+		    geometry.__colorArray = new float[ nvertices * 3 ];
+		    geometry.__lineDistanceArray = new float[ nvertices * 1 ];
 
-                if (object3D.Geometry is BufferGeometry)
-                {
-                    InitDirectBuffers(object3D.Geometry as BufferGeometry);
-                }
-                else if (object3D is Mesh)
-                {
-                    if (object3D.__webglActive)
-                    {
-                        this.RemoveObject(object3D, scene);
-                    }
+		    geometry.__webglLineCount = nvertices;
 
-                    this.InitGeometryGroups(scene, object3D, object3D.Geometry as Geometry);
-                }
-                else if (object3D is Line)
-                {
-                    if (null == object3D.Geometry.__webglVertexBuffer)
-                    {
-                        var geometry = object3D.Geometry as Geometry;
+            InitCustomAttributes(geometry, object3D);
+        }
 
-                        this.CreateLineBuffers(geometry);
-                        InitLineBuffers(geometry, object3D);
+        // Reset
 
-					    geometry.VerticesNeedUpdate = true;
-					    geometry.ColorsNeedUpdate = true;
-					    geometry.LineDistancesNeedUpdate = true;
+	    public void ResetGlState ()
+        {
+		    this._currentProgram = null;
+		    this._currentCamera = null;
 
-				    }
-                }
-                else if (object3D is PointCloud)
-                {
-                    if (null != object3D.Geometry.__webglVertexBuffer)
-                    {
-                        var geometry = object3D.Geometry as Geometry;
+		    this._oldBlending = - 1;
+		    this._oldDepthTest = null;
+		    this._oldDepthWrite = null;
+		    this._oldDoubleSided = - 1;
+		    this._oldFlipSided = - 1;
+		    this._currentGeometryGroupHash = - 1;
+		    this._currentMaterialId = - 1;
 
-					    this.CreateParticleBuffers( geometry );
-                        InitParticleBuffers(geometry, object3D);
+		    this._lightsNeedUpdate = true;
+	    }
 
-					    geometry.VerticesNeedUpdate = true;
-					    geometry.ColorsNeedUpdate = true;
+        // Buffer allocation
 
-				    }
-                }
-            }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="geometry"></param>
+        private void CreateParticleBuffers(Geometry geometry)
+        {
+            GL.GenBuffers(1, out geometry.__webglVertexBuffer);
+            GL.GenBuffers(1, out geometry.__webglColorBuffer);
 
-            if (object3D.__webglActive == false)
-            {
-                if (object3D is Mesh)
-                {
-                    var mesh = object3D as Mesh;
-
-                    if (object3D.Geometry is BufferGeometry)
-                    {
-                        this.AddBuffer(scene.__webglObjects, object3D.Geometry as BufferGeometry, object3D);
-                    }
-                    else if (object3D.Geometry is Geometry)
-                    {
-                        var geometry = object3D.Geometry as Geometry;
-                        foreach (var geometryGroup in geometry.GeometryGroupsList)
-                        {
-                            this.AddBuffer(scene.__webglObjects, geometryGroup, object3D);
-                        }
-                    }
-                }
-                else if (object3D is Line || object3D is PointCloud)
-                {
-                    this.AddBuffer(scene.__webglObjects, object3D.Geometry, object3D);
-                }
-                else if (object3D is ImmediateRenderObject /*|| object3D is immediateRenderCallback*/)
-                {
-                    this.AddBufferImmediate( scene.__webglObjectsImmediate, object3D );
-                    throw new NotImplementedException();
-                }
-            }
-
-            object3D.__webglActive = true;
+            this.Info.memory.Geometries++;
         }
 
         /// <summary>
@@ -1027,36 +979,6 @@
         /// </summary>
         /// <param name="geometry"></param>
         /// <param name="object3D"></param>
-        private static void InitLineBuffers(Geometry geometry, Object3D object3D)
-        {
-		    var nvertices = geometry.Vertices.Count;
-
-		    geometry.__vertexArray = new float[ nvertices * 3 ];
-		    geometry.__colorArray = new float[ nvertices * 3 ];
-		    geometry.__lineDistanceArray = new float[ nvertices * 1 ];
-
-		    geometry.__webglLineCount = nvertices;
-
-		    InitCustomAttributes ( geometry, object3D );
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="geometry"></param>
-        private void CreateParticleBuffers(Geometry geometry)
-        {
-            GL.GenBuffers(1, out geometry.__webglVertexBuffer);
-            GL.GenBuffers(1, out geometry.__webglColorBuffer);
-
-            this.Info.memory.Geometries++;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="geometry"></param>
-        /// <param name="object3D"></param>
         private static void InitParticleBuffers(Geometry geometry, Object3D object3D)
         {
 		    var nvertices = geometry.Vertices.Count;
@@ -1064,7 +986,7 @@
 		    geometry.__vertexArray = new float[ nvertices * 3 ];
 		    geometry.__colorArray = new float[ nvertices * 3 ];
 
-		    geometry.__sortArray = new object();
+		    geometry.__sortArray = new Hashtable();
 
 		    geometry.__webglParticleCount = nvertices;
 
@@ -1080,9 +1002,9 @@
         {
 		    var nvertices = geometry.Vertices.Count;
 
-		    var material = object3D.Material as ShaderMaterial;
-
-		    if (null != material.Attributes ) {
+            if (object3D.Material is IAttributes)
+            {
+                var material = object3D.Material as IAttributes;
 
 			    if ( geometry.__webglCustomAttributesList == null ) {
                     geometry.__webglCustomAttributesList = new List<Shaders.Attribute>();
@@ -1123,60 +1045,62 @@
 		    }
         }
 
+        private readonly Dictionary<int, List<GeometryGroup>> geometryGroups = new Dictionary<int, List<GeometryGroup>>();
+        private int geometryGroupCounter = 0;
+
         /// <summary>
+        /// 
         /// </summary>
-        /// <param name="geometry"></param>
-        private static void InitDirectBuffers(BufferGeometry geometry)
+        public List<GeometryGroup> MakeGroups(Geometry geometry, bool usesFaceMaterial)
         {
-            foreach (var entry in geometry.Attributes) 
+            var maxVerticesInGroup = this.extensions.Contains("OES_element_index_uint") ? uint.MaxValue : (uint)short.MaxValue;
+
+            var hash_map = new Hashtable();
+
+            var numMorphTargets = geometry.MorphTargets.Count;
+            var numMorphNormals = geometry.MorphNormals.Count;
+
+            GeometryGroup group = null;
+            var groups = new Hashtable();
+            var groupsList = new List<GeometryGroup>();
+
+            for (var f = 0; f < geometry.Faces.Count; f++)
             {
-                var bufferType = (entry.Key.Equals("index")) ? BufferTarget.ElementArrayBuffer : BufferTarget.ArrayBuffer;
+                var face = geometry.Faces[0];
 
-                //// Note: Investigate use of dynamic (supported on Mono MaxOS and Ubuntu?)
-                //var type = attribute.array.GetType();
-                if (geometry.Attributes[entry.Key] is BufferAttribute<ushort>)
+                var materialIndex = (usesFaceMaterial) ? face.MaterialIndex : 0;
+
+                if (!hash_map.ContainsKey(materialIndex))
                 {
-                    var attribute = geometry.Attributes[entry.Key] as BufferAttribute<ushort>;
+                    hash_map[materialIndex] = 0;
+                }
+                var groupHash = string.Format("{0}_{1}", materialIndex, hash_map[materialIndex]);
 
-                    int buffer = 0;
-                    GL.GenBuffers(1, out buffer);
-                    attribute.buffer = buffer;
-
-                    GL.BindBuffer(bufferType, attribute.buffer);
-                    GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(ushort)), attribute.Array, BufferUsageHint.StaticDraw);
-
-                    Debug.WriteLine("BufferData for attribute.buffer ushort {0}", attribute.buffer);
+                if (!groups.ContainsKey(groupHash))
+                {
+                    group = new GeometryGroup { Id = this.geometryGroupCounter++, Faces3 = new List<int>(), MaterialIndex = materialIndex, Vertices = 0, NumMorphTargets = numMorphTargets, NumMorphNormals = numMorphNormals };
+                    groups[groupHash] = group;
+                    groupsList.Add(group);
                 }
 
-                if (geometry.Attributes[entry.Key] is BufferAttribute<uint>)
+                if (((GeometryGroup)groups[groupHash]).Vertices + 3 > maxVerticesInGroup)
                 {
-                    var attribute = geometry.Attributes[entry.Key] as BufferAttribute<uint>;
+                    hash_map[materialIndex] = (int)hash_map[materialIndex] + 1;
+                    groupHash = string.Format("{0}_{1}", materialIndex, hash_map[materialIndex]);
 
-                    int buffer = 0;
-                    GL.GenBuffers(1, out buffer);
-                    attribute.buffer = buffer;
-
-                    GL.BindBuffer(bufferType, attribute.buffer);
-                    GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(uint)), attribute.Array, BufferUsageHint.StaticDraw);
-
-                    Debug.WriteLine("BufferData for attribute.buffer uint {0}", attribute.buffer);
-
+                    if (!groups.ContainsKey(groupHash))
+                    {
+                        group = new GeometryGroup { Id = this.geometryGroupCounter++, Faces3 = new List<int>(), MaterialIndex = materialIndex, Vertices = 0, NumMorphTargets = numMorphTargets, NumMorphNormals = numMorphNormals };
+                        groups[groupHash] = group;
+                        groupsList.Add(group);
+                    }
                 }
 
-                if (geometry.Attributes[entry.Key] is BufferAttribute<float>)
-                {
-                    var attribute = geometry.Attributes[entry.Key] as BufferAttribute<float>;
-
-                    int buffer = 0;
-                    GL.GenBuffers(1, out buffer);
-                    attribute.buffer = buffer;
-
-                    GL.BindBuffer(bufferType, attribute.buffer);
-                    GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(float)), attribute.Array, BufferUsageHint.StaticDraw);
-
-                    Debug.WriteLine("BufferData for attribute.buffer float {0}", attribute.buffer);
-                }
+                ((GeometryGroup)groups[groupHash]).Faces3.Add(f);
+                ((GeometryGroup)groups[groupHash]).Vertices = ((GeometryGroup)groups[groupHash]).Vertices + 3;
             }
+
+            return groupsList;
         }
 
         /// <summary>
@@ -1186,23 +1110,25 @@
         /// <param name="geometry"></param>
         private void InitGeometryGroups(Scene scene, Object3D object3D, Geometry geometry)
         {
-            //    var g, geometryGroup, 
             var addBuffers = false;
 
             var material = object3D.Material;
 
-            if (geometry.GeometryGroups == null || geometry.GroupsNeedUpdate)
+            if (!this.geometryGroups.ContainsKey(geometry.Id) || geometry.GroupsNeedUpdate)
             {
-     //     	    delete scene.__webglObjects[object3D.id].;
+     //     	    delete this._webglObjects[object3D.id].;
+                this._webglObjects.Remove(object3D.id);
 
-                scene.__webglObjects.Remove(object3D.id);
-                geometry.MakeGroups(material is MeshFaceMaterial, this.glExtensionElementIndexUint ? uint.MaxValue : ushort.MaxValue);
+                this.geometryGroups[geometry.Id] = this.MakeGroups(geometry, material is MeshFaceMaterial);
+                
                 geometry.GroupsNeedUpdate = false;
             }
 
+            var geometryGroupsList = this.geometryGroups[geometry.Id];
+
             // create separate VBOs per geometry chunk
 
-            foreach (var geometryGroup in  geometry.GeometryGroupsList)
+            foreach (var geometryGroup in geometryGroupsList)
             {
                 // initialise VBO on the first access
 
@@ -1228,7 +1154,7 @@
 
                 if (addBuffers || object3D.__webglActive == false)
                 {
-                    this.AddBuffer(scene.__webglObjects, geometryGroup, object3D);
+                    this.AddBuffer(this._webglObjects, geometryGroup, object3D);
                 }
             }
 
@@ -1237,25 +1163,92 @@
 
         /// <summary>
         /// </summary>
+        /// <param name="object3D"></param>
         /// <param name="scene"></param>
-        private void InitObjects(Scene scene)
+        private void InitObject(Object3D object3D, Scene scene)
         {
-            if (null == scene.__webglObjects)
+            if (object3D.__webglInit == false)
             {
-                scene.__webglObjects = new Dictionary<int, List<WebGlObject>>();
-                scene.__webglObjectsImmediate = new List<WebGlObject>();
+                object3D.__webglInit = true;
+                object3D.ModelViewMatrix = new Matrix4().Identity();
+                object3D.NormalMatrix = new Matrix3().Identity();
+
+                // object.addEventListener( 'removed', onObjectRemoved );
             }
 
-            while (scene.__objectsAdded.Count > 0)
+            var geometry = object3D.Geometry;
+
+            if (null == geometry) //  geometry is er al in
             {
-                this.AddObject(scene.__objectsAdded[0], scene);
-                scene.__objectsAdded.RemoveAt(0);
+                // ImmediateRenderObject
+            }
+            else if (object3D.Geometry.__webglInit == false)
+            {
+                geometry.__webglInit = true;
+                // geometry.addEventListener( 'dispose', onGeometryDispose );
+
+                if (geometry is BufferGeometry)
+                {
+                    //
+                }
+                else if (object3D is Mesh)
+                {
+                    this.InitGeometryGroups(scene, object3D, object3D.Geometry as Geometry);
+                }
+                else if (object3D is Line)
+                {
+                    if (object3D.Geometry.__webglVertexBuffer == 0)
+                    {
+                        this.CreateLineBuffers((Geometry)geometry);
+                        InitLineBuffers((Geometry)geometry, object3D);
+
+                        ((Geometry)geometry).VerticesNeedUpdate = true;
+                        ((Geometry)geometry).ColorsNeedUpdate = true;
+                        ((Geometry)geometry).LineDistancesNeedUpdate = true;
+                    }
+                }
+                else if (object3D is PointCloud)
+                {
+                    if (object3D.Geometry.__webglVertexBuffer == 0)
+                    {
+                        this.CreateParticleBuffers((Geometry)geometry);
+                        InitParticleBuffers((Geometry)geometry, object3D);
+
+                        ((Geometry)geometry).VerticesNeedUpdate = true;
+                        ((Geometry)geometry).ColorsNeedUpdate = true;
+                    }
+                }
             }
 
-            while (scene.__objectsRemoved.Count > 0)
+            if (object3D.__webglActive == false)
             {
-                this.RemoveObject(scene.__objectsRemoved[0], scene);
-                scene.__objectsRemoved.RemoveAt(0);
+                object3D.__webglActive = true;
+
+                if (object3D is Mesh)
+                {
+                    if (object3D.Geometry is BufferGeometry)
+                    {
+                        this.AddBuffer(this._webglObjects, object3D.Geometry as BufferGeometry, object3D);
+                    }
+                    else if (object3D.Geometry is Geometry)
+                    {
+                        var geometryGroupsList = this.geometryGroups[geometry.Id];
+
+                        foreach (var geometryGroup in geometryGroupsList)
+                        {
+                            this.AddBuffer(this._webglObjects, geometryGroup, object3D);
+                        }
+                    }
+                }
+                else if (object3D is Line || object3D is PointCloud)
+                {
+                    this.AddBuffer(this._webglObjects, object3D.Geometry, object3D);
+                }
+                else if (object3D is ImmediateRenderObject /*|| object3D is immediateRenderCallback*/)
+                {
+                    this.AddBufferImmediate(this._webglObjectsImmediate, object3D);
+                    throw new NotImplementedException();
+                }
             }
         }
 
@@ -1271,7 +1264,7 @@
             //return function ( vector, camera ) {
 
             //    projectionMatrixInverse.getInverse( camera.projectionMatrix );
-            //    _projScreenMatrix.multiplyMatrices( camera.matrixWorld, projectionMatrixInverse );
+            //    _projScreenMatrix= camera.matrixWorld * projectionMatrixInverse;
 
             //    return vector.applyProjection( _projScreenMatrix );
        }
@@ -1283,37 +1276,62 @@
         /// <param name="camera"></param>
         private void ProjectObject(Scene scene, Object3D object3D, Camera camera)
         {
+           
             if (object3D.Visible == false)
             {
                 return;
             }
 
-            List<WebGlObject> webglObjects = null;
-            scene.__webglObjects.TryGetValue(object3D.id, out webglObjects);
-
-            if (null != webglObjects
-                && (object3D.FrustumCulled == false || /*this._frustum.intersectsObject(object3D)*/ true))
+            if (object3D is Scene || object3D is Group)
             {
-                this.updateObject(scene, object3D);
+                // Skip
+            }
+            else
+            {
+                this.InitObject(object3D, scene);
 
-                foreach (var webglObject in webglObjects)
+                if (object3D is Light)
                 {
-                    this.UnrollBufferMaterial(webglObject);
+                    this.lights.Add((Light)object3D);
+                }
+                else if (object3D is Sprite)
+                {
+                    this.sprites.Add(object3D);
+                }
+                else if (object3D is LensFlare)
+                {
+                    this.lensFlares.Add(object3D);
+                }
+                else
+                {
+                    List<WebGlObject> webglObjects = null;
+                    this._webglObjects.TryGetValue(object3D.id, out webglObjects);
 
-                    webglObject.render = true;
-
-                    if (this.SortObjects)
+                    if (null != webglObjects
+                        && (object3D.FrustumCulled == false || /*this._frustum.intersectsObject(object3D)*/ true))
                     {
-                        if (object3D.RenderDepth > 0)
-                        {
-                            webglObject.z = object3D.RenderDepth;
-                        }
-                        else
-                        {
-                            var vector3 = new Vector3().SetFromMatrixPosition(object3D.MatrixWorld);
-                            vector3.ApplyProjection(this._projScreenMatrix);
+                        this.UpdateObject(scene, object3D);
 
-                            webglObject.z = vector3.Z;
+                        foreach (var webglObject in webglObjects)
+                        {
+                            this.UnrollBufferMaterial(webglObject);
+
+                            webglObject.render = true;
+
+                            if (this.SortObjects)
+                            {
+                                if (object3D.RenderDepth > 0)
+                                {
+                                    webglObject.z = object3D.RenderDepth;
+                                }
+                                else
+                                {
+                                    var vector3 = new Vector3().SetFromMatrixPosition(object3D.MatrixWorld);
+                                    vector3.ApplyProjection(this._projScreenMatrix);
+
+                                    webglObject.z = vector3.Z;
+                                }
+                            }
                         }
                     }
                 }
@@ -1340,14 +1358,14 @@
             Debug.Assert(null != material, "");
             Debug.Assert(null != geometryGroup, "");
 
-            if (material.visible == false)
+            if (material.Visible == false)
             {
                 return;
             }
 
             var program = this.SetProgram(camera, lights, fog, material, object3D);
 
-            var attributesLocation = program.AttributesLocation;
+            var attributesLocation = program.Attributes;
 
             var updateBuffers = false;
             
@@ -1559,11 +1577,11 @@
             {
                 // render lines
 
-             //   var mode = (object3D.type == LineStrip) ? BeginMode.LineStrip : BeginMode.Lines;
+                var mode = (((Line)object3D).Mode == Three.LineStrip) ? BeginMode.LineStrip : BeginMode.Lines;
 
-                //this.setLineWidth(material.linewidth);
+                this.SetLineWidth(((LineBasicMaterial)material).Linewidth);
 
-                //GL.DrawArrays(mode, 0, geometryGroup.__webglLineCount);
+                GL.DrawArrays(mode, 0, geometryGroup.__webglLineCount);
 
                 this.Info.render.Calls ++;
 
@@ -1583,67 +1601,68 @@
         /// 
         /// </summary>
         /// <param name="material"></param>
-        /// <param name="programAttributes"></param>
-        /// <param name="geometryAttributes"></param>
+        /// <param name="program"></param>
+        /// <param name="geometry"></param>
         /// <param name="startIndex"></param>
-        private void setupVertexAttributes(Material material, IEnumerable programAttributes, IDictionary geometryAttributes, int startIndex )
+        private void SetupVertexAttributes(Material material, WebGlProgram program, BufferGeometry geometry, int startIndex )
         {
+            var geometryAttributes = geometry.Attributes;
 
-		    foreach ( DictionaryEntry attribute in programAttributes ) 
+            var programAttributes = program.Attributes;
+            var programAttributesKeys = program.AttributesKeys;
+
+            foreach (var key in programAttributesKeys) 
             {
-			    var attributePointer = attribute.Value;
-			    if ( null != attributePointer ) 
+                var programAttribute = programAttributes[key];
+
+                if (null != programAttribute && geometryAttributes.ContainsKey(key)) 
                 {
-                    if (null != geometryAttributes[attribute.Key] as BufferAttribute<float>)
+                    if (null != geometryAttributes[key] as BufferAttribute<float>)
                     {
-                        var attributeItem = geometryAttributes[attribute.Key] as BufferAttribute<float>;
+                        var attributeItem = geometryAttributes[key] as BufferAttribute<float>;
                         var attributeSize = attributeItem.ItemSize;
 
                         Debug.Assert(attributeItem.buffer > 0, "buffer has not been initialized");
 
-					    GL.BindBuffer( BufferTarget.ArrayBuffer, attributeItem.buffer );
-					    this.EnableAttribute( (int)attributePointer );
-                        GL.VertexAttribPointer((int)attributePointer, attributeSize, VertexAttribPointerType.Float, false, 0, startIndex * attributeSize * sizeof(float));
-				    }
-
-                    if (null != geometryAttributes[attribute.Key] as BufferAttribute<uint>)
-                    {
-                        var attributeItem = geometryAttributes[attribute.Key] as BufferAttribute<uint>;
-                        var attributeSize = attributeItem.ItemSize;
-
-                        Debug.Assert(attributeItem.buffer > 0, "buffer has not been initialized");
-
-                        GL.BindBuffer(BufferTarget.ArrayBuffer, attributeItem.buffer);
-                        this.EnableAttribute((int)attributePointer);
-                        GL.VertexAttribPointer((int)attributePointer, attributeSize, VertexAttribPointerType.UnsignedInt, false, 0, startIndex * attributeSize * sizeof(uint));
+                        GL.BindBuffer( BufferTarget.ArrayBuffer, attributeItem.buffer );
+                        this.EnableAttribute((int)programAttribute);
+                        GL.VertexAttribPointer((int)programAttribute, attributeSize, VertexAttribPointerType.Float, false, 0, startIndex * attributeSize * sizeof(float));
                     }
 
-                    if (null != geometryAttributes[attribute.Key] as BufferAttribute<ushort>)
+                    if (null != geometryAttributes[key] as BufferAttribute<uint>)
                     {
-                        var attributeItem = geometryAttributes[attribute.Key] as BufferAttribute<ushort>;
+                        var attributeItem = geometryAttributes[key] as BufferAttribute<uint>;
                         var attributeSize = attributeItem.ItemSize;
 
                         Debug.Assert(attributeItem.buffer > 0, "buffer has not been initialized");
 
                         GL.BindBuffer(BufferTarget.ArrayBuffer, attributeItem.buffer);
-                        this.EnableAttribute((int)attributePointer);
-                        GL.VertexAttribPointer((int)attributePointer, attributeSize, VertexAttribPointerType.UnsignedShort, false, 0, startIndex * attributeSize * sizeof(ushort));
-                    } 
+                        this.EnableAttribute((int)programAttribute);
+                        GL.VertexAttribPointer((int)programAttribute, attributeSize, VertexAttribPointerType.UnsignedInt, false, 0, startIndex * attributeSize * sizeof(uint));
+                    }
 
-
-
-
-/*                    else if ( material.defaultAttributeValues ) 
+                    if (null != geometryAttributes[key] as BufferAttribute<ushort>)
                     {
-					    if ( material.defaultAttributeValues[ attributeName ].length == 2 )
-                        {
-						    GL.VertexAttrib2fv( attributePointer, material.defaultAttributeValues[ attributeName ] );
-					    } else if ( material.defaultAttributeValues[ attributeName ].length == 3 ) {
-						    GL.VertexAttrib3fv( attributePointer, material.defaultAttributeValues[ attributeName ] );
-					    }
-				    }
- * */
-			    }
+                        var attributeItem = geometryAttributes[key] as BufferAttribute<ushort>;
+                        var attributeSize = attributeItem.ItemSize;
+
+                        Debug.Assert(attributeItem.buffer > 0, "buffer has not been initialized");
+
+                        GL.BindBuffer(BufferTarget.ArrayBuffer, attributeItem.buffer);
+                        this.EnableAttribute((int)programAttribute);
+                        GL.VertexAttribPointer((int)programAttribute, attributeSize, VertexAttribPointerType.UnsignedShort, false, 0, startIndex * attributeSize * sizeof(ushort));
+                    } 
+                    //else if ( material.defaultAttributeValues ) 
+                    //{
+                    //    if ( material.defaultAttributeValues[ attributeName ].length == 2 )
+                    //    {
+                    //        GL.VertexAttrib2fv( attributePointer, material.defaultAttributeValues[ attributeName ] );
+                    //    } else if ( material.defaultAttributeValues[ attributeName ].length == 3 ) {
+                    //        GL.VertexAttrib3fv( attributePointer, material.defaultAttributeValues[ attributeName ] );
+                    //    }
+                    //}
+
+                }
             }
 
 		    this.DisableUnusedAttributes();
@@ -1660,16 +1679,19 @@
         /// <param name="object3D"></param>
         private void RenderBufferDirect(Camera camera, IEnumerable<Light> lights, Fog fog, Material material, BufferGeometry geometry, Object3D object3D)
         {
-            if (material.visible == false)
+            if (material.Visible == false)
             {
+                return;
             }
-            
-		    var program = this.SetProgram( camera, lights, fog, material, object3D );
 
-		    var programAttributes = program.AttributesLocation;
+            var program = this.SetProgram(camera, lights, fog, material, object3D);
+
+		    //var programAttributes = program.Attributes;
 
             var updateBuffers = false;
-            var wireframeBit = 0;//material.wireframe ? 1 : 0;
+            var wireframeBit = 0;
+            if (material is IWireframe)
+                wireframeBit = ((IWireframe)material).Wireframe ? 1 : 0;
 			var geometryHash = ( geometry.Id * 0xffffff ) + ( program.Id * 2 ) + wireframeBit;
 
 		    if ( geometryHash != this._currentGeometryGroupHash ) 
@@ -1687,6 +1709,7 @@
 
 		    if ( object3D is Mesh )
             {
+                //var mode = material.wireframe === true ? _gl.LINES : _gl.TRIANGLES;
 
                 if (geometry.Attributes.ContainsKey("index")) 
                 {
@@ -1713,7 +1736,7 @@
 
 					    if ( updateBuffers ) {
 
-                            this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
+                            this.SetupVertexAttributes(material, program, geometry, 0);
 						    GL.BindBuffer( BufferTarget.ElementArrayBuffer, index.buffer );
 
 					    }
@@ -1738,7 +1761,7 @@
 
 						    if ( updateBuffers ) {
 
-                                this.setupVertexAttributes(material, programAttributes, geometry.Attributes, startIndex);
+                                this.SetupVertexAttributes(material, program, geometry, startIndex);
 							    GL.BindBuffer( BufferTarget.ElementArrayBuffer, index.buffer );
 
 						    }
@@ -1760,7 +1783,7 @@
 				    // non-indexed triangles
 
 				    if ( updateBuffers ) {
-                        this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
+                        this.SetupVertexAttributes(material, program, geometry, 0);
 				    }
 
                     var position = geometry.Attributes["position"] as BufferAttribute<float>;
@@ -1780,7 +1803,7 @@
 			    // render particles
 
 			    if ( updateBuffers ) {
-                    this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
+                    this.SetupVertexAttributes(material, program, geometry, 0);
 			    }
 
                 var position = geometry.Attributes["position"] as BufferAttribute<float>;
@@ -1793,7 +1816,7 @@
 		    } 
             else if ( object3D is Line ) 
             {
-                var mode = (((Line)object3D).Type == Three.LineStrip) ? BeginMode.LineStrip : BeginMode.Lines;
+                var mode = (((Line)object3D).Mode == Three.LineStrip) ? BeginMode.LineStrip : BeginMode.Lines;
 
                 this.SetLineWidth( ((LineBasicMaterial)material).Linewidth );
 
@@ -1824,7 +1847,7 @@
 
 					    if ( updateBuffers )
                         {
-                            this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
+                            this.SetupVertexAttributes(material, program, geometry, 0);
 
                             if (index is ushort[])
                                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<ushort>)index).buffer);
@@ -1856,7 +1879,7 @@
 
 						    if ( updateBuffers ) 
                             {
-                                this.setupVertexAttributes(material, programAttributes, geometry.Attributes, startIndex);
+                                this.SetupVertexAttributes(material, program, geometry, startIndex);
 
                                 if (index is ushort[])
                                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((BufferAttribute<ushort>)index).buffer);
@@ -1881,7 +1904,7 @@
 				    // non-indexed lines
 
 				    if ( updateBuffers ) {
-                        this.setupVertexAttributes(material, programAttributes, geometry.Attributes, 0);
+                        this.SetupVertexAttributes(material, program, geometry, 0);
 				    }
 
                     var position = geometry.Attributes["position"] as BufferAttribute<float>;
@@ -1909,7 +1932,7 @@
         {
   	        var object3D = webGlObject.object3D;
 
-            var program = this.SetProgram( camera, lights, fog, material, object3D );
+            var program = this.SetProgram(camera, lights, fog, material, object3D);
 
 		    this._currentGeometryGroupHash = - 1;
 
@@ -1954,19 +1977,12 @@
 
                     if (useBlending)
                     {
-                        this.SetBlending(
-                            material.blending,
-                            material.blendEquation,
-                            material.blendSrc,
-                            material.blendDst);
+                        this.SetBlending(material.Blending, material.BlendEquation, material.BlendSrc, material.BlendDst);
                     }
 
-                    this.depthTest = material.depthTest;
-                    this.depthWrite = material.depthWrite;
-                    this.SetPolygonOffset(
-                        material.polygonOffset,
-                        material.polygonOffsetFactor,
-                        material.polygonOffsetUnits);
+                    this.SetDepthTest(material.DepthTest);
+                    this.SetDepthWrite(material.DepthWrite);
+                    this.SetPolygonOffset(material.PolygonOffset, material.PolygonOffsetFactor, material.PolygonOffsetUnits);
                 }
 
                 this.SetMaterialFaces(material);
@@ -2008,44 +2024,44 @@
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sceneNodes"></param>
-        /// <param name="scene"></param>
-        /// <param name="camera"></param>
-        private void RenderPlugins(IEnumerable<Object3D> sceneNodes, Scene scene, Camera camera)
-        {
-            foreach (var object3D in sceneNodes)
-            {
-                // reset state for plugin (to start from clean slate)
+        ///// <summary>
+        ///// </summary>
+        ///// <param name="sceneNodes"></param>
+        ///// <param name="scene"></param>
+        ///// <param name="camera"></param>
+        //private void RenderPlugins(IEnumerable<Object3D> sceneNodes, Scene scene, Camera camera)
+        //{
+        //    foreach (var object3D in sceneNodes)
+        //    {
+        //        // reset state for plugin (to start from clean slate)
 
-                this._currentProgram = -1;
-                this._currentCamera = null;
-                this._oldBlending = -1;
-                this._oldDepthTest = -1;
-                this._oldDepthWrite = -1;
-                this._oldDoubleSided = -1;
-                this._oldFlipSided = -1;
-                this._currentGeometryGroupHash = -1;
-                this._currentMaterialId = -1;
-                this._lightsNeedUpdate = true;
+        //        this._currentProgram = -1;
+        //        this._currentCamera = null;
+        //        this._oldBlending = -1;
+        //        this._oldDepthTest = -1;
+        //        this._oldDepthWrite = -1;
+        //        this._oldDoubleSided = -1;
+        //        this._oldFlipSided = -1;
+        //        this._currentGeometryGroupHash = -1;
+        //        this._currentMaterialId = -1;
+        //        this._lightsNeedUpdate = true;
 
-                object3D.Render(scene, camera, this._currentWidth, this._currentHeight);
+        //        object3D.Render(scene, camera, this._currentWidth, this._currentHeight);
 
-                // reset state after plugin (anything could have changed)
+        //        // reset state after plugin (anything could have changed)
 
-                this._currentProgram = -1;
-                this._currentCamera = null;
-                this._oldBlending = -1;
-                this._oldDepthTest = -1;
-                this._oldDepthWrite = -1;
-                this._oldDoubleSided = -1;
-                this._oldFlipSided = -1;
-                this._currentGeometryGroupHash = -1;
-                this._currentMaterialId = -1;
-                this._lightsNeedUpdate = true;
-            }
-        }
+        //        this._currentProgram = -1;
+        //        this._currentCamera = null;
+        //        this._oldBlending = -1;
+        //        this._oldDepthTest = -1;
+        //        this._oldDepthWrite = -1;
+        //        this._oldDoubleSided = -1;
+        //        this._oldFlipSided = -1;
+        //        this._currentGeometryGroupHash = -1;
+        //        this._currentMaterialId = -1;
+        //        this._lightsNeedUpdate = true;
+        //    }
+        //}
 
         /// <summary>
         /// 
@@ -2108,7 +2124,12 @@
 
             foreach (var light in lights)
             {
-                if ( /*light.onlyShadow ||*/ light.Visible == false)
+                if (light.Visible == false)
+                {
+                    continue;
+                }
+
+                if (light is ILightShadow && ((ILightShadow)light).onlyShadow)
                 {
                     continue;
                 }
@@ -2191,130 +2212,16 @@
                     return true;
             }
 
+            var meshLambertMaterial = material as MeshLambertMaterial;
+            if (null != meshLambertMaterial)
+            {
+                if (meshLambertMaterial.Shading == Three.SmoothShading)
+                    return true;
+            }
+
             // TODO: do also for other material that carries shading
 
             return false;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="material"></param>
-        /// <returns></returns>
-        private int bufferGuessNormalType(Material material)
-        {
-            // only MeshBasicMaterial and MeshDepthMaterial don't need normals
-
-            if (material is MeshDepthMaterial)
-            {
-                return -1;
-            }
-
-            if (material is MeshBasicMaterial)
-            {
-                var m = material as MeshBasicMaterial;
-                if (null == m.EnvMap)
-                    return -1;
-            }
-
-            if (materialNeedsSmoothNormals(material))
-            {
-                return Three.SmoothShading;
-            }
-            else
-            {
-                return Three.FlatShading;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="material"></param>
-        /// <returns></returns>
-        private bool bufferGuessUVType(Material material)
-        {
-            // material must use some texture to require uvs
-
-            if (material is MeshBasicMaterial)
-            {
-                var m = material as MeshBasicMaterial;
-                if (null != m.Map
-                ||  null != m.SpecularMap
-                ||  null != m.AlphaMap) return true;
-            }
-
-            if (material is MeshLambertMaterial)
-            {
-                var m = material as MeshLambertMaterial;
-                if (null != m.map
-                || null != m.LightMap
-                || null != m.SpecularMap
-                || null != m.AlphaMap) return true;
-            }
-
-            if (material is MeshPhongMaterial)
-            {
-                var m = material as MeshPhongMaterial;
-                if (null != m.Map
-                || null != m.LightMap
-                || null != m.BumpMap
-                || null != m.NormalMap
-                || null != m.SpecularMap
-                || null != m.AlphaMap) return true;
-            }
-
-            if (material is ShaderMaterial)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="material"></param>
-        /// <returns></returns>
-        private int bufferGuessVertexColorType(Material material)
-        {
-            if (material is LineBasicMaterial)
-            {
-                var m = material as LineBasicMaterial;
-                if (null != m.VertexColors)
-                    return m.VertexColors.Length;
-            }
-
-            if (material is PointCloudMaterial)
-            {
-                var m = material as PointCloudMaterial;
-                if (null != m.VertexColors)
-                    return m.VertexColors.Length;
-            }
-
-            if (material is MeshPhongMaterial)
-            {
-                var m = material as MeshPhongMaterial;
-                if (null != m.VertexColors)
-                    return m.VertexColors.Length;
-            }
-
-            if (material is MeshLambertMaterial)
-            {
-                var m = material as MeshLambertMaterial;
-                if (null != m.VertexColors)
-                    return m.VertexColors.Length;
-            }
-
-            if (material is MeshBasicMaterial)
-            {
-                var m = material as MeshBasicMaterial;
-                if (null != m.VertexColors)
-                    return m.VertexColors.Length;
-            }
-
-            return -1;
         }
 
         /// <summary>
@@ -2458,27 +2365,28 @@
         /// <param name="object3D"></param>
         /// <param name="geometry"></param>
         /// <returns></returns>
-        private Material getBufferMaterial(Object3D object3D, Geometry geometry)
-        {
-            //return object3D.material is MeshFaceMaterial
-            //     : object3D.material;
-
-            return object3D.Material;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="object3D"></param>
-        /// <param name="geometryGroup"></param>
-        /// <returns></returns>
         private Material getBufferMaterial(Object3D object3D, GeometryGroup geometryGroup)
         {
-            //return object3D.material is MeshFaceMaterial
-            //     ? object3D.material.materials[ geometryGroup.materialIndex ]
-            //     : object3D.material;
+            return (object3D.Material is MeshFaceMaterial)
+                ? ((MeshFaceMaterial)object3D.Material).Materials[geometryGroup.MaterialIndex]
+                : object3D.Material;
+        }
 
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="object3D"></param>
+        ///// <param name="geometryGroup"></param>
+        ///// <returns></returns>
+        private Material getBufferMaterial(Object3D object3D, Geometry geometryGroup)
+        {
             return object3D.Material;
+
+            // TODO
+
+            //return (object3D.Material is MeshFaceMaterial)
+            //    ? ((MeshFaceMaterial)object3D.Material).Materials[geometryGroup.MaterialIndex]
+            //    : object3D.Material;
         }
 
         /// <summary>
@@ -2516,52 +2424,43 @@
         /// <param name="hint"></param>
         private static void SetDirectBuffers(BufferGeometry geometry, BufferUsageHint hint)
         {
-            foreach (var attribute in geometry.Attributes)
+            var attributes = geometry.Attributes;
+            var attributesKeys = geometry.AttributesKeys;
+
+            foreach (var key in attributesKeys)
 		    {
-		        var attributeItem = attribute.Value as IBufferAttribute;
-                Debug.Assert(null != attributeItem, "casting to IBufferAttribute failed");
-		        
-                if (attributeItem.needsUpdate ) 
+                var attribute = attributes[key] as IBufferAttribute;
+                Debug.Assert(null != attribute, "casting to IBufferAttribute failed");
+
+                if (attribute.buffer < 0)
                 {
-                    if ( (string)attribute.Key == "index" ) 
-                    {
-                        Debug.Assert(attributeItem.buffer > 0, "attributeItem.buffer has not been created");
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, attributeItem.buffer);
+                    var buffer = 0;
+                    GL.GenBuffers(1, out buffer);
 
-                        if (null != attribute.Value as BufferAttribute<float>)
-                            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(attributeItem.length * sizeof(float)), ((BufferAttribute<float>)attribute.Value).Array, hint);
-                        if (null != attribute.Value as BufferAttribute<ushort>)
-                            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(attributeItem.length * sizeof(ushort)), ((BufferAttribute<ushort>)attribute.Value).Array, hint);
-                        if (null != attribute.Value as BufferAttribute<uint>)
-                            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(attributeItem.length * sizeof(uint)), ((BufferAttribute<uint>)attribute.Value).Array, hint);
-                    } 
-                    else 
-                    {
-                        Debug.Assert(attributeItem.buffer > 0, "attributeItem.buffer has not been created");
-                        GL.BindBuffer(BufferTarget.ArrayBuffer, attributeItem.buffer);
+                    attribute.buffer = buffer;
+                    attribute.needsUpdate = true;
+                }
 
-                        if (null != attribute.Value as BufferAttribute<float>)
-                            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(attributeItem.length * sizeof(float)), ((BufferAttribute<float>)attribute.Value).Array, hint);
-                        if (null != attribute.Value as BufferAttribute<ushort>)
-                            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(attributeItem.length * sizeof(ushort)), ((BufferAttribute<ushort>)attribute.Value).Array, hint);
-                        if (null != attribute.Value as BufferAttribute<uint>)
-                            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(attributeItem.length * sizeof(uint)), ((BufferAttribute<uint>)attribute.Value).Array, hint);
-                    }
+                if (attribute.needsUpdate) 
+                {
+                    var bufferType = (key == "index") ? BufferTarget.ElementArrayBuffer : BufferTarget.ArrayBuffer;
 
-                    attributeItem.needsUpdate = false;
+                    Debug.Assert(attribute.buffer > 0, "attributeItem.buffer has not been created");
+                    GL.BindBuffer(bufferType, attribute.buffer);
+
+                    var array = ((Shaders.Attribute)attribute)["array"];
+
+                    if (null != array as float[])
+                        GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(float)), (float[])array, hint);
+                    if (null != array as ushort[])
+                        GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(ushort)), (ushort[])array, hint);
+                    if (null != array as uint[])
+                        GL.BufferData(bufferType, (IntPtr)(attribute.length * sizeof(uint)), (uint[])array, hint);
+
+                    attribute.needsUpdate = false;
 	            }
 		    }
 	    }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="scene"></param>
-        /// <param name="object3D"></param>
-        /// <param name="geometry"></param>
-        private void initGeometryGroups(Scene scene, Object3D object3D, Geometry geometry)
-        {
-        }
 
         /// <summary>
         /// 
@@ -2669,8 +2568,8 @@
                                      { "shadowMapType", this.shadowMapType },
                                      { "shadowMapDebug", this.shadowMapDebug },
                                      { "shadowMapCascade", this.shadowMapCascade },
-                                     { "doubleSided", (material.side == Three.DoubleSide) },
-                                     { "flipSided", (material.side == Three.BackSide) }
+                                     { "doubleSided", (material.Side == Three.DoubleSide) },
+                                     { "flipSided", (material.Side == Three.BackSide) }
                                  };
 
             var meshBasicMaterial = material as MeshBasicMaterial;
@@ -2685,7 +2584,7 @@
                 parameters.Add("vertexColors", meshBasicMaterial.VertexColors);
                 parameters.Add("skinning", meshBasicMaterial.Skinning);
                 parameters.Add("morphTargets", meshBasicMaterial.MorphTargets);
-                parameters.Add("alphaTest", meshBasicMaterial.alphaTest);
+                parameters.Add("alphaTest", meshBasicMaterial.AlphaTest);
             }
 
             var lineBasicMaterial = material as LineBasicMaterial;
@@ -2698,13 +2597,13 @@
             var shaderMaterial = material as ShaderMaterial;
             if (null != shaderMaterial)
             {
-                parameters.Add("alphaTest", shaderMaterial.alphaTest);
+                parameters.Add("alphaTest", shaderMaterial.AlphaTest);
                 parameters.Add("useFog", shaderMaterial.Fog);
                 parameters.Add("vertexColors", shaderMaterial.VertexColors);
-                parameters.Add("skinning", shaderMaterial.skinning);
+                parameters.Add("skinning", shaderMaterial.Skinning);
 
-                parameters.Add("morphTargets", shaderMaterial.morphTargets);
-                parameters.Add("morphNormals", shaderMaterial.morphNormals);
+                parameters.Add("morphTargets", shaderMaterial.MorphTargets);
+                parameters.Add("morphNormals", shaderMaterial.MorphNormals);
             }
 
             var pointCloudMaterial = material as PointCloudMaterial;
@@ -2713,7 +2612,7 @@
                 parameters.Add("map", pointCloudMaterial.Map != null);
                 parameters.Add("useFog", pointCloudMaterial.Fog);
                 parameters.Add("vertexColors", pointCloudMaterial.VertexColors);
-                parameters.Add("alphaTest", pointCloudMaterial.alphaTest);
+                parameters.Add("alphaTest", pointCloudMaterial.AlphaTest);
                 
                 parameters.Add("sizeAttenuation", pointCloudMaterial.SizeAttenuation);
             }
@@ -2721,7 +2620,7 @@
             var meshNormalMaterial = material as MeshNormalMaterial;
             if (null != meshNormalMaterial)
             {
-                parameters.Add("alphaTest", meshNormalMaterial.alphaTest);
+                parameters.Add("alphaTest", meshNormalMaterial.AlphaTest);
 
                 parameters.Add("morphTargets", meshNormalMaterial.MorphTargets);
             }
@@ -2729,7 +2628,7 @@
             var meshLambertMaterial = material as MeshLambertMaterial;
             if (null != meshLambertMaterial)
             {
-                parameters.Add("map", meshLambertMaterial.map != null);
+                parameters.Add("map", meshLambertMaterial.Map != null);
                 parameters.Add("useFog", meshLambertMaterial.Fog);
                 parameters.Add("envMap", meshLambertMaterial.EnvMap != null);
                 parameters.Add("lightMap", meshLambertMaterial.LightMap != null);
@@ -2738,7 +2637,7 @@
                 parameters.Add("vertexColors", meshLambertMaterial.VertexColors);
                 parameters.Add("skinning", meshLambertMaterial.Skinning);
                 parameters.Add("morphTargets", meshLambertMaterial.MorphTargets);
-                parameters.Add("alphaTest", meshLambertMaterial.alphaTest);
+                parameters.Add("alphaTest", meshLambertMaterial.AlphaTest);
                 
                 parameters.Add("wrapAround", meshLambertMaterial.WrapAround);
                 parameters.Add("morphNormals", meshLambertMaterial.MorphNormals);
@@ -2756,7 +2655,7 @@
                 parameters.Add("vertexColors", meshPhongMaterial.VertexColors);
                 parameters.Add("skinning", meshPhongMaterial.Skinning);
                 parameters.Add("morphTargets", meshPhongMaterial.MorphTargets);
-                parameters.Add("alphaTest", meshPhongMaterial.alphaTest);
+                parameters.Add("alphaTest", meshPhongMaterial.AlphaTest);
                 
                 parameters.Add("metal", meshPhongMaterial.Metal);
                 parameters.Add("wrapAround", meshPhongMaterial.WrapAround);
@@ -2781,7 +2680,7 @@
             }
 
             // 
-            foreach (DictionaryEntry entry in material.defines)
+            foreach (DictionaryEntry entry in material.Defines)
             {
                 chunks.Add(entry.Key);
                 chunks.Add(entry.Value);
@@ -2826,7 +2725,7 @@
 
             material.program = program;
 
-            var attributes = material.program.AttributesLocation;
+            var attributes = material.program.Attributes;
 
             if (null != meshBasicMaterial && meshBasicMaterial.MorphTargets) 
             {
@@ -2861,15 +2760,15 @@
             //    }
             //}
 
-            material.uniformsList = new List<UniformLocation>();
+            material.UniformsList = new List<UniformLocation>();
 
             foreach (var u in material.__webglShader.Uniforms)
             {
-                var location = material.program.UniformsLocation[u.Key];
+                var location = material.program.Uniforms[u.Key];
                 if (location != null)
                 {
                     var uniform = material.__webglShader.Uniforms[u.Key];
-                    material.uniformsList.Add(new UniformLocation() { Uniform = uniform, Location = (int)location });
+                    material.UniformsList.Add(new UniformLocation() { Uniform = uniform, Location = (int)location });
                 }
             }
         }
@@ -2892,38 +2791,19 @@
 
             var material = this.getBufferMaterial(object3D, geometryGroup);
 
-            var uvType = this.bufferGuessUVType(material);
-            var normalType = this.bufferGuessNormalType(material);
-            var vertexColorType = this.bufferGuessVertexColorType(material);
-
             geometryGroup.__vertexArray = new float[nvertices * 3];
+            geometryGroup.__normalArray = new float[nvertices * 3];
+            geometryGroup.__colorArray = new float[nvertices * 3];
+            geometryGroup.__uvArray = new float[nvertices * 2];
 
-            if (normalType > 0)
+            if (geometry.FaceVertexUvs.Count > 1)
             {
-                geometryGroup.__normalArray = new float[nvertices * 3];
+                geometryGroup.__uv2Array = new float[nvertices * 2];
             }
 
             if (geometry.HasTangents)
             {
                 geometryGroup.__tangentArray = new float[nvertices * 4];
-            }
-
-            if (vertexColorType > 0)
-            {
-                geometryGroup.__colorArray = new float[nvertices * 3];
-            }
-
-            if (uvType)
-            {
-                if (geometry.FaceVertexUvs.Count > 0)
-                {
-                    geometryGroup.__uvArray = new float[nvertices * 2];
-                }
-
-                if (geometry.FaceVertexUvs.Count > 1)
-                {
-                    geometryGroup.__uv2Array = new float[nvertices * 2];
-                }
             }
 
             if (geometry.SkinWeights.Count > 0 && geometry.SkinIndices.Count > 0)
@@ -3037,8 +2917,9 @@
                     Debug.Assert(null != uniform, "key is null or could not cast to KVP");
 
                     // needsUpdate property is not added to all uniformsLocation.
-           //         if (uniform.needsUpdate == false)
-           //             continue;
+                    if (uniform.ContainsKey("needsUpdate"))
+                        if ((bool)uniform["needsUpdate"] == false)
+                            continue;
 
                     type = (string)uniform["type"];
                     object value = uniform["value"];
@@ -3168,7 +3049,7 @@
                             /*
                                                             case "v2v":
 
-                                                                // array of THREE.Vector2
+                                                                // array of Three.Vector2
 
                                                                 if ( uniform._array == null ) {
 
@@ -3191,7 +3072,7 @@
 
                                                             case "v3v":
 
-                                                                // array of THREE.Vector3
+                                                                // array of Three.Vector3
 
                                                                 if ( uniform._array == null ) {
 
@@ -3215,7 +3096,7 @@
 
                                                             case "v4v":
 
-                                                                // array of THREE.Vector4
+                                                                // array of Three.Vector4
 
                                                                 if ( uniform._array == null ) {
 
@@ -3240,14 +3121,14 @@
 
                                                             case "m3":
 
-                                                                // single THREE.Matrix3
+                                                                // single Three.Matrix3
                                                                 GL.UniformMatrix3fv( location, false, value.elements );
 
                                                                 break;
 
                                                             case "m3v":
 
-                                                                // array of THREE.Matrix3
+                                                                // array of Three.Matrix3
 
                                                                 if ( uniform._array == null ) {
 
@@ -3267,14 +3148,14 @@
 
                                                             case "m4":
 
-                                                                // single THREE.Matrix4
+                                                                // single Three.Matrix4
                                                                 GL.UniformMatrix4fv( location, false, value.elements );
 
                                                                 break;
 
                                                             case "m4v":
 
-                                                                // array of THREE.Matrix4
+                                                                // array of Three.Matrix4
 
                                                                 if ( uniform._array == null ) {
 
@@ -3294,7 +3175,7 @@
                             */
                         case "t":
 
-                            // single THREE.Texture (2d or cube)
+                            // single Three.Texture (2d or cube)
 
                             var texture = (Texture)value;
                             var textureUnit = this.GetTextureUnit();
@@ -3319,7 +3200,7 @@
                             /*
                                                             case "tv":
 
-                                                                // array of THREE.Texture (2d)
+                                                                // array of Three.Texture (2d)
 
                                                                 if ( uniform._array == null ) {
 
@@ -3350,7 +3231,7 @@
 
                                                             default:
 
-                                                                Trace.TraceWarning( "THREE.WebGLRenderer: Unknown uniform type: " + type );
+                                                                Trace.TraceWarning( "Three.WebGLRenderer: Unknown uniform type: " + type );
                                                 */
                     }
                 }
@@ -3397,7 +3278,17 @@
         {
             Texture uvScaleMap = null;
 
-            Uniforms.SetValue(uniforms, "opacity", material.opacity);
+            Uniforms.SetValue(uniforms, "opacity", material.Opacity);
+
+            if (material is IMap)
+            {
+                var m = material as IMap;
+
+                Uniforms.SetValue(uniforms, "map", m.Map);
+                Uniforms.SetValue(uniforms, "lightMap", m.LightMap);
+                Uniforms.SetValue(uniforms, "specularMap", m.SpecularMap);
+                Uniforms.SetValue(uniforms, "alphaMap", m.AlphaMap);
+            }
 
             if (material is MeshBasicMaterial)
             {
@@ -3405,10 +3296,10 @@
 
                 Uniforms.SetValue(uniforms, "diffuse", this.gammaInput ? this.copyGammaToLinear(m.Color) : m.Color);
 
-                Uniforms.SetValue(uniforms, "map", m.Map);
-                Uniforms.SetValue(uniforms, "lightMap", m.LightMap);
-                Uniforms.SetValue(uniforms, "specularMap", m.SpecularMap);
-                Uniforms.SetValue(uniforms, "alphaMap", m.AlphaMap);
+                //Uniforms.SetValue(uniforms, "map", m.Map);
+                //Uniforms.SetValue(uniforms, "lightMap", m.LightMap);
+                //Uniforms.SetValue(uniforms, "specularMap", m.SpecularMap);
+                //Uniforms.SetValue(uniforms, "alphaMap", m.AlphaMap);
 
                 if (null != m.Map)
                     uvScaleMap = m.Map;
@@ -3418,7 +3309,6 @@
                     uvScaleMap = m.AlphaMap;
 
                 Uniforms.SetValue(uniforms, "envMap", m.EnvMap);
-
                 Uniforms.SetValue(uniforms, "flipEnvMap", ( m.EnvMap is OpenTKRenderTargetCube ) ? 1 : - 1);
 
                 if (this.gammaInput)
@@ -3431,9 +3321,8 @@
                 }
 
                 Uniforms.SetValue(uniforms, "refractionRatio", m.RefractionRatio);
-
                 Uniforms.SetValue(uniforms, "combine", m.Combine);
-                Uniforms.SetValue(uniforms, "useRefract", 0 /*m.envMap && (m.envMap.mapping is CubeRefractionMapping) */);
+                Uniforms.SetValue(uniforms, "useRefract", ((null != m.EnvMap) && (m.EnvMap.Mapping is Three.CubeRefractionMapping)) ? 1 : 0);
             }
 
             if (material is MeshPhongMaterial)
@@ -3442,10 +3331,10 @@
 
                 Uniforms.SetValue(uniforms, "diffuse", this.gammaInput ? this.copyGammaToLinear(m.Color) : m.Color);
 
-                Uniforms.SetValue(uniforms, "map", m.Map);
-                Uniforms.SetValue(uniforms, "lightMap", m.LightMap);
-                Uniforms.SetValue(uniforms, "specularMap", m.SpecularMap);
-                Uniforms.SetValue(uniforms, "alphaMap", m.AlphaMap);
+                //Uniforms.SetValue(uniforms, "map", m.Map);
+                //Uniforms.SetValue(uniforms, "lightMap", m.LightMap);
+                //Uniforms.SetValue(uniforms, "specularMap", m.SpecularMap);
+                //Uniforms.SetValue(uniforms, "alphaMap", m.AlphaMap);
 
                 if (null != m.BumpMap)
                 {
@@ -3460,7 +3349,6 @@
                 }
 
                 Uniforms.SetValue(uniforms, "envMap", m.EnvMap);
-
                 Uniforms.SetValue(uniforms, "flipEnvMap", (m.EnvMap is OpenTKRenderTargetCube) ? 1 : -1);
 
                 if (this.gammaInput)
@@ -3473,9 +3361,8 @@
                 }
 
                 Uniforms.SetValue(uniforms, "refractionRatio", m.RefractionRatio);
-
                 Uniforms.SetValue(uniforms, "combine", m.Combine);
-                Uniforms.SetValue(uniforms, "useRefract", 0 /*m.envMap && (m.envMap.mapping is CubeRefractionMapping) */);
+                Uniforms.SetValue(uniforms, "useRefract", ((null != m.EnvMap) && (m.EnvMap.Mapping is Three.CubeRefractionMapping)) ? 1 : 0);
             }
 
             //  1. color map
@@ -3621,6 +3508,41 @@
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="depthTest"></param>
+        private void SetDepthTest(bool depthTest)
+        {
+            if (this._oldDepthTest != depthTest)
+            {
+                if (depthTest)
+                {
+                    GL.Enable(EnableCap.DepthTest);
+                }
+                else
+                {
+                    GL.Enable(EnableCap.DepthTest);
+                }
+
+                this._oldDepthTest = depthTest;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="depthWrite"></param>
+        private void SetDepthWrite (bool depthWrite ) 
+        {
+		    if ( this._oldDepthWrite != depthWrite )
+		    {
+		        GL.DepthMask(depthWrite);
+
+			    this._oldDepthWrite = depthWrite;
+		    }
+	    }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="width"></param>
         private void SetLineWidth(float width)
         {
@@ -3639,8 +3561,8 @@
         /// <param name="material"></param>
         private void SetMaterialFaces(Material material)
         {
-            var doubleSided = (material.side == Three.DoubleSide) ? 1 : 0;
-            var flipSided = (material.side == Three.BackSide) ? 1 : 0;
+            var doubleSided = (material.Side == Three.DoubleSide) ? 1 : 0;
+            var flipSided = (material.Side == Three.BackSide) ? 1 : 0;
 
             if (this._oldDoubleSided != doubleSided)
             {
@@ -3686,11 +3608,7 @@
                 return;
             }
 
-            var normalType = this.bufferGuessNormalType(material);
-            var vertexColorType = this.bufferGuessVertexColorType(material);
-            var uvType = this.bufferGuessUVType(material);
-
-            var needsSmoothNormals = (normalType > 0) && (normalType == Three.SmoothShading);
+            var needsSmoothNormals = materialNeedsSmoothNormals(material);
 
             var vertexIndex = 0;
 
@@ -3784,7 +3702,7 @@
                 GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglVertexBuffer);
                 GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertexArray.Length * sizeof(float)), vertexArray, hint);
 
-                Debug.WriteLine("BufferData for __webglVertexBuffer float {0}", geometryGroup.__webglVertexBuffer);
+                Debug.WriteLine("BufferData for __webglVertexBuffer float[] id {0}", geometryGroup.__webglVertexBuffer);
             }
 
             if (dirtyMorphTargets)
@@ -3931,18 +3849,18 @@
                 }
             }
 
-            if (dirtyColors && vertexColorType > 0)
+            if (dirtyColors)
             {
                 for (var f = 0; f < chunk_faces3.Count; f++)
                 {
                     var face = obj_faces[chunk_faces3[f]];
 
-                    IList<Color> vertexColors = face.VertexColors;
+                    var vertexColors = face.VertexColors;
                     var faceColor = face.color;
 
                     Color c1, c2, c3;
 
-                    if (vertexColors.Count == 3 && vertexColorType == Three.VertexColors)
+                    if (vertexColors.Length == 3 && material.VertexColors == Three.VertexColors)
                     {
                         c1 = vertexColors[0];
                         c2 = vertexColors[1];
@@ -3975,7 +3893,7 @@
                     GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglColorBuffer);
                     GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(colorArray.Length * sizeof(float)), colorArray, hint);
 
-                    Debug.WriteLine("BufferData for __webglColorBuffer float {0}", geometryGroup.__webglColorBuffer);
+                    Debug.WriteLine("BufferData for __webglColorBuffer float[] id {0}", geometryGroup.__webglColorBuffer);
                 }
             }
 
@@ -4012,10 +3930,10 @@
                 GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglTangentBuffer);
                 GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(tangentArray.Length * sizeof(float)), tangentArray, hint); // * 3 ??????
 
-                Debug.WriteLine("BufferData for __webglTangentBuffer float {0}", geometryGroup.__webglTangentBuffer);
+                Debug.WriteLine("BufferData for __webglTangentBuffer float[] id {0}", geometryGroup.__webglTangentBuffer);
             }
 
-            if (dirtyNormals && normalType > 0)
+            if (dirtyNormals)
             {
                 for (var f = 0; f < chunk_faces3.Count; f++)
                 {
@@ -4053,10 +3971,10 @@
                 GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglNormalBuffer);
                 GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(normalArray.Length * sizeof(float)), normalArray, hint); // * 3 ??????
 
-                Debug.WriteLine("BufferData for __webglNormalBuffer float {0}", geometryGroup.__webglNormalBuffer);
+                Debug.WriteLine("BufferData for __webglNormalBuffer float[] id {0}", geometryGroup.__webglNormalBuffer);
             }
 
-            if (dirtyUvs && obj_uvs.Count > 0 && uvType)
+            if (dirtyUvs && obj_uvs.Count > 0)
             {
                 foreach (var fi in chunk_faces3)
                 {
@@ -4083,11 +4001,11 @@
                     GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglUVBuffer);
                     GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(uvArray.Length * sizeof(float)), uvArray, hint);  // * 2 ??????
 
-                    Debug.WriteLine("BufferData for __webglUVBuffer float {0}", geometryGroup.__webglUVBuffer);
+                    Debug.WriteLine("BufferData for __webglUVBuffer[] float id {0}", geometryGroup.__webglUVBuffer);
                 }
             }
 
-            if (dirtyUvs && null != obj_uvs2 && obj_uvs2.Count > 0 && uvType)
+            if (dirtyUvs && null != obj_uvs2 && obj_uvs2.Count > 0)
             {
                 foreach (var fi in chunk_faces3)
                 {
@@ -4114,7 +4032,7 @@
                     GL.BindBuffer(BufferTarget.ArrayBuffer, geometryGroup.__webglUV2Buffer);
                     GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(uv2Array.Length * sizeof(float)), uv2Array, hint); // * 3 ??????
 
-                    Debug.WriteLine("BufferData for __webglUV2Buffer float {0}", geometryGroup.__webglUV2Buffer);
+                    Debug.WriteLine("BufferData for __webglUV2Buffer float[] id {0}", geometryGroup.__webglUV2Buffer);
                 }
             }
 
@@ -4142,18 +4060,15 @@
                     vertexIndex += 3;
                 }
 
-                Debug.Assert(geometryGroup.__webglFaceBuffer > 0, "");
-                Debug.Assert(geometryGroup.__webglLineBuffer > 0, "");
-
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, geometryGroup.__webglFaceBuffer);
                 GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(faceArray.Length * sizeof(ushort)), faceArray, hint);
 
-                Debug.WriteLine("BufferData for __webglFaceBuffer ushort {0}", geometryGroup.__webglFaceBuffer);
+                Debug.WriteLine("BufferData for __webglFaceBuffer ushort[] id {0}", geometryGroup.__webglFaceBuffer);
 
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, geometryGroup.__webglLineBuffer);
                 GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(lineArray.Length * sizeof(ushort)), lineArray, hint);
 
-                Debug.WriteLine("BufferData for __webglLineBuffer float {0}", geometryGroup.__webglLineBuffer);
+                Debug.WriteLine("BufferData for __webglLineBuffer ushort[] id {0}", geometryGroup.__webglLineBuffer);
             }
 
             if (null != customAttributes && customAttributes.Count > 0)
@@ -4484,6 +4399,8 @@
 
                     GL.BindBuffer(BufferTarget.ArrayBuffer, (int)((Hashtable)customAttribute["buffer"])["id"]);
                     GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(((float[])customAttribute["array"]).Length * sizeof(float)), (float[])customAttribute["array"], hint);
+
+                    Debug.WriteLine("BufferData for custumAttributes float[] id {0}", geometryGroup.__webglLineBuffer);
                 }
             }
 
@@ -4676,7 +4593,10 @@
 
             foreach (var light in lights) 
             {
-	//		    if ( light.onlyShadow ) continue;
+                if (light is ILightShadow && ((ILightShadow)light).onlyShadow)
+                {
+                    continue;
+                }
 
 			    var color = light.color;
 
@@ -4762,6 +4682,7 @@
 				    pointPositions[ pointOffset + 1 ] = vector3.Y;
 				    pointPositions[ pointOffset + 2 ] = vector3.Z;
 
+                    pointDistances.Resize(pointLength + 1);
                     pointDistances[pointLength] = pointLight.distance;
 
 				    pointLength += 1;
@@ -4933,7 +4854,7 @@
                 var m = material as PointCloudMaterial;
 
                 uniforms["psColor"]["value"] = m.color;
-                uniforms["opacity"]["value"] = m.opacity;
+                uniforms["opacity"]["value"] = m.Opacity;
                 uniforms["size"]["value"] = m.Size;
                 uniforms["scale"]["value"] = this._currentHeight / 2.0f; // TODO: Cache this.
 
@@ -4965,7 +4886,7 @@
 
             if (material.WrapAround)
             {
-                uniforms["wrapRGB"]["value"] = material.wrapRGB;
+                uniforms["wrapRGB"]["value"] = material.WrapRgb;
             }
 	    }
 
@@ -5069,7 +4990,7 @@
         {
             this._usedTextureUnits = 0;
 
-            if (material.needsUpdate)
+            if (material.NeedsUpdate)
             {
                 if (material.program != null)
                 {
@@ -5077,7 +4998,7 @@
                 }
 
                 this.InitMaterial(material, lights, fog, object3D);
-                material.needsUpdate = false;
+                material.NeedsUpdate = false;
             }
 
             var meshBasicMaterial = material as MeshBasicMaterial;
@@ -5103,7 +5024,7 @@
             var refreshLights = false;
 
             var program = material.program;
-            var uniformsLocation = program.UniformsLocation;
+            var uniformsLocation = program.Uniforms;
             var m_uniforms = material.__webglShader.Uniforms;
 
             object uniformLocation = null;
@@ -5132,13 +5053,11 @@
 
             if (refreshProgram || camera != this._currentCamera)
             {
-                //Console.WriteLine("camera.ProjectionMatrix \n{0}", camera.ProjectionMatrix);
-
                 uniformLocation = uniformsLocation["projectionMatrix"];
                 if (null != uniformLocation)
                     GL.UniformMatrix4((int)uniformLocation, 1, false, camera.ProjectionMatrix.Elements);
 
-                if (_logarithmicDepthBuffer)
+                if (this._logarithmicDepthBuffer)
                 {
                     throw new NotImplementedException();
                  //   GL.Uniform1(p_uniforms["logDepthBufFC"], 2.0 / (Math.Log(camera.far + 1.0) / Math.LN2));
@@ -5153,16 +5072,15 @@
                 // load material specific uniformsLocation
                 // (shader material also gets them for the sake of genericity)
 
-                if ( material is ShaderMaterial
-                ||   material is MeshPhongMaterial
-              /*  ||   material.envMap*/) 
+			    if ( material is ShaderMaterial ||
+				     material is MeshPhongMaterial ||
+				     (material.EnvMap != null) ) 
                 {
                     uniformLocation = uniformsLocation["cameraPosition"];
                     if (uniformLocation != null)
                     {
-                        throw new NotImplementedException();
-                  //      _vector3.setFromMatrixPosition( camera.MatrixWorld );
-                  //      GL.Uniform3((int)uniformLocation, _vector3.x, _vector3.y, _vector3.z);
+                        var vector3 = new Vector3().SetFromMatrixPosition(camera.MatrixWorld);
+                        GL.Uniform3((int)uniformLocation, vector3.X, vector3.Y, vector3.Z);
                     }
                 }
 
@@ -5239,12 +5157,12 @@
 
                 if (null != fog && material is MeshPhongMaterial && ((MeshPhongMaterial)material).Fog)
                 {
-                    RefreshUniformsFog(m_uniforms, fog);
+                    this.RefreshUniformsFog(m_uniforms, fog);
                 }
 
                 if (material is MeshPhongMaterial ||
                      material is MeshLambertMaterial 
-           /*          material.__lights*/)
+           /*          material.__lights*/) // TODO
                 {
                         if ( this._lightsNeedUpdate ) {
 
@@ -5270,12 +5188,12 @@
 
                 if (material is LineBasicMaterial)
                 {
-                    RefreshUniformsLine( m_uniforms, material );
+                    this.RefreshUniformsLine( m_uniforms, material );
                 }
                 else if (material is LineDashedMaterial)
                 {
-                    RefreshUniformsLine( m_uniforms, material );
-                    RefreshUniformsDash( m_uniforms, material );
+                    this.RefreshUniformsLine( m_uniforms, material );
+                    this.RefreshUniformsDash( m_uniforms, material );
                 }
                 else if (material is PointCloudMaterial)
                 {
@@ -5293,20 +5211,20 @@
                 {
                     m_uniforms["mNear"]["value"] = camera.Near;
                     m_uniforms["mFar"]["value"] = camera.Far;
-                    m_uniforms["opacity"]["value"] = material.opacity;
+                    m_uniforms["opacity"]["value"] = material.Opacity;
                 }
                 else if (material is MeshNormalMaterial)
                 {
-                    m_uniforms["opacity"]["value"] = material.opacity;
+                    m_uniforms["opacity"]["value"] = material.Opacity;
                 }
 
                 if ( object3D.ReceiveShadow/* && ! material._shadowPass*/ ) {
-                    refreshUniformsShadow( m_uniforms, lights );
+                    this.refreshUniformsShadow( m_uniforms, lights );
                 }
 
                 // load common uniformsLocation
 
-                this.LoadUniformsGeneric(material.uniformsList);
+                this.LoadUniformsGeneric(material.UniformsList);
             }
 
             LoadUniformsMatrices(uniformsLocation, object3D);
@@ -5325,121 +5243,171 @@
         /// <summary>
         /// </summary>
         /// <param name="texture"></param>
-        /// <param name="slot"></param>
-        private void SetTexture(Texture texture, int slot)
+        private void UploadTexture(Texture texture)
         {
-            if (texture.NeedsUpdate)
+            if (!texture.__webglInit)
             {
-                if (! texture.__webglInit)
+                texture.__webglInit = true;
+
+                //    texture.addEventListener( 'dispose', onTextureDispose );
+
+                texture.__webglTexture = GL.GenTexture();
+
+                this.Info.memory.Textures++;
+            }
+
+            GL.BindTexture(TextureTarget.Texture2D, texture.__webglTexture);
+
+            //  GL.PixelStore( PixelStoreParameter.     GL.UNPACK_FLIP_Y_WEBGL, texture.flipY );
+            //  GL.PixelStore( PixelStoreParameter.   GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, texture.premultiplyAlpha );
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, texture.UnpackAlignment);
+
+            texture.Image = this.clampToMaxSize(texture.Image, this.MaxTextureSize);
+
+            var image = texture.Image;
+            var isImagePowerOfTwo = IsPowerOfTwo(image.Width) && IsPowerOfTwo(image.Height);
+            //var glFormat = (OpenTK.Graphics.OpenGL.PixelFormat)this.paramThreeToGL(texture.Format);
+
+            var glFormat = OpenTK.Graphics.OpenGL.PixelFormat.Bgra;
+
+            var glInternalFormat = (OpenTK.Graphics.OpenGL.PixelInternalFormat)this.paramThreeToGL(texture.Format);
+            var glType = (PixelType)this.paramThreeToGL(texture.Type);
+
+            this.SetTextureParameters(TextureTarget.Texture2D, texture, isImagePowerOfTwo);
+
+            var mipmaps = texture.Mipmaps;
+
+            if (texture is DataTexture)
+            {
+                Debug.Assert(null != mipmaps, "mipmaps not set");
+
+                // use manually created mipmaps if available
+                // if there are no manual mipmaps
+                // set 0 level mipmap and then use GL to generate other mipmap levels
+
+                if (mipmaps.Count > 0 && isImagePowerOfTwo)
                 {
-                    texture.__webglInit = true;
-
-                    //    texture.addEventListener( 'dispose', onTextureDispose );
-
-                    texture.__webglTexture = GL.GenTexture();
-
-                    this.Info.memory.Textures++;
-                }
-
-                GL.ActiveTexture(TextureUnit.Texture0 + slot);
-                GL.BindTexture(TextureTarget.Texture2D, texture.__webglTexture);
-
-                //  GL.PixelStore( PixelStoreParameter.     GL.UNPACK_FLIP_Y_WEBGL, texture.flipY );
-                //  GL.PixelStore( PixelStoreParameter.   GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, texture.premultiplyAlpha );
-                GL.PixelStore(PixelStoreParameter.UnpackAlignment, texture.UnpackAlignment);
-
-                var bitmap = texture.Image;
-
-if (null == bitmap) return;
-
-                var isImagePowerOfTwo = IsPowerOfTwo(bitmap.Width) && IsPowerOfTwo(bitmap.Height);
-
-                this.SetTextureParameters(TextureTarget.Texture2D, texture, isImagePowerOfTwo);
-
-                var mipmaps = texture.Mipmaps;
-
-                if (texture is DataTexture)
-                {
-                    // use manually created mipmaps if available
-                    // if there are no manual mipmaps
-                    // set 0 level mipmap and then use GL to generate other mipmap levels
-
-                    if (mipmaps.Count > 0 && isImagePowerOfTwo)
+                    for (var i = 0; i < mipmaps.Count; i++)
                     {
-                        for (var i = 0; i < mipmaps.Count; i++)
-                        {
-                            throw new NotImplementedException();
+                        throw new NotImplementedException();
 
-                            //var mipmap = mipmaps[i];
-                            //GL.TexImage2D(TextureTarget.Texture2D, i, texture.internalFormat, mipmap.width, mipmap.height, 0, texture.format, texture.type, mipmap.data);
-                        }
-                        texture.GenerateMipmaps = false;
+                        //var mipmap = mipmaps[i];
+                        //GL.TexImage2D(TextureTarget.Texture2D, i, texture.internalFormat, mipmap.width, mipmap.height, 0, texture.format, texture.type, mipmap.data);
                     }
-                    else
-                    {
-                        var data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                        GL.TexImage2D(TextureTarget.Texture2D, 0, texture.InternalFormat, bitmap.Width, bitmap.Height, 0, texture.Format, texture.Type, data.Scan0);
-                        bitmap.UnlockBits(data);
-                    }
-                }
-                else if (texture is CompressedTexture)
-                {
-                    for (var level = 0; level < mipmaps.Count; level++)
-                    {
-                        var mipmap = mipmaps[level];
-                        if (texture.Format != OpenTK.Graphics.OpenGL.PixelFormat.Rgba)
-                        {
-                            GL.CompressedTexImage2D(TextureTarget.Texture2D, level, texture.InternalFormat, mipmap.Width, mipmap.Height, 0, mipmap.Data.Length, mipmap.Data);
-                        }
-                        else
-                        {
-                            GL.TexImage2D(TextureTarget.Texture2D, level, texture.InternalFormat, mipmap.Width, mipmap.Height, 0, texture.Format, texture.Type, mipmap.Data);
-                        }
-                    }
+                    texture.GenerateMipmaps = false;
                 }
                 else
                 {
-                    // regular Texture (image, video, canvas)
+                    // From .Net Image class to raw scan data
+                    var data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    GL.TexImage2D(TextureTarget.Texture2D, 0, glInternalFormat, image.Width, image.Height, 0, glFormat, glType, data.Scan0);
+                    image.UnlockBits(data);
+                }
+            }
+            else if (texture is CompressedTexture)
+            {
+                Debug.Assert(null != mipmaps, "mipmaps not set");
 
-                    // use manually created mipmaps if available
-                    // if there are no manual mipmaps
-                    // set 0 level mipmap and then use GL to generate other mipmap levels
-
-                    if (null != mipmaps && mipmaps.Count > 0 && isImagePowerOfTwo)
+                for (var level = 0; level < mipmaps.Count; level++)
+                {
+                    var mipmap = mipmaps[level];
+                    if (texture.Format != Three.RGBAFormat)
                     {
-                        for (var i = 0; i < mipmaps.Count; i++)
-                        {
-                            throw new NotImplementedException();
-
-                            var mipmap = mipmaps[i];
-                            // GL.TexImage2D(TextureTarget.Texture2D, i, texture.internalFormat, image.Width, image.Height, 0, texture.format, texture.type, mipmap);
-                        }
-                        texture.GenerateMipmaps = false;
+                        GL.CompressedTexImage2D(TextureTarget.Texture2D, level, glInternalFormat, mipmap.Width, mipmap.Height, 0, mipmap.Data.Length, mipmap.Data);
                     }
                     else
                     {
-                        var data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                        GL.TexImage2D(TextureTarget.Texture2D, 0, texture.InternalFormat, bitmap.Width, bitmap.Height, 0, texture.Format, texture.Type, data.Scan0);
-                        bitmap.UnlockBits(data);
+                        GL.TexImage2D(TextureTarget.Texture2D, level, glInternalFormat, mipmap.Width, mipmap.Height, 0, glFormat, glType, mipmap.Data);
                     }
                 }
-
-                if (texture.GenerateMipmaps && isImagePowerOfTwo)
-                {
-                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                }
-
-                texture.NeedsUpdate = false;
-
-                //if ( texture.onUpdate ) 
-                //    texture.onUpdate();
             }
             else
             {
-                GL.ActiveTexture(TextureUnit.Texture0 + slot);
+                // regular Texture (image, video, canvas)
+
+                // use manually created mipmaps if available
+                // if there are no manual mipmaps
+                // set 0 level mipmap and then use GL to generate other mipmap levels
+
+                if (null != mipmaps && mipmaps.Count > 0 && isImagePowerOfTwo)
+                {
+                    for (var i = 0; i < mipmaps.Count; i++)
+                    {
+                        throw new NotImplementedException();
+
+                        var mipmap = mipmaps[i];
+                        // GL.TexImage2D(TextureTarget.Texture2D, i, glInternalFormat, image.Width, image.Height, 0, glFormat, texture.type, mipmap);
+                    }
+                    texture.GenerateMipmaps = false;
+                }
+                else
+                {
+                    var data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    GL.TexImage2D(TextureTarget.Texture2D, 0, glInternalFormat, image.Width, image.Height, 0, glFormat, glType, data.Scan0);
+                    image.UnlockBits(data);
+                }
+            }
+
+            if (texture.GenerateMipmaps && isImagePowerOfTwo)
+            {
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            }
+
+            texture.NeedsUpdate = false;
+
+            //if ( texture.onUpdate ) 
+            //    texture.onUpdate();
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="slot"></param>
+        private void SetTexture(Texture texture, int slot)
+        {
+            GL.ActiveTexture(TextureUnit.Texture0 + slot);
+            
+            if (texture.NeedsUpdate)
+            {
+                this.UploadTexture(texture);
+            }
+            else
+            {
                 GL.BindTexture(TextureTarget.Texture2D, texture.__webglTexture);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="maxSize"></param>
+        /// <returns></returns>
+        private Bitmap clampToMaxSize(Bitmap image, int maxSize)
+        {
+		    if ( image.Width > maxSize || image.Height > maxSize ) {
+
+			    // Warning: Scaling through the canvas will only work with images that use
+			    // premultiplied alpha.
+
+			    var scale = maxSize / Math.Max( image.Width, image.Height );
+
+                //var canvas = document.createElement( 'canvas' );
+                //canvas.width = Math.floor( image.width * scale );
+                //canvas.height = Math.floor( image.height * scale );
+
+                //var context = canvas.getContext( '2d' );
+                //context.drawImage( image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height );
+
+                //console.log( 'THREE.WebGLRenderer:', image, 'is too big (' + image.width + 'x' + image.height + '). Resized to ' + canvas.width + 'x' + canvas.height + '.' );
+
+                return image;
+
+		    }
+
+		    return image;
+	    }
+
 
         /// <summary>
         /// </summary>
@@ -5447,22 +5415,22 @@ if (null == bitmap) return;
         {
             if (isImagePowerOfTwo)
             {
-                GL.TexParameter(textureTarget, TextureParameterName.TextureWrapS, (int)texture.WrapS);
-                GL.TexParameter(textureTarget, TextureParameterName.TextureWrapT, (int)texture.WrapT);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureWrapS, this.paramThreeToGL(texture.WrapS));
+                GL.TexParameter(textureTarget, TextureParameterName.TextureWrapT, this.paramThreeToGL(texture.WrapT));
 
-                GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, (int)texture.MagFilter);
-                GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, (int)texture.MinFilter);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, this.paramThreeToGL(texture.MagFilter));
+                GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, this.paramThreeToGL(texture.MinFilter));
             }
             else
             {
                 GL.TexParameter(textureTarget, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(textureTarget, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-                GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, (int)texture.MagFilter);
-                GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, (int)texture.MinFilter);
+                GL.TexParameter(textureTarget, TextureParameterName.TextureMagFilter, this.filterFallback(texture.MagFilter));
+                GL.TexParameter(textureTarget, TextureParameterName.TextureMinFilter, this.filterFallback(texture.MinFilter));
             }
 
-            if ( this.glExtensionTextureFilterAnisotropic && (texture.Type != PixelType.Float) ) 
+            if ( this.glExtensionTextureFilterAnisotropic && (texture.Type != Three.FloatType) ) 
             {
                 if ( texture.Anisotropy > 1 || texture.__oldAnisotropy < 0 )
                 {
@@ -5495,17 +5463,6 @@ if (null == bitmap) return;
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="material"></param>
-        /// <param name="programAttributes"></param>
-        /// <param name="geometryAttributes"></param>
-        /// <param name="aa"></param>
-        private void SetupVertexAttributes(Material material, int programAttributes, int geometryAttributes, int aa)
-        {
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="object3D"></param>
 		private void UpdateSkeletons( Object3D object3D )
         {
@@ -5527,7 +5484,7 @@ if (null == bitmap) return;
         private void UnrollBufferMaterial(WebGlObject webglObject)
         {
             var object3D = webglObject.object3D;
-      //      GeometryGroup buffer = webglObject.buffer;
+            Debug.Assert(null != object3D);
 
             var geometry = object3D.Geometry;
             var material = object3D.Material;
@@ -5542,7 +5499,7 @@ if (null == bitmap) return;
 
                 //    material = material.materials[ materialIndex ];
 
-                if (material.transparent)
+                if (material.Transparent)
                 {
                     webglObject.material = material;
                     this.transparentObjects.Add(webglObject);
@@ -5557,7 +5514,7 @@ if (null == bitmap) return;
             {
                 if (null != material)
                 {
-                    if (material.transparent)
+                    if (material.Transparent)
                     {
                         webglObject.material = material;
                         this.transparentObjects.Add(webglObject);
@@ -5604,8 +5561,8 @@ if (null == bitmap) return;
 
                 throw new NotImplementedException();
 
-                _projScreenMatrixPS.Copy( _projScreenMatrix );
-                _projScreenMatrixPS.Multiply( object3D.MatrixWorld );
+                this._projScreenMatrixPS.Copy( this._projScreenMatrix );
+                this._projScreenMatrixPS.Multiply( object3D.MatrixWorld );
 
                 for (int v = 0; v < vl; v ++ ) 
                 {
@@ -5614,7 +5571,7 @@ if (null == bitmap) return;
 
                     var _vector3 = new Vector3();
                     _vector3.Copy(vertex);
-                    _vector3.ApplyProjection(_projScreenMatrixPS);
+                    _vector3.ApplyProjection(this._projScreenMatrixPS);
 
      //               sortArray[ v ] = [ _vector3.Z, v ];
                 }
@@ -5889,7 +5846,7 @@ if (null == bitmap) return;
                     if ( customAttribute.needsUpdate || object3D.sortParticles ) {
 
                         GL.BindBuffer( BufferTarget.ArrayBuffer, customAttribute.buffer );
-                        GL.BufferData( BufferTarget.ArrayBuffer, customAttribute.array, hint );
+                        GL.BufferData( BufferTarget.ArrayBuffer, customAttribute.array * ???, hint );
 
                     }
 
@@ -5940,8 +5897,7 @@ if (null == bitmap) return;
 			    }
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, geometry.__webglVertexBuffer);
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertexArray.Length * 1), vertexArray, hint);
-
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertexArray.Length * sizeof(float)), vertexArray, hint);
 		    }
 
 		    if ( dirtyColors ) {
@@ -5955,12 +5911,10 @@ if (null == bitmap) return;
 				    colorArray[ offset ]     = color.R;
 				    colorArray[ offset + 1 ] = color.G;
 				    colorArray[ offset + 2 ] = color.B;
-
 			    }
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, geometry.__webglColorBuffer);
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(colorArray.Length * 1), colorArray, hint);
-
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(colorArray.Length * sizeof(float)), colorArray, hint); // float ??
 		    }
 
 		    if ( dirtyLineDistances ) {
@@ -5972,7 +5926,7 @@ if (null == bitmap) return;
 			    }
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, geometry.__webglLineDistanceBuffer);
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(lineDistanceArray.Length * 1), lineDistanceArray, hint);
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(lineDistanceArray.Length * sizeof(float)), lineDistanceArray, hint); // float ??
 
 		    }
 
@@ -6061,7 +6015,7 @@ if (null == bitmap) return;
 					    }
 
                         GL.BindBuffer(BufferTarget.ArrayBuffer, customAttribute.buffer);
-                        GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(customAttribute.array), customAttribute.array, hint);
+                        GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(customAttribute.array * ????), customAttribute.array, hint);
 
 				    }
                     */
@@ -6076,37 +6030,35 @@ if (null == bitmap) return;
         /// </summary>
         /// <param name="scene"></param>
         /// <param name="object3D"></param>
-        private void updateObject(Scene scene, Object3D object3D)
+        private void UpdateObject(Scene scene, Object3D object3D)
         {
+            var geometry = object3D.Geometry as Geometry;
             Material material = null;
 
             if (object3D.Geometry is BufferGeometry)
             {
-                var geometry = object3D.Geometry as BufferGeometry;
-                SetDirectBuffers(geometry as BufferGeometry, BufferUsageHint.DynamicDraw);
+                SetDirectBuffers(object3D.Geometry as BufferGeometry, BufferUsageHint.DynamicDraw);
             }
             else if (object3D is Mesh)
             {
-                var geometry = object3D.Geometry as Geometry;
+                // check all geometry groups
+
+                //var geometry = object3D.Geometry as Geometry;
+                Debug.Assert(null != geometry, "Casting object3D.Geometry as Geometry");
 
                 // check all geometry groups
-                if (geometry.BuffersNeedUpdate || geometry.GroupsNeedUpdate)
+                if (geometry.GroupsNeedUpdate)
                 {
-                    if (geometry is BufferGeometry)
-                    {
-                     //   InitDirectBuffers(geometry as BufferGeometry);
-                    }
-                    else if (object3D is Mesh)
-                    {
-                        this.initGeometryGroups(scene, object3D, geometry);
-                    }
+                    this.InitGeometryGroups(scene, object3D, geometry);
                 }
 
-                foreach (var geometryGroup in geometry.GeometryGroupsList)
+                var geometryGroupsList = this.geometryGroups[geometry.Id];
+
+                foreach (var geometryGroup in geometryGroupsList)
                 {
                     material = this.getBufferMaterial(object3D, geometryGroup);
 
-                    if (geometry.BuffersNeedUpdate || geometry.GroupsNeedUpdate)
+                    if (geometry.GroupsNeedUpdate)
                     {
                         this.InitMeshBuffers(geometryGroup, object3D);
                     }                 
@@ -6129,14 +6081,12 @@ if (null == bitmap) return;
                 geometry.ColorsNeedUpdate = false;
                 geometry.TangentsNeedUpdate = false;
 
-                geometry.BuffersNeedUpdate = false;
-
                 if (material is IAttributes && (null != ((IAttributes)material).Attributes))
                     ClearCustomAttributes(material as IAttributes);
             }
             else if (object3D is Line)
             {
-                var geometry = object3D.Geometry as Geometry;
+                //var geometry = object3D.Geometry as Geometry;
                 
                 material = this.getBufferMaterial(object3D, geometry);
 
@@ -6144,7 +6094,7 @@ if (null == bitmap) return;
 
                 if (geometry.VerticesNeedUpdate || geometry.ColorsNeedUpdate || geometry.LineDistancesNeedUpdate || customAttributesDirty)
                 {
-                    setLineBuffers(geometry, BufferUsageHint.DynamicDraw);
+                    this.setLineBuffers(geometry, BufferUsageHint.DynamicDraw);
                 }
 
                 geometry.VerticesNeedUpdate = false;
@@ -6156,7 +6106,7 @@ if (null == bitmap) return;
             }
             else if (object3D is PointCloud)
             {
-                var geometry = object3D.Geometry as Geometry;
+                //var geometry = object3D.Geometry as Geometry;
                 var pointCloud = object3D as PointCloud;
 
                 material = this.getBufferMaterial(object3D, geometry);
@@ -6165,7 +6115,7 @@ if (null == bitmap) return;
 
                 if ( geometry.VerticesNeedUpdate || geometry.ColorsNeedUpdate || pointCloud.sortParticles || customAttributesDirty )
                 {
-                    setParticleBuffers(geometry, BufferUsageHint.DynamicDraw, pointCloud);
+                    this.setParticleBuffers(geometry, BufferUsageHint.DynamicDraw, pointCloud);
                 }
 
                 geometry.VerticesNeedUpdate = false;
@@ -6175,6 +6125,92 @@ if (null == bitmap) return;
                     ClearCustomAttributes(material as IAttributes);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
+        private int filterFallback (int f )
+        {
+		    if ( f == Three.NearestFilter || f == Three.NearestMipMapNearestFilter || f == Three.NearestMipMapLinearFilter ) {
+                return (int)TextureMinFilter.Nearest;
+		    }
+            return (int)TextureMinFilter.Linear;
+	    }
+
+        // Map three.js constants to WebGL constants
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+	    private int paramThreeToGL (int p ) {
+
+            if (p == Three.RepeatWrapping) return (int)TextureWrapMode.Repeat;
+            if (p == Three.ClampToEdgeWrapping) return (int)TextureWrapMode.ClampToEdge;
+            if (p == Three.MirroredRepeatWrapping) return (int)TextureWrapMode.MirroredRepeat;
+
+            if (p == Three.NearestFilter) return (int)TextureMinFilter.Nearest;
+            if (p == Three.NearestMipMapNearestFilter) return (int)TextureMinFilter.NearestMipmapNearest;
+            if (p == Three.NearestMipMapLinearFilter) return (int)TextureMinFilter.NearestMipmapLinear;
+
+            if (p == Three.LinearFilter) return (int)TextureMinFilter.Linear;
+            if (p == Three.LinearMipMapNearestFilter) return (int)TextureMinFilter.LinearMipmapNearest;
+            if (p == Three.LinearMipMapLinearFilter) return (int)TextureMinFilter.LinearMipmapLinear;
+
+            if (p == Three.UnsignedByteType) return (int)PixelType.UnsignedByte;
+            if (p == Three.UnsignedShort4444Type) return (int)PixelType.UnsignedShort4444;
+            if (p == Three.UnsignedShort5551Type) return (int)PixelType.UnsignedShort5551;
+            if (p == Three.UnsignedShort565Type) return (int)PixelType.UnsignedShort565;
+
+            if (p == Three.ByteType) return (int)PixelType.Byte;
+            if (p == Three.ShortType) return (int)PixelType.Short;
+            if (p == Three.UnsignedShortType) return (int)PixelType.UnsignedShort;
+            if (p == Three.IntType) return (int)PixelType.Int;
+            if (p == Three.UnsignedIntType) return (int)PixelType.UnsignedInt;
+            if (p == Three.FloatType) return (int)PixelType.Float;
+
+            if (p == Three.AlphaFormat) return (int)PixelInternalFormat.Alpha;
+            if (p == Three.RGBFormat) return (int)PixelInternalFormat.Rgb;
+            if (p == Three.RGBAFormat) return (int)PixelInternalFormat.Rgba;
+            if (p == Three.LuminanceFormat) return (int)PixelInternalFormat.Luminance;
+            if (p == Three.LuminanceAlphaFormat) return (int)PixelInternalFormat.LuminanceAlpha;
+
+            if (p == Three.BGRFormat) return (int)OpenTK.Graphics.OpenGL.PixelFormat.Bgr;
+            if (p == Three.BGRAFormat) return (int)OpenTK.Graphics.OpenGL.PixelFormat.Bgra;
+
+            if (p == Three.AddEquation) return (int)BlendEquationMode.FuncAdd;
+            if (p == Three.SubtractEquation) return (int)BlendEquationMode.FuncSubtract;
+            if (p == Three.ReverseSubtractEquation) return (int)BlendEquationMode.FuncReverseSubtract;
+
+            if (p == Three.ZeroFactor) return (int)BlendingFactorSrc.Zero;
+		    if ( p == Three.OneFactor ) return (int)BlendingFactorSrc.One;
+		    if ( p == Three.SrcColorFactor ) return (int)BlendingFactorSrc.SrcColor;
+		    if ( p == Three.OneMinusSrcColorFactor ) return (int)BlendingFactorSrc.OneMinusSrcColor;
+		    if ( p == Three.SrcAlphaFactor ) return (int)BlendingFactorSrc.SrcAlpha;
+		    if ( p == Three.OneMinusSrcAlphaFactor ) return (int)BlendingFactorSrc.OneMinusSrcAlpha;
+		    if ( p == Three.DstAlphaFactor ) return (int)BlendingFactorSrc.DstAlpha;
+		    if ( p == Three.OneMinusDstAlphaFactor ) return (int)BlendingFactorSrc.OneMinusDstAlpha;
+
+            if (p == Three.DstColorFactor) return (int)BlendingFactorDest.DstColor;
+            if (p == Three.OneMinusDstColorFactor) return (int)BlendingFactorDest.OneMinusDstColor;
+            if (p == Three.SrcAlphaSaturateFactor) return (int)BlendingFactorDest.SrcAlphaSaturate;
+
+            if (this.glExtensionCompressedTextureS3TC != null)
+            {
+
+                if (p == Three.RGB_S3TC_DXT1_Format) return (int)ExtTextureCompressionS3tc.CompressedRgbS3tcDxt1Ext;
+                if (p == Three.RGBA_S3TC_DXT1_Format) return (int)ExtTextureCompressionS3tc.CompressedRgbaS3tcDxt1Ext;
+                if (p == Three.RGBA_S3TC_DXT3_Format) return (int)ExtTextureCompressionS3tc.CompressedRgbaS3tcDxt3Ext;
+                if (p == Three.RGBA_S3TC_DXT5_Format) return (int)ExtTextureCompressionS3tc.CompressedRgbaS3tcDxt5Ext;
+
+		    }
+
+		    return 0;
+
+	    }
 
         #endregion
 

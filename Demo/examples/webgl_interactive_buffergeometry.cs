@@ -172,7 +172,7 @@
                 Ambient = (Color)colorConvertor.ConvertFromString("#aaaaaa"), 
                 Specular = Color.White, 
                 Shininess = 250,
-				side = Three.DoubleSide, VertexColors = new Color[Three.VertexColors]
+				Side = Three.DoubleSide, VertexColors = Three.VertexColors,
 			};
 
 			mesh = new Mesh( geometry, material );
@@ -188,7 +188,7 @@
 			var geometry2 = new BufferGeometry();
             geometry2.AddAttribute("position", new BufferAttribute<float>(new float[4 * 3], 3));
 
-            var material2 = new LineBasicMaterial() { Color = Color.White, Linewidth = 2, transparent = true };
+            var material2 = new LineBasicMaterial() { Color = Color.White, Linewidth = 2, Transparent = true };
 
             line = new Line(geometry2, material2);
             scene.Add(line);

@@ -1,5 +1,8 @@
 ﻿namespace ThreeCs
 {
+    using ThreeCs.Loaders;
+    using ThreeCs.Textures;
+
     public class Three
     {
         public static int LineStrip = 0;
@@ -90,13 +93,14 @@
 
         // Mapping modes
 
-     //   public static int UVMapping = function () {};
 
-   //     public static int CubeReflectionMapping = function () {};
-  //      public static int CubeRefractionMapping = function () {};
-//
-   //     public static int SphericalReflectionMapping = function () {};
-   //     public static int SphericalRefractionMapping = function () {};
+        public class UVMapping : TextureMapping { }
+
+        public class CubeReflectionMapping : TextureMapping { }
+        public class CubeRefractionMapping : TextureMapping { }
+
+        public class SphericalReflectionMapping : TextureMapping { }
+        public class SphericalRefractionMapping : TextureMapping { }
 
         // Wrapping modes
 
@@ -138,6 +142,9 @@
         public static int LuminanceFormat = 1022;
         public static int LuminanceAlphaFormat = 1023;
 
+        public static int BGRFormat = 1030;
+        public static int BGRAFormat = 1031;
+
         // Compressed texture formats
 
         public static int RGB_S3TC_DXT1_Format = 2001;
@@ -152,5 +159,7 @@
         public static int RGBA_PVRTC_4BPPV1_Format = 2102;
         public static int RGBA_PVRTC_2BPPV1_Format = 2103;
         */
+
+        public static LoadingManager DefaultLoadingManager = null;
     }
 }

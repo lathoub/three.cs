@@ -56,11 +56,10 @@
 			var maxRadiusSq = 0.0f;
 
             for ( var i = 0; i <  points.Count;  i ++ ) {
-                maxRadiusSq = System.Math.Max(maxRadiusSq, center.DistanceToSquared(points[i]));
+                maxRadiusSq = Math.Max(maxRadiusSq, center.DistanceToSquared(points[i]));
             }
 
-			this.Radius = (float)System.Math.Sqrt( maxRadiusSq );
-
+			this.Radius = (float)Math.Sqrt( maxRadiusSq );
  		}
 
         /// <summary>
@@ -139,7 +138,7 @@
         /// </summary>
         /// <param name="matrix"></param>
         /// <returns></returns>
-	    public Sphere applyMatrix4 (Matrix4 matrix )
+	    public Sphere ApplyMatrix4 (Matrix4 matrix )
         {
             this.Center.ApplyMatrix4(matrix);
 		    this.Radius = this.Radius * matrix.GetMaxScaleOnAxis();
@@ -150,9 +149,9 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="?"></param>
+        /// <param name="offset"></param>
         /// <returns></returns>
-	    public Sphere translate (object offset )
+	    public Sphere Translate (object offset )
         {
             throw new NotImplementedException();
 	//	    this.Center.add( offset );

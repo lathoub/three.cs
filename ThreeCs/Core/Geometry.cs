@@ -11,30 +11,8 @@
     {
         protected static int GeometryIdCount;
 
-
-
-
-
         public Guid uuid = Guid.NewGuid();
         
-
-
-
-
-
-
-        public Dictionary<string, GeometryGroup> GeometryGroups;
-
-        public List<GeometryGroup> GeometryGroupsList;
-
-
-
-
-
-
-
-
-
         public List<Vector3> Vertices = new List<Vector3>();
 
         public List<Color> Colors = new List<Color>(); // one-to-one vertex colors, used in Points and Line
@@ -54,15 +32,6 @@
         public List<Vector4> SkinIndices = new List<Vector4>();
 
         public List<float> LineDistances = new List<float>();
-
-
-
-
-
-
-
-
-
 
         public bool HasTangents = false;
 
@@ -96,6 +65,8 @@
         public Geometry()
         {
             Id = GeometryIdCount++;
+
+            this.type = "Geometry";
 
             this.FaceVertexUvs.Add(new List<List<Vector2>>());
         }
@@ -182,7 +153,7 @@
         /// 
         /// </summary>
         /// <param name="areaWeighted"></param>
-        public void ComputeVertexNormals(bool areaWeighted = false)
+        public override void ComputeVertexNormals(bool areaWeighted = false)
         {
             var vertices = this.Vertices.ToArray();
 
@@ -252,7 +223,7 @@
             throw new NotImplementedException();
         }
 
-        public void ComputeBoundingBox()
+        public override void ComputeBoundingBox()
         {
             throw new NotImplementedException();
         }
@@ -462,50 +433,6 @@
         {
             public int hash;
             public int counter;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void MakeGroups(bool usesFaceMaterial, long maxVerticesInGroup)
-        {
-            var hash_map = new Dictionary<int, Hash>();
-
-            var numMorphTargets = this.MorphTargets.Count;
-            var numMorphNormals = this.MorphNormals.Count;
-
-            this.GeometryGroups = new Dictionary<string, GeometryGroup>();
-            this.GeometryGroupsList = new List<GeometryGroup>();
-
-            for (var i = 0; i < this.Faces.Count; i++)
-            {
-                var face = this.Faces[0];
-
-                var materialIndex = (usesFaceMaterial) ? face.MaterialIndex : 0;
-
-                Hash aa;
-                if (!hash_map.TryGetValue(materialIndex, out aa))
-                {
-                    hash_map[ materialIndex ] = new Hash { hash = materialIndex, counter = 0 };
-                }
-
-                var groupHash = hash_map[materialIndex].hash + "_" + hash_map[materialIndex].counter;
-
-                GeometryGroup geometryGroup = null;
-                if (!this.GeometryGroups.TryGetValue(groupHash, out geometryGroup))
-                {
-                    geometryGroup = new GeometryGroup { Faces3 = new List<int>(), MaterialIndex = materialIndex, Vertices = 0, NumMorphTargets = numMorphTargets, NumMorphNormals = numMorphNormals };
-                    this.GeometryGroups.Add(groupHash, geometryGroup);
-                    this.GeometryGroupsList.Add(geometryGroup);
-                }
-
-                if (this.GeometryGroups[groupHash].Vertices + 3 > maxVerticesInGroup)
-                {
-                }
-
-                geometryGroup.Faces3.Add(i);
-                geometryGroup.Vertices = geometryGroup.Vertices + 3;
-            }
         }
 
         /// <summary>

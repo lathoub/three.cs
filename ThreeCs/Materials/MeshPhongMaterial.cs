@@ -36,15 +36,17 @@
 
         public Texture BumpMap { get; set; }
 
+        public Texture LightMap { get; set; }
+
+
         //
 
-        public Texture LightMap = null;
 
         public float BumpScale = 1;
 
         public Vector2 NormalScale = new Vector2( 1, 1 );
 
-        public Texture EnvMap = null;
+  //      public Texture EnvMap = null;
 
         public int Combine = Three.MultiplyOperation;
 
@@ -68,7 +70,6 @@
 
         public string WireframeLinejoin = "round";
 
-        public Color[] VertexColors;
 
         public bool Skinning = false;
 
@@ -82,6 +83,8 @@
         /// <param name="parameters"></param>
         public MeshPhongMaterial(Hashtable parameters = null)
         {
+            this.type = "MeshPhongMaterial";
+
             // IWireFrameable
             this.Wireframe = false;
             this.WireframeLinewidth = 1;

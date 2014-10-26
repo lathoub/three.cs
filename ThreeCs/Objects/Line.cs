@@ -15,16 +15,20 @@
         public Vector3 Start = new Vector3();
         public Vector3 End = new Vector3();
 
-        public int Type;
+        public int Mode;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public Line(BaseGeometry geometry = null, Material material = null, int type = 0)
+        public Line(BaseGeometry geometry = null, Material material = null, int? type = null)
         {
+            this.type = "Line";
+
             this.Geometry = geometry ?? new Geometry();
             this.Material = material ?? new LineBasicMaterial { Color = new Color().Random() };
-            this.Type = Three.LineStrip;
+
+            this.Mode = Three.LineStrip;
+            if (null != type) this.Mode = type.Value;
         }
 
         /// <summary>

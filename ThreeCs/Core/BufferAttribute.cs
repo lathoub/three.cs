@@ -86,6 +86,9 @@
             this.ItemSize = itemSize;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int length
         {
             get
@@ -94,7 +97,13 @@
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
         public BufferAttribute<T> SetXY(int index, T x, T y)
         {
             index *= this.ItemSize;
@@ -105,6 +114,14 @@
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
         public BufferAttribute<T> SetXYZ(int index, T x, T y, T z)
         {
             index *= this.ItemSize;

@@ -12,6 +12,7 @@
         public AmbientLight(Color color)
             : base(color)
         {
+            this.type = "AmbientLight";
         }
 
         /// <summary>

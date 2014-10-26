@@ -4,17 +4,15 @@
     {
         #region Fields
 
-        
         public float Bottom;
-
         
         public float Left;
-
         
         public float Right;
 
-        
         public float Top;
+
+        public float Zoom;
 
         #endregion
 
@@ -30,6 +28,10 @@
         /// <param name="far"></param>
         public OrthographicCamera(float left, float right, float top, float bottom, float near = 0.1f, int far = 2000)
         {
+            this.type = "OrthographicCamera";
+
+            this.Zoom = 1;
+
             this.Left = left;
             this.Right = right;
             this.Top = top;
@@ -47,6 +49,8 @@
         protected OrthographicCamera(OrthographicCamera other)
             : base(other)
         {
+            this.Zoom = other.Zoom;
+
             this.Left = other.Left;
             this.Right = other.Right;
             this.Top = other.Top;
@@ -77,7 +81,12 @@
         /// </summary>
         public void UpdateProjectionMatrix()
         {
-            this.ProjectionMatrix.MakeOrthographic(this.Left, this.Right, this.Top, this.Bottom, this.Near, this.Far);
+            var dx = (this.Right - this.Left) / (2 * this.Zoom);
+            var dy = (this.Top - this.Bottom) / (2 * this.Zoom);
+            var cx = (this.Right + this.Left) / 2;
+            var cy = (this.Top + this.Bottom) / 2;
+
+            this.ProjectionMatrix.MakeOrthographic(cx - dx, cx + dx, cy + dy, cy - dy, this.Near, this.Far);
         }
 
         #endregion

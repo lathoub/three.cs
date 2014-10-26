@@ -7,6 +7,7 @@
     using System.Reflection;
 
     using ThreeCs.Renderers.WebGL;
+    using ThreeCs.Textures;
 
     public class Material : ICloneable
     {
@@ -14,49 +15,58 @@
 
         public int id = MaterialIdCount++;
 
-        public Guid uuid = Guid.NewGuid();
+        public Guid Uuid = Guid.NewGuid();
 
         public WebGlShader __webglShader;
 
-        public Hashtable defines = new Hashtable();
+        public Hashtable Defines = new Hashtable();
 
         public WebGlProgram program;
 
         public string name;
 
-        public int side = Three.FrontSide;
+        public string type = "Material";
 
-        public float opacity = 1;
-        
-        public bool transparent = false;
+        public int Side = Three.FrontSide;
 
-        public int blending = Three.NormalBlending;
+        public float Opacity = 1;
         
-        public int blendSrc = Three.SrcAlphaFactor;
-        
-        public int blendDst = Three.OneMinusSrcAlphaFactor;
-        
-        public int blendEquation = Three.AddEquation;
-        
-        public bool depthTest = true;
-        
-        public bool depthWrite = true;
-        
-        public bool polygonOffset = false;
-        
-        public float polygonOffsetFactor = 0.0f;
-        
-        public float polygonOffsetUnits = 0.0f;
-        
-        public float alphaTest = 0.0f;
+        public bool Transparent = false;
 
-        public int overdraw = 0; // Overdrawn pixels (typically between 0 and 1) for fixing antialiasing gaps in CanvasRenderer
-
-        public bool visible = true;
+        public int Blending = Three.NormalBlending;
         
-        public bool needsUpdate = true;
+        public int BlendSrc = Three.SrcAlphaFactor;
+        
+        public int BlendDst = Three.OneMinusSrcAlphaFactor;
+        
+        public int BlendEquation = Three.AddEquation;
+        
+        public bool DepthTest = true;
+        
+        public bool DepthWrite = true;
+        
+        public bool PolygonOffset = false;
+        
+        public float PolygonOffsetFactor = 0.0f;
+        
+        public float PolygonOffsetUnits = 0.0f;
+        
+        public float AlphaTest = 0.0f;
 
-        public List<UniformLocation> uniformsList; 
+        public int Overdraw = 0; // Overdrawn pixels (typically between 0 and 1) for fixing antialiasing gaps in CanvasRenderer
+
+        public bool Visible = true;
+        
+        public bool NeedsUpdate = true;
+
+        public List<UniformLocation> UniformsList;
+
+        public int VertexColors; // set to use "color" attribute stream
+
+        public Texture EnvMap = null; // Hoort hier eigenlijk niet
+
+
+
 
         /// <summary>
         /// 

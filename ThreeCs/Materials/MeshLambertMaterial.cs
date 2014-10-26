@@ -6,7 +6,7 @@
     using ThreeCs.Math;
     using ThreeCs.Textures;
 
-    public class MeshLambertMaterial : Material, IWireframe
+    public class MeshLambertMaterial : Material, IWireframe, IMap
     { 
         public Color Color = Color.White; // diffuse
 
@@ -16,18 +16,26 @@
 
         public bool WrapAround = false;
 
-        public Vector3 wrapRGB = new Vector3( 1, 1, 1 );
+        public Vector3 WrapRgb = new Vector3( 1, 1, 1 );
 
-        public object map = null;
 
-        public Texture LightMap = null;
+        // IMap
 
-        public Texture SpecularMap = null;
+        public Texture Map { get; set; }
 
-        public Texture AlphaMap = null;
+        public Texture AlphaMap { get; set; }
 
-        public Texture EnvMap = null;
+        public Texture SpecularMap { get; set; }
 
+        public Texture NormalMap { get; set; } // TODO: not in ThreeJs, just to be an IMap. Must be NULL
+
+        public Texture BumpMap { get; set; } // TODO: not in ThreeJs, just to be an IMap.  Must be NULL
+
+        public Texture LightMap { get; set; } 
+
+        
+
+        
         public int Combine = Three.MultiplyOperation;
 
         public float Reflectivity = 1;
@@ -50,7 +58,6 @@
 
         public string WireframeLinejoin = "round";
 
-        public Color[] VertexColors;
 
         public bool Skinning = false;
 
@@ -64,6 +71,8 @@
         /// <param name="parameters"></param>
         public MeshLambertMaterial(Hashtable parameters = null)
         {
+            this.type = "MeshLambertMaterial";
+
             // IWireFrameable
             this.Wireframe = false;
             this.WireframeLinewidth = 1;

@@ -7,8 +7,6 @@
 
     using ThreeCs.Math;
 
-    using OpenTK.Graphics.OpenGL;
-
     public class MipMap
     {
         public byte[] Data;
@@ -18,6 +16,7 @@
         public int Height;
     }
 
+    public abstract class TextureMapping { }
 
     public class Texture : ICloneable
     {
@@ -55,7 +54,7 @@
 
         public List<MipMap> Mipmaps;
 
-        //this.mapping = mapping !== undefined ? mapping : Three.Texture.DEFAULT_MAPPING;
+        public TextureMapping Mapping; // !== undefined ? mapping : Three.Texture.DEFAULT_MAPPING;
 
         public int WrapS = Three.ClampToEdgeWrapping;
 
@@ -65,11 +64,9 @@
 
         public int MinFilter = Three.LinearMipMapLinearFilter;
 
-        public PixelInternalFormat InternalFormat = PixelInternalFormat.Rgba;
+        public int Format = Three.RGBAFormat;
 
-        public PixelFormat Format = PixelFormat.Bgra;
-
-        public PixelType Type = PixelType.UnsignedByte;
+        public int Type = Three.UnsignedByteType;
         
         public Vector2 Offset = new Vector2(0, 0);
 
@@ -79,6 +76,8 @@
 
         // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
         public int UnpackAlignment = 4;
+
+        private readonly TextureMapping defaultMapping = new Three.UVMapping();
 
         #endregion
 
@@ -94,9 +93,11 @@
         /// <summary>
         /// Constructor
         /// </summary>
-        public Texture(Bitmap image, object mapping = null, int wrapS = 0, int wrapT = 0, int magFilter = 0, int minFilter = 0, int format = 0,int  type = 0, int anisotropy = 1)
+        public Texture(Bitmap image = null, TextureMapping mapping = null, int wrapS = 0, int wrapT = 0, int magFilter = 0, int minFilter = 0, int format = 0, int type = 0, int anisotropy = 1)
         {
             this.Image = image;
+
+            this.Mapping = mapping ?? this.defaultMapping;
         }
 
         /// <summary>

@@ -22,6 +22,8 @@
         public HemisphereLight(Color skyColor, Color groundColor, float intensity = 1)
             : base(skyColor)
         {
+            this.type = "HemisphereLight";
+            
             //this.position.set( 0, 100, 0 );
             this.groundColor = groundColor;
             this.intensity = intensity;

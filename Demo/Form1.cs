@@ -41,6 +41,8 @@ namespace Demo
                 GL.GetString(StringName.Version);
 
             toolStripStatusLabel.Text = string.Empty;
+
+            //stats.begin();
         }
 
 
@@ -51,6 +53,8 @@ namespace Demo
         {
             if (null != example)
                 example.Render();
+
+            //stats.update();
 
             this.glControl.SwapBuffers();
         }
@@ -212,16 +216,15 @@ namespace Demo
             }
             else
             {
-                RunSample(node.TreeView.TopLevelControl, (ExampleInfo)node.Tag);
+                RunSample((ExampleInfo)node.Tag);
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="parent"></param>
         /// <param name="e"></param>
-        void RunSample(Control parent, ExampleInfo e)
+        void RunSample(ExampleInfo e)
         {
             if (null != example)
             {
@@ -238,7 +241,7 @@ namespace Demo
             example = (Example)Activator.CreateInstance(e.Example);
             if (null != example)
             {
-                example.Load(parent);
+                example.Load(this.glControl);
 
                 toolStripStatusLabel.Text = e.Example.Name.Replace("_", " - ");
                 toolStripStatusLabel.Tag = e.Example.Name;

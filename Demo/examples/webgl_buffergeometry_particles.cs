@@ -78,7 +78,7 @@
 
             //
 
-            var material = new PointCloudMaterial() { Size = 15, VertexColors = new Color[Three.VertexColors] };
+            var material = new PointCloudMaterial() { Size = 15, VertexColors = Three.VertexColors };
 
             particleSystem = new PointCloud(geometry, material);
             scene.Add(particleSystem);

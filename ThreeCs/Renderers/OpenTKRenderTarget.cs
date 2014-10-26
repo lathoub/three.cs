@@ -17,9 +17,9 @@
         //this.wrapS = options.wrapS !== undefined ? options.wrapS : THREE.ClampToEdgeWrapping;
         //this.wrapT = options.wrapT !== undefined ? options.wrapT : THREE.ClampToEdgeWrapping;
 
-        public TextureMagFilter magFilter = TextureMagFilter.Linear;
+        public TextureMagFilter MagFilter = TextureMagFilter.Linear;
 
-        public TextureMinFilter minFilter = TextureMinFilter.LinearMipmapLinear;
+        public TextureMinFilter MinFilter = TextureMinFilter.LinearMipmapLinear;
 
         //this.anisotropy = options.anisotropy !== undefined ? options.anisotropy : 1;
 
@@ -32,18 +32,13 @@
         public bool DepthBuffer = true;
         public bool StencilBuffer = true;
 
-        public bool generateMipmaps = true;
+        public bool GenerateMipmaps = true;
 
         public int __webglFramebuffer = -1;
 
         public int __webglTexture = -1;
 
         //this.shareDepthFrom = null;
-
-
-        // renderPluginsPost
-
-        // renderPluginsPre
 
         /// <summary>
         /// 

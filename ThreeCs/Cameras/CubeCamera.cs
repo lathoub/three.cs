@@ -1,6 +1,15 @@
 ﻿namespace ThreeCs.Cameras
 {
-    public class CubeCamera
+    using ThreeCs.Core;
+
+    public class CubeCamera : Object3D
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public CubeCamera()
+        {
+            this.type = "CubeCamera";
+        }
     }
 }

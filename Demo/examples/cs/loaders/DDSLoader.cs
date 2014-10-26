@@ -1,4 +1,4 @@
-﻿namespace ThreeCs.Loaders
+﻿namespace Demo.examples.loaders
 {
     using System;
     using System.Collections.Generic;
@@ -16,7 +16,7 @@
 
         public int Height;
 
-        public object Format;
+        public int Format;
 
         public int MipmapCount = 1;
 
@@ -67,8 +67,23 @@
         /// 
         /// </summary>
         /// <returns></returns>
-        public CompressedTexture Load(string filename)
+        public CompressedTexture Load(string[] filenames, Action<Texture> callback = null)
         {
+            throw new NotImplementedException();
+
+            return null;
+        }
+
+        /// <summary>
+        /// compressed cubemap texture stored in a single DDS file
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public CompressedTexture Load(string filename, Action<Texture> callback = null)
+        {
+            List<Dds> images = null;
+
             var texture = new CompressedTexture() { NeedsUpdate = true, SourceFile = filename };
             //texture.Image = images;
 
@@ -82,36 +97,46 @@
 
             texture.GenerateMipmaps = false;
 
+            // compressed cubemap texture stored in a single DDS file
+
             var buffer = File.ReadAllBytes(filename);
 
             var dds = this.Parse(buffer);
 
-			if ( dds.IsCubemap ) {
+            if (dds.IsCubemap)
+            {
+                var faces = dds.Mipmaps.Count / dds.MipmapCount;
 
-				var faces = dds.Mipmaps.Count / dds.MipmapCount;
+                images = new List<Dds>(faces);
+                for (var i = 0; i < faces; i++)
+                    images.Add(new Dds());
 
-				for ( var f = 0; f < faces; f ++ )
-				{
-		//		    images[f] = new MipMap();
-
-                    for ( var i = 0; i < dds.MipmapCount; i ++ )
+                for (var f = 0; f < faces; f ++)
+                {
+                    for (var i = 0; i < dds.MipmapCount; i ++)
                     {
-                        //images[f].mipmaps.push(dds.Mipmaps[f * dds.MipmapCount + i]);
-                        //images[f].format = dds.Format;
-                        //images[f].width = dds.Width;
-                        //images[f].height = dds.Height;
+                        images[f].Mipmaps.Add(dds.Mipmaps[f * dds.MipmapCount + i]);
+                        images[f].Format = dds.Format;
+                        images[f].Width = dds.Width;
+                        images[f].Height = dds.Height;
                     }
-				}
+                }
 
-			} else {
+                texture.Image = new Bitmap(dds.Width, dds.Height);
+                texture.Mipmaps = dds.Mipmaps;
+            }
+            else
+            {
+                texture.Image = new Bitmap(dds.Width, dds.Height);
+                texture.Mipmaps = dds.Mipmaps;
+            }
 
-			    if (dds.Width > 0)
-			    {
-			        texture.Image = new Bitmap(dds.Width, dds.Height);
-			        texture.Mipmaps = dds.Mipmaps;
-			    }
+            Debug.Assert(null != texture.Image, "No image loaded in DDSLoader");
+            Debug.Assert(0 < dds.Width, "image with empty width in DDSLoader");
+            Debug.Assert(0 < dds.Height, "image with empty height in DDSLoader");
 
-			}
+            texture.Format = dds.Format;
+            texture.NeedsUpdate = true;
 
             return texture;
         }
@@ -195,7 +220,7 @@
 		    // Parse header
 
             var header = new Int32[headerLengthInt];
-            Buffer.BlockCopy(buffer, 0, header, 0, headerLengthInt * 4);
+            Buffer.BlockCopy(buffer, 0, header, 0, headerLengthInt * sizeof(int));
 
 		    if ( header[ off_magic ] != DDS_MAGIC )
 		    {
@@ -203,11 +228,11 @@
 			    return dds;
 		    }
 
-            if ((header[off_pfFlags] & DDPF_FOURCC) == 0)
-            {
-                Trace.TraceError("THREE.DDSLoader.parse: Unsupported format, must contain a FourCC code.");
-                return dds;
-            }
+            //if ((header[off_pfFlags] & DDPF_FOURCC) == 0)
+            //{
+            //    Trace.TraceError("THREE.DDSLoader.parse: Unsupported format, must contain a FourCC code.");
+            //    return dds;
+            //}
 
             var blockBytes = 0;
 
@@ -218,17 +243,17 @@
             if (fourCC == FOURCC_DXT1)
             {
                 blockBytes = 8;
-                dds.Format = Three.RGB_S3TC_DXT1_Format;
+                dds.Format = ThreeCs.Three.RGB_S3TC_DXT1_Format;
             }
             else if (fourCC == FOURCC_DXT3)
             {
                 blockBytes = 16;
-                dds.Format = Three.RGBA_S3TC_DXT3_Format;
+                dds.Format = ThreeCs.Three.RGBA_S3TC_DXT3_Format;
             }
             else if (fourCC == FOURCC_DXT5)
             {
                 blockBytes = 16;
-                dds.Format = Three.RGBA_S3TC_DXT3_Format;
+                dds.Format = ThreeCs.Three.RGBA_S3TC_DXT3_Format;
             }
             else
             {
@@ -240,7 +265,7 @@
                 {
                     isRGBAUncompressed = true;
                     blockBytes = 64;
-                    dds.Format = Three.RGBAFormat;
+                    dds.Format = ThreeCs.Three.RGBAFormat;
                 }
                 else
                 {
@@ -278,10 +303,14 @@
                 {
                     var dataLength = 0;
                     byte[] byteArray = null;
-                    if( isRGBAUncompressed ) {
+
+                    if( isRGBAUncompressed ) 
+                    {
                         byteArray = loadARGBMip( buffer, dataOffset, width, height );
                         dataLength = byteArray.Length;
-                    } else {
+                    } 
+                    else 
+                    {
                         dataLength = Math.Max( 4, width ) / 4 * Math.Max( 4, height ) / 4 * blockBytes;
 
                         byteArray = new byte[dataLength];
@@ -344,7 +373,7 @@
         /// <returns></returns>
         private byte[] loadARGBMip(byte[] buffer, int dataOffset, int width, int height )
         {
-			var dataLength = width*height*4;
+			var dataLength = width * height * 4;
 
 			//var srcBuffer = new Uint8Array( buffer, dataOffset, dataLength );
             var srcBuffer = new byte[dataLength];

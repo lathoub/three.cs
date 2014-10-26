@@ -22,6 +22,7 @@
         /// </summary>
         public Camera()
         {
+            this.type = "Camera";
         }
 
         /// <summary>
@@ -37,11 +38,29 @@
         #region Public Methods and Operators
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="optionalTarget"></param>
+        /// <returns></returns>
+        public override Vector3 GetWorldDirection(Vector3 optionalTarget = null) 
+        {
+            var quaternion = new Quaternion();
+
+            var result = new Vector3();
+            if (optionalTarget != null) 
+                result = optionalTarget;
+
+            this.GetWorldQuaternion(quaternion);
+            return result = new Vector3(0, 0, - 1).ApplyQuaternion(quaternion);
+        }
+
+        /// <summary>
         /// </summary>
         public override void LookAt(Vector3 vector)
         {
             // This routine does not support objects with rotated and/or translated parent(s)
             var m1 = new Matrix4();
+
             m1.LookAt(this.Position, vector, this.Up);
 
             this.Quaternion.SetFromRotationMatrix(m1);

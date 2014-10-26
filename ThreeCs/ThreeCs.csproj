@@ -44,7 +44,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
@@ -58,29 +57,36 @@
     <Compile Include="Core\Face3.cs" />
     <Compile Include="Core\Geometry.cs" />
     <Compile Include="Core\GeometryGroup.cs" />
+    <Compile Include="Loaders\Cache.cs" />
+    <Compile Include="Loaders\ImageLoader.cs" />
+    <Compile Include="Loaders\Loader.cs" />
+    <Compile Include="Loaders\LoadingManager.cs" />
+    <Compile Include="Objects\Group.cs" />
     <Compile Include="Core\IBufferAttribute.cs" />
     <Compile Include="Core\Object3D.cs" />
     <Compile Include="Core\Projector.cs" />
     <Compile Include="Core\Raycaster.cs" />
     <Compile Include="Core\WebGlObject.cs" />
     <Compile Include="Extras\Geometries\CircleGeometry.cs" />
+    <Compile Include="Extras\Geometries\IcosahedronGeometry.cs" />
+    <Compile Include="Extras\Geometries\PolyhedronGeometry.cs" />
     <Compile Include="Extras\Geometries\RingGeometry.cs" />
     <Compile Include="Extras\Geometries\TorusGeometry.cs" />
     <Compile Include="Extras\Helpers\ArrowHelper.cs" />
+    <Compile Include="Extras\Objects\Sprite.cs" />
     <Compile Include="Lights\ILightShadow.cs" />
-    <Compile Include="Loaders\DDSLoader.cs" />
-    <Compile Include="Loaders\ImageDDS.cs" />
     <Compile Include="Loaders\JSONLoader.cs" />
-    <Compile Include="Loaders\VTKLoader.cs" />
     <Compile Include="Loaders\XHRLoader.cs" />
     <Compile Include="Materials\IAttributes.cs" />
     <Compile Include="Materials\IMap.cs" />
     <Compile Include="Materials\IWireframe.cs" />
+    <Compile Include="Materials\SpriteMaterial.cs" />
     <Compile Include="Materials\UniformLocation.cs" />
     <Compile Include="Math\ColorNormalized.cs" />
     <Compile Include="Math\HSLColor.cs" />
     <Compile Include="Math\Line3.cs" />
     <Compile Include="Math\Ray.cs" />
+    <Compile Include="Objects\LOD.cs" />
     <Compile Include="PreventCircularUpdate.cs" />
     <Compile Include="Extras\FontUtils.cs" />
     <Compile Include="Extras\Geometries\BoxGeometry.cs" />
@@ -138,6 +144,9 @@
     <Compile Include="Renderers\Shaders\Attributes.cs" />
     <Compile Include="Renderers\Shaders\IUniforms.cs" />
     <Compile Include="Renderers\Shaders\Uniform.cs" />
+    <Compile Include="Renderers\WebGL\PlugIns\LensFlarePlugin.cs" />
+    <Compile Include="Renderers\WebGL\PlugIns\ShadowMapPlugin.cs" />
+    <Compile Include="Renderers\WebGL\PlugIns\SpritePlugin.cs" />
     <Compile Include="Three.cs" />
     <Compile Include="Math\Euler.cs" />
     <Compile Include="Objects\Bone.cs" />

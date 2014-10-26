@@ -11,43 +11,43 @@
     {
         #region Constructors and Destructors
 
-        public bool onlyShadow { get; set; }
+                public bool onlyShadow { get; set; }
 
-        public float shadowCameraFov { get; set; }
+                public float shadowCameraFov { get; set; }
 
-        public float shadowCameraNear { get; set; }
+                public float shadowCameraNear { get; set; }
 
-        public float shadowCameraFar { get; set; }
+                public float shadowCameraFar { get; set; }
 
-        public int shadowCameraLeft { get; set; }
+                public int shadowCameraLeft { get; set; }
 
-        public int shadowCameraRight { get; set; }
+                public int shadowCameraRight { get; set; }
 
-        public int shadowCameraTop { get; set; }
+                public int shadowCameraTop { get; set; }
 
-        public int shadowCameraBottom { get; set; }
+                public int shadowCameraBottom { get; set; }
 
-        public bool shadowCameraVisible { get; set; }
+                public bool shadowCameraVisible { get; set; }
 
-        public float shadowBias { get; set; }
+                public float shadowBias { get; set; }
 
-        public float shadowDarkness { get; set; }
+                public float shadowDarkness { get; set; }
 
-        public float shadowMapWidth { get; set; }
+                public float shadowMapWidth { get; set; }
 
-        public float shadowMapHeight { get; set; }
+                public float shadowMapHeight { get; set; }
 
-        public Texture shadowMap { get; set; }
+                public Texture shadowMap { get; set; }
 
-        public Size shadowMapSize { get; set; }
+                public Size shadowMapSize { get; set; }
 
-        public Texture shadowCamera { get; set; }
+                public Texture shadowCamera { get; set; }
 
-        public Matrix4 shadowMatrix { get; set; }
+                public Matrix4 shadowMatrix { get; set; }
 
-        public bool shadowCascade { get; set; }
+                public bool shadowCascade { get; set; }
 
-        public List<Object3D> shadowCascadeArray;
+                public List<Object3D> shadowCascadeArray;
 
         public Object3D target;
 
@@ -59,7 +59,9 @@
         public DirectionalLight(Color color, float intensity = 1)
             : base(color)
         {
-            this.Position = new Vector3( 0, 1, 0 );
+            this.type = "DirectionalLight";
+            
+            this.Position = new Vector3(0, 1, 0);
             this.target = new Object3D();
             
             this.intensity = intensity;

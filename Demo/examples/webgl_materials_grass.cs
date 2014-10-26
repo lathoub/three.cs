@@ -90,9 +90,9 @@ namespace Demo.Misc
 				var material = new MeshBasicMaterial() {
                     Color = new HSLColor(0.3f, 0.75f, (i / 15.0f) * 0.4f + 0.1f),
 					Map = texture,
-					depthTest = false,
-					depthWrite = false,
-					transparent = true
+					DepthTest = false,
+					DepthWrite = false,
+					Transparent = true
 				} ;
 
 				mesh = new Mesh( geometry, material );

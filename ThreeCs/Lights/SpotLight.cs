@@ -18,31 +18,31 @@
 
         public Object3D target;
 
-        public bool onlyShadow { get; set; }
+                public bool onlyShadow { get; set; }
 
-        public float shadowCameraNear { get; set; }
+                public float shadowCameraNear { get; set; }
 
-        public float shadowCameraFar { get; set; }
+                public float shadowCameraFar { get; set; }
 
-        public float shadowCameraFov { get; set; }
+                public float shadowCameraFov { get; set; }
 
-        public bool shadowCameraVisible { get; set; }
+                public bool shadowCameraVisible { get; set; }
 
-        public float shadowBias { get; set; }
+                public float shadowBias { get; set; }
 
-        public float shadowDarkness  { get; set; }
+                public float shadowDarkness  { get; set; }
 
-        public float shadowMapWidth { get; set; }
+                public float shadowMapWidth { get; set; }
 
-        public float shadowMapHeight { get; set; }
+                public float shadowMapHeight { get; set; }
 
-        public Texture shadowMap { get; set; }
+                public Texture shadowMap { get; set; }
 
-        public Size shadowMapSize  { get; set; }
+                public Size shadowMapSize  { get; set; }
 
-        //     public Texture shadowCamera  { get; set; }
+                //     public Texture shadowCamera  { get; set; }
 
-        public Matrix4 shadowMatrix { get; set; }
+                public Matrix4 shadowMatrix { get; set; }
 
         #region Constructors and Destructors
 
@@ -52,7 +52,9 @@
         public SpotLight(Color color, float intensity = 1, float distance = 0, float angle = 1.0471666f, float exponent = 10)
             : base(color)
         {
-            this.Position = new Vector3( 0, 1, 0 );
+            this.type = "SpotLight";
+            
+            this.Position = new Vector3(0, 1, 0);
             this.target = new Object3D();
             this.intensity = intensity;
             this.distance = distance;

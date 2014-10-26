@@ -1,28 +1,30 @@
-﻿namespace ThreeCs.Loaders
+﻿namespace Demo.examples.loaders
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Security.Policy;
     using System.Text.RegularExpressions;
 
-    using ThreeCs.Core;
-    using ThreeCs.Math;
+    using OpenTK;
 
-    public class GeometryLoaderEventArgs : EventArgs
+    using ThreeCs.Core;
+
+    public class BufferGeometryLoaderEventArgs : EventArgs
     {
         #region Constructors and Destructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GeometryLoaderEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="BufferGeometryLoaderEventArgs"/> class.
         /// </summary>
-        /// <param name="geometry">
+        /// <param name="bufferGeometry">
         /// The channel carrier.
         /// </param>
-        public GeometryLoaderEventArgs(Geometry geometry)
+        public BufferGeometryLoaderEventArgs(BufferGeometry bufferGeometry)
         {
-            this.Geometry = geometry;
+            this.BufferGeometry = bufferGeometry;
         }
 
         #endregion
@@ -32,21 +34,21 @@
         /// <summary>
         /// Gets the channel carrier.
         /// </summary>
-        public Geometry Geometry { get; private set; }
+        public BufferGeometry BufferGeometry { get; private set; }
 
         #endregion
     }
 
     public class VTKLoader
     {
-        public event EventHandler<GeometryLoaderEventArgs> Loaded;
+        public event EventHandler<BufferGeometryLoaderEventArgs> Loaded;
 
-        protected virtual void RaiseLoaded(Geometry geometry)
+        protected virtual void RaiseLoaded(BufferGeometry geometry)
         {
             var handler = this.Loaded;
             if (handler != null)
             {
-                handler(this, new GeometryLoaderEventArgs(geometry));
+                handler(this, new BufferGeometryLoaderEventArgs(geometry));
             }
         }
 
@@ -56,7 +58,6 @@
         /// <param name="url"></param>
         public void Load(Url url)
         {
-
             var geometry = this.Parse("");
 
             RaiseLoaded(geometry);
@@ -68,9 +69,16 @@
         /// <param name="filename"></param>
         public void Load(string filename)
         {
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+            
             var data = File.ReadAllText(filename);
 
             var geometry = this.Parse(data);
+
+            stopWatch.Stop();
+
+            Trace.TraceInformation("VTK model {0} loaded in {1} seconds", Path.GetFileName(filename), stopWatch.ElapsedMilliseconds / 1000.0f);
 
             RaiseLoaded(geometry);
         }
@@ -78,14 +86,16 @@
         /// <summary>
         /// 
         /// </summary>
-        private Geometry Parse(string data)
+        private BufferGeometry Parse(string data) 
         {
-            var geometry = new Geometry();
+            var indices = new List<uint>();
+            var positions = new List<float>();
 
-		    // float float float
+
+                // float float float
 
             {
-                string pattern = @"([\+|\-]?[\d]+[\.]*[\d|\-|e]*)[ ]+([\+|\-]?[\d]+[\.]*[\d|\-|e]*)[ ]+([\+|\-]?[\d]+[\.]*[\d|\-|e]*)";
+                string pattern = @"([\+|\-]?[\d]+[\.][\d|\-|e]+)[ ]+([\+|\-]?[\d]+[\.][\d|\-|e]+)[ ]+([\+|\-]?[\d]+[\.][\d|\-|e]+)";
 
                 var rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 var matches = rgx.Matches(data);
@@ -98,7 +108,7 @@
                     var y = float.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
                     var z = float.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
 
-                    geometry.Vertices.Add(new Vector3(x, y, z));
+                    positions.Add(x); positions.Add(y); positions.Add(z);
                 }
             }
 
@@ -115,11 +125,11 @@
                     // ["3 1 2 3", "1", "2", "3"]
                     try
                     {
-                        var a = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-                        var b = int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
-                        var c = int.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
+                        var a = uint.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                        var b = uint.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                        var c = uint.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
 
-                        geometry.Faces.Add(new Face3(a, b, c));
+                        indices.Add(a); indices.Add(b); indices.Add(c);
                     }
                     catch (Exception e)
                     {
@@ -140,19 +150,19 @@
                 {
                     // ["4 1 2 3 4", "1", "2", "3", "4"]
 
-                    var a = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-                    var b = int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
-                    var c = int.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
-                    var d = int.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
+                    var a = uint.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                    var b = uint.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                    var c = uint.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
+                    var d = uint.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
 
-                    geometry.Faces.Add(new Face3(a, b, d));
-                    geometry.Faces.Add(new Face3(b, c, d));
+                    indices.Add(a); indices.Add(b); indices.Add(d);
+                    indices.Add(b); indices.Add(c); indices.Add(d);
                 }
             }
 
-            geometry.ComputeFaceNormals();
-            geometry.ComputeVertexNormals();
-            geometry.ComputeBoundingSphere();
+            var geometry = new BufferGeometry();
+            geometry.AddAttribute( "index", new BufferAttribute<uint>( indices.ToArray(), 1 ) );
+            geometry.AddAttribute( "position", new BufferAttribute<float>( positions.ToArray(), 3 ) );
 
             return geometry;
         }

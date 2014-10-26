@@ -108,12 +108,25 @@
         /// <returns></returns>
         public Euler SetFromQuaternion(Quaternion q)
         {
-		    // http://www.mathworks.com/matlabcentral/fileexchange/20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/content/SpinCalc.m
+            return SetFromQuaternion(q, this.Order);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="q"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public Euler SetFromQuaternion(Quaternion q, RotationOrder order)
+        {
+            // http://www.mathworks.com/matlabcentral/fileexchange/20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/content/SpinCalc.m
 
 		    var sqx = q.X * q.X;
 		    var sqy = q.Y * q.Y;
 		    var sqz = q.Z * q.Z;
 		    var sqw = q.W * q.W;
+
+            this.Order = order;
 
 		    if ( this.Order == RotationOrder.XYZ ) {
 

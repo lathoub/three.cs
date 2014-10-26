@@ -8,11 +8,9 @@
     public class PerspectiveCamera : Camera
     {
         #region Fields
-
         
         public float Aspect;
 
-        
         public float Fov;
 
         public float X = -1;
@@ -27,6 +25,8 @@
 
         public float Height = -1;
 
+        public float Zoom = 1;
+
         #endregion
 
         /**
@@ -40,42 +40,6 @@
             this.UpdateProjectionMatrix();
         }
 
-        /**
-        * Sets an offset in a larger frustum. This is useful for multi-window or
-        * multi-monitor/multi-machine setups.
-        *
-        * For example, if you have 3x2 monitors and each monitor is 1920x1080 and
-        * the monitors are in grid like this
-        *
-        * +---+---+---+
-        * | A | B | C |
-        * +---+---+---+
-        * | D | E | F |
-        * +---+---+---+
-        *
-        * then for each monitor you would call it like this
-        *
-        * var w = 1920;
-        * var h = 1080;
-        * var fullWidth = w * 3;
-        * var fullHeight = h * 2;
-        *
-        * --A--
-        * camera.setOffset( fullWidth, fullHeight, w * 0, h * 0, w, h );
-        * --B--
-        * camera.setOffset( fullWidth, fullHeight, w * 1, h * 0, w, h );
-        * --C--
-        * camera.setOffset( fullWidth, fullHeight, w * 2, h * 0, w, h );
-        * --D--
-        * camera.setOffset( fullWidth, fullHeight, w * 0, h * 1, w, h );
-        * --E--
-        * camera.setOffset( fullWidth, fullHeight, w * 1, h * 1, w, h );
-        * --F--
-        * camera.setOffset( fullWidth, fullHeight, w * 2, h * 1, w, h );
-        *
-        * Note there is no reason monitors have to be the same size or in a grid.
-        */
-
         #region Constructors and Destructors
 
         /// <summary>
@@ -83,6 +47,10 @@
         /// </summary>
         public PerspectiveCamera(float fov = 50, float aspect = 1.0f, float near = 0.1f, float far = 2000)
         {
+            this.type = "PerspectiveCamera";
+
+            this.Zoom = 1;
+
             this.Fov = fov;
             this.Aspect = aspect;
             this.Near = near;
@@ -121,6 +89,42 @@
             return new PerspectiveCamera(this);
         }
 
+        /**
+        * Sets an offset in a larger frustum. This is useful for multi-window or
+        * multi-monitor/multi-machine setups.
+        *
+        * For example, if you have 3x2 monitors and each monitor is 1920x1080 and
+        * the monitors are in grid like this
+        *
+        * +---+---+---+
+        * | A | B | C |
+        * +---+---+---+
+        * | D | E | F |
+        * +---+---+---+
+        *
+        * then for each monitor you would call it like this
+        *
+        * var w = 1920;
+        * var h = 1080;
+        * var fullWidth = w * 3;
+        * var fullHeight = h * 2;
+        *
+        * --A--
+        * camera.setOffset( fullWidth, fullHeight, w * 0, h * 0, w, h );
+        * --B--
+        * camera.setOffset( fullWidth, fullHeight, w * 1, h * 0, w, h );
+        * --C--
+        * camera.setOffset( fullWidth, fullHeight, w * 2, h * 0, w, h );
+        * --D--
+        * camera.setOffset( fullWidth, fullHeight, w * 0, h * 1, w, h );
+        * --E--
+        * camera.setOffset( fullWidth, fullHeight, w * 1, h * 1, w, h );
+        * --F--
+        * camera.setOffset( fullWidth, fullHeight, w * 2, h * 1, w, h );
+        *
+        * Note there is no reason monitors have to be the same size or in a grid.
+        */
+
         /// <summary>
         /// 
         /// </summary>
@@ -146,10 +150,12 @@
         /// </summary>
         public void UpdateProjectionMatrix()
         {
+            var fov = Mat.RadToDeg(2 * Math.Atan(Math.Tan(Mat.DegToRad(this.Fov) * 0.5) / this.Zoom));
+            
             if (this.FullWidth > 0)
             {
                 var aspect = this.FullWidth / this.FullHeight;
-                var top = (float)Math.Tan(Mat.DegToRad(this.Fov * 0.5f)) * this.Near;
+                var top = (float)Math.Tan(Mat.DegToRad(fov * 0.5f)) * this.Near;
                 var bottom = -top;
                 var left = aspect * bottom;
                 var right = aspect * top;

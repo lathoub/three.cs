@@ -189,6 +189,28 @@ namespace ThreeCs.Math
             return dx * dx + dy * dy;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
+        public Vector2 Add(Vector2 v, Vector2 w = null)
+        {
+		    if ( w != null )
+		    {
+		        Trace.TraceWarning("THREE.Vector2: .add() now only accepts one argument. Use .addVectors( a, b ) instead.");
+			    return this.AddVectors( v, w );
+
+		    }
+
+		    this.X += v.X;
+		    this.Y += v.Y;
+
+		    return this;
+
+	    }
+
         public Vector2 AddVectors(Vector2 v1, Vector2 v2)
         {
             this.X = v1.X + v2.X;
@@ -203,6 +225,43 @@ namespace ThreeCs.Math
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
+        public Vector2 Sub  (Vector2 v, Vector2 w = null )
+        {
+		    if ( w != null )
+		    {
+		        Trace.TraceInformation("THREE.Vector2: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.");
+			    return this.SubVectors( v, w );
+		    }
+
+		    this.X -= v.X;
+		    this.Y -= v.Y;
+
+		    return this;
+	    }   
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public Vector2 SubVectors (Vector2 a, Vector2 b ) 
+        {
+            return SubstractVectors(a,b);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
         public Vector2 SubstractVectors(Vector2 v1, Vector2 v2)
         {
             this.X = v1.X - v2.X;
@@ -217,6 +276,32 @@ namespace ThreeCs.Math
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="l"></param>
+        /// <returns></returns>
+        public Vector2 SetLength (float l )
+        {
+            Length = l;
+
+		    return this;
+	    }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public float LengthSq
+        {
+            get
+            {
+                return this.X * this.X + this.Y * this.Y;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public float Length
         {
             get { return (float)Math.Sqrt(this.X * this.X + this.Y * this.Y); }
