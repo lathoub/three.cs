@@ -19,7 +19,7 @@
     using ThreeCs.Scenes;
     using ThreeCs.Textures;
 
-    [Example("webgl_custom_attributes_particles3", ExampleCategory.OpenTK, "custom", 0.1f)]
+    [Example("webgl_custom_attributes_particles3", ExampleCategory.OpenTK, "custom", 0.3f)]
     class webgl_custom_attributes_particles3 : Example
     {
         private PerspectiveCamera camera;
@@ -201,7 +201,8 @@
 				{
 				    //values_color[v].setHSL(0.5 + 0.2 * (v / (float)vc1), 1, 0.5);
                     values_color[v] = Color.Red;
-				} 
+				
+                } 
                 else
 				{
 				    values_size[v] = 55.0f;

@@ -1,6 +1,5 @@
 ﻿namespace Demo.WebGL
 {
-    using System.Collections;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -10,7 +9,6 @@
     using Three.Core;
 
     using ThreeCs.Cameras;
-    using ThreeCs.Core;
     using ThreeCs.Extras;
     using ThreeCs.Extras.Geometries;
     using ThreeCs.Materials;
@@ -19,7 +17,7 @@
     using ThreeCs.Renderers.Shaders;
     using ThreeCs.Scenes;
 
-    [Example("webgl_interactive_particles", ExampleCategory.OpenTK, "Interactive", 0.1f)]
+    [Example("webgl_interactive_particles", ExampleCategory.OpenTK, "Interactive", 0.3f)]
     class webgl_interactive_particles : Example
     {
         private PerspectiveCamera camera;
@@ -96,8 +94,8 @@
 
             attributes = new Attributes
             { 
-                { "size",        new Attribute() { {"type", "f"},  {"value", new Hashtable() }} },
-                { "customColor", new Attribute() { {"type", "c"},  {"value", new Hashtable() }} },
+                { "size",        new Attribute() { {"type", "f"},  {"value", null }} },
+                { "customColor", new Attribute() { {"type", "c"},  {"value", null }} },
             };
 
             uniforms = new Uniforms 
@@ -117,15 +115,18 @@
 
             particles = new PointCloud(geometry, shaderMaterial);
 
-            var values_size = attributes["size"]["value"] as Hashtable;
-            var values_color = attributes["customColor"]["value"] as Hashtable;
-
             var vertices = ((BoxGeometry)particles.Geometry).Vertices;
+
+            attributes["size"]["value"] = new float[vertices.Count];
+            attributes["customColor"]["value"] = new Color[vertices.Count];
+
+            var values_size = attributes["size"]["value"] as float[];
+            var values_color = attributes["customColor"]["value"] as Color[];
 
             for (int v = 0; v < vertices.Count; v++)
             {
                 values_size[v] = PARTICLE_SIZE * 0.5f;
-                values_color[v] = 0.76f;//   new Color().setHSL(0.01f + 0.1f * (v / vl), 1.0f, 0.5f);
+                values_color[v] =  Color.Salmon;//   new Color().setHSL(0.01f + 0.1f * (v / vl), 1.0f, 0.5f);
             }
 
             scene.Add(particles);

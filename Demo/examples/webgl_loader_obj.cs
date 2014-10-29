@@ -1,6 +1,5 @@
 ﻿namespace Demo.examples
 {
-    using System;
     using System.Diagnostics;
     using System.Drawing;
     using System.Windows.Forms;
@@ -10,7 +9,6 @@
     using Examples;
 
     using ThreeCs.Cameras;
-    using ThreeCs.Extras;
     using ThreeCs.Lights;
     using ThreeCs.Loaders;
     using ThreeCs.Materials;

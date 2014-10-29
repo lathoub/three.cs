@@ -8,8 +8,6 @@
     using System.Security.Policy;
     using System.Text.RegularExpressions;
 
-    using OpenTK;
-
     using ThreeCs.Core;
 
     public class BufferGeometryLoaderEventArgs : EventArgs

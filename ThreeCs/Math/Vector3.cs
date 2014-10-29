@@ -400,6 +400,7 @@ namespace ThreeCs.Math
             this.X *= scalar;
             this.Y *= scalar;
             this.Z *= scalar;
+
             return this;
         }
 

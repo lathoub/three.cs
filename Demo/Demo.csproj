@@ -51,6 +51,7 @@
     <Compile Include="examples\cs\controls\DeviceOrientationControls.cs" />
     <Compile Include="examples\cs\controls\FlyControls.cs" />
     <Compile Include="examples\cs\controls\TrackballControls.cs" />
+    <Compile Include="examples\cs\controls\TransformControls.cs" />
     <Compile Include="examples\cs\loaders\DDSLoader.cs" />
     <Compile Include="examples\cs\loaders\OBJLoader.cs" />
     <Compile Include="examples\cs\loaders\VTKLoader.cs" />

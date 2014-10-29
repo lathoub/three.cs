@@ -1,9 +1,5 @@
 ﻿namespace Demo
 {
-    using System.Drawing;
-
-    using OpenTK.Graphics;
-
     partial class Form1
     {
         /// <summary>

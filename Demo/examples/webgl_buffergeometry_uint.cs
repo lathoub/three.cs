@@ -15,7 +15,7 @@
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
-    [Example("webgl_buffergeometry_uint", ExampleCategory.OpenTK, "BufferGeometry", 0.5f)]
+    [Example("webgl_buffergeometry_uint", ExampleCategory.OpenTK, "BufferGeometry")]
     class webgl_buffergeometry_uint : Example
     {
         private PerspectiveCamera camera;

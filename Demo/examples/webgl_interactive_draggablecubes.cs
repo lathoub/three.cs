@@ -66,7 +66,7 @@ namespace Demo.WebGL
 
 			scene = new Scene();
 
-			scene.Add( new AmbientLight( (Color)colorConvertor.ConvertFromString("#505050") ) );
+            scene.Add(new AmbientLight((Color)colorConvertor.ConvertFromString("#505050")));
 
 			var light = new SpotLight( Color.White, 1.5f );
 			light.Position = new Vector3( 0, 500, 2000 );
@@ -112,7 +112,10 @@ namespace Demo.WebGL
 			    object3Ds.Add(object3D);
 			}
 
-			plane = new Mesh( new PlaneGeometry( 2000, 2000, 8, 8 ), new MeshBasicMaterial() { Color = Color.Black, Opacity = 0.25f, Transparent = true, Wireframe = true } );
+			plane = new Mesh( 
+                new PlaneGeometry( 2000, 2000, 8, 8 ),
+                new MeshBasicMaterial() { Color = Color.Black, Opacity = 0.25f, Transparent = true } 
+            );
 			plane.Visible = false;
             scene.Add(plane);
 

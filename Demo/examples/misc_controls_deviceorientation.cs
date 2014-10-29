@@ -17,7 +17,7 @@ namespace Demo.Misc
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
 
-    [Example("misc_controls_deviceorientation", ExampleCategory.Misc, "controls", 0.8f)]
+    [Example("misc_controls_deviceorientation", ExampleCategory.Misc, "controls")]
     class misc_controls_deviceorientation : Example
     {
         private PerspectiveCamera camera;

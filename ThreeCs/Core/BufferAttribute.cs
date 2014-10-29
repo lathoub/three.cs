@@ -1,6 +1,8 @@
 ﻿namespace ThreeCs.Core
 {
-    using ThreeCs.Renderers.Shaders;
+    using System;
+
+    using Attribute = ThreeCs.Renderers.Shaders.Attribute;
 
     public class BufferAttribute<T> : Attribute, IBufferAttribute
     {
@@ -16,11 +18,11 @@
             }
         }
 
-        public string Type
+        public Type Type
         {
             get
             {
-                return (string)this["type"];
+                return (Type)this["type"];
             }
             set
             {
@@ -73,6 +75,7 @@
             this.Add("itemSize", -1);
             this.Add("buffer", -1);
             this.Add("needsUpdate", false);
+            this.Add("type", null);
         }
 
         /// <summary>
@@ -84,6 +87,7 @@
         {
             this.Array = array;
             this.ItemSize = itemSize;
+            this.Type = typeof(T);
         }
 
         /// <summary>

@@ -31,7 +31,7 @@
 
         private Uniforms uniforms;
 
-        private IList<float> noise;
+        private float[] noise;
 
         private const string VertexShader = @"	
 		
@@ -89,7 +89,7 @@
 
             attributes = new Attributes
             {
-                { "displacement", new ThreeCs.Renderers.Shaders.Attribute() { { "type", "f" }, { "value", null } } }
+                { "displacement", new ThreeCs.Renderers.Shaders.Attribute() { { "type", "f" }, { "value", new float[0] } } }
             };
 
             uniforms = new Uniforms
@@ -117,7 +117,8 @@
             sphere = new Mesh(geometry, shaderMaterial);
 
             var vertices = geometry.Vertices;
-            var values = new float[vertices.Count];
+            attributes["displacement"]["value"] = new float[vertices.Count];
+            var values = (float[])attributes["displacement"]["value"];
 
             noise = new float[vertices.Count];
 
@@ -126,8 +127,6 @@
                 values[v] = 0;
                 noise[v] = Mat.Random() * 5;
             }
-
-            attributes["displacement"]["f"] = values;
 
             scene.Add(sphere);
 
@@ -156,27 +155,26 @@
         {
             Debug.Assert(null != this.renderer);
 
-            var time = stopWatch.ElapsedMilliseconds * 0.01f;
+            var time = 500 + stopWatch.ElapsedMilliseconds * 0.01f;
 
             this.sphere.Rotation.Y = this.sphere.Rotation.Z = 0.01f * time;
 
             uniforms["amplitude"]["value"] = 2.5f * Math.Sin(this.sphere.Rotation.Y * 0.125);
             uniforms["color"]["value"] = ((Color)uniforms["color"]["value"]).OffsetHSL(512 * 0.0005f, 0, 0);
 
-            var displacement = attributes["displacement"];
-            var values = (float[])displacement["f"];
+            var values = (float[])attributes["displacement"]["value"];
 
             for (var i = 0; i < values.Length; i++)
             {
                 values[i] = (float)Math.Sin(0.1 * i + time);
 
                 noise[i] += 0.5f * (0.5f - Mat.Random());
-                noise[i] = this.noise[i].Clamp(-5, 5);
+                noise[i].Clamp(-5, 5);
 
                 values[i] += noise[i];
             }
 
-            displacement["needsUpdate"] = true;
+            attributes["displacement"]["needsUpdate"] = true;
             
             renderer.Render(scene, camera);
         }
