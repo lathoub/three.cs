@@ -5,9 +5,11 @@
 
     using ThreeCs.Math;
 
-    public abstract class BaseGeometry
+    public abstract class BaseGeometry : IDisposable
     {
         public Guid Uuid = Guid.NewGuid();
+
+        private bool _disposed = false;
 
         public int Id;
 
@@ -31,20 +33,20 @@
 
         public bool __webglInit { get; set; }
 
-        public int __webglLineDistanceBuffer;
+        public int __webglLineDistanceBuffer = 0;
 
-        public int __webglVertexBuffer;
-        public int __webglNormalBuffer;
-        public int __webglTangentBuffer;
-        public int __webglColorBuffer;
-        public int __webglUVBuffer;
-        public int __webglUV2Buffer;
+        public int __webglVertexBuffer = 0;
+        public int __webglNormalBuffer = 0;
+        public int __webglTangentBuffer = 0;
+        public int __webglColorBuffer = 0;
+        public int __webglUVBuffer = 0;
+        public int __webglUV2Buffer = 0;
 
-        public int __webglSkinIndicesBuffer;
-        public int __webglSkinWeightsBuffer;
+        public int __webglSkinIndicesBuffer = 0;
+        public int __webglSkinWeightsBuffer = 0;
 
-        public int __webglFaceBuffer;
-        public int __webglLineBuffer;
+        public int __webglFaceBuffer = 0;
+        public int __webglLineBuffer = 0;
 
         public List<int> __webglMorphTargetsBuffers;
         public List<int> __webglMorphNormalsBuffers;
@@ -66,14 +68,61 @@
         public List<float[]> __morphTargetsArrays;
         public List<float[]> __morphNormalsArrays;
 
-        public int __webglFaceCount;
-        public int __webglLineCount;
-        public int __webglParticleCount;
+        public int __webglFaceCount = -1;
+        public int __webglLineCount = -1;
+        public int __webglParticleCount = -1;
 
-        public List<ThreeCs.Renderers.Shaders.Attribute> __webglCustomAttributesList;
+        public List<Renderers.Shaders.Attribute> __webglCustomAttributesList;
 
         public bool __inittedArrays;
 
         public float[] __lineDistanceArray;
+
+
+        public event EventHandler<EventArgs> Disposed;
+
+        protected virtual void RaiseDisposed()
+        {
+            var handler = this.Disposed;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        #region IDisposable Members
+        /// <summary>
+        /// Implement the IDisposable interface
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            // This object will be cleaned up by the Dispose method.
+            // Therefore, you should call GC.SupressFinalize to
+            // take this object off the finalization queue 
+            // and prevent finalization code for this object
+            // from executing a second time.
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this._disposed)
+            {
+                try
+                {
+                    this._disposed = true;
+
+                    this.RaiseDisposed();
+                }
+                finally
+                {
+                    //base.Dispose(true);           // call any base classes
+                }
+            }
+        }
+        #endregion
+
     }
 }

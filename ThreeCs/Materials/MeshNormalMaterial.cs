@@ -2,7 +2,7 @@
 {
     using System.Collections;
 
-    public class MeshNormalMaterial : Material, IWireframe
+    public class MeshNormalMaterial : Material, IWireframe, IMorphTargets
     {
         public int Shading = Three.FlatShading;
 
@@ -10,7 +10,7 @@
 
         public float WireframeLinewidth { get; set; }
 
-        public bool MorphTargets = false;
+        public bool MorphTargets { get; set; }
 
         /// <summary>
         /// 
@@ -24,8 +24,6 @@
 
             this.Wireframe = false;
             this.WireframeLinewidth = 1;
-
-            this.MorphTargets = false;
 
             this.SetValues(parameters);
         }

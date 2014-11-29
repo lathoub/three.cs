@@ -11,9 +11,9 @@
     {
         public float Radius;
 
-        public float WidthSegments;
+        public int WidthSegments;
 
-        public float HeightSegments;
+        public int HeightSegments;
 
         public float PhiStart;
 
@@ -33,7 +33,7 @@
         /// <param name="phiLength"></param>
         /// <param name="thetaStart"></param>
         /// <param name="thetaLength"></param>
-        public SphereGeometry(float radius = 50, float widthSegments = 8, float heightSegments = 6, float phiStart = 0, float phiLength = (float)Mat.PI2, float thetaStart = 0, float thetaLength = (float)Math.PI)
+        public SphereGeometry(float radius = 50, int widthSegments = 8, int heightSegments = 6, float phiStart = 0, float phiLength = (float)Mat.PI2, float thetaStart = 0, float thetaLength = (float)Math.PI)
         {
             Debug.Assert(this.FaceVertexUvs.Count == 1, "Should only be 1 element at this stage");
 
@@ -58,8 +58,8 @@
 
 		        for (var x = 0; x <= widthSegments; x ++ ) {
 
-			        var u = x / widthSegments;
-			        var v = y / heightSegments;
+			        var u = x / (float)widthSegments;
+                    var v = y / (float)heightSegments;
 
 			        var vertex = new Vector3();
 			        vertex.X = - radius * (float)Math.Cos( phiStart + u * phiLength ) * (float)Math.Sin( thetaStart + v * thetaLength );

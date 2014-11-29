@@ -7,6 +7,8 @@ namespace Demo.WebGL
     using System.Drawing;
     using System.Windows.Forms;
 
+    using Demo.examples.cs.controls;
+
     using Examples;
 
     using Three.Core;
@@ -44,6 +46,8 @@ namespace Demo.WebGL
 
         private readonly Vector2 mouse = new Vector2();
 
+        private TrackballControls controls;
+
         /// <summary>
         /// 
         /// </summary>
@@ -55,14 +59,14 @@ namespace Demo.WebGL
             camera = new PerspectiveCamera(70, control.Width / (float)control.Height, 1, 10000);
 			camera.Position.Z = 1000;
 
-            //controls = new TrackballControls( camera );
-            //controls.rotateSpeed = 1.0;
-            //controls.zoomSpeed = 1.2;
-            //controls.panSpeed = 0.8;
-            //controls.noZoom = false;
-            //controls.noPan = false;
-            //controls.staticMoving = true;
-            //controls.dynamicDampingFactor = 0.3;
+            controls = new TrackballControls(control, camera);
+            controls.RotateSpeed = 1.0f;
+            controls.ZoomSpeed = 1.2f;
+            controls.PanSpeed = 0.8f;
+            controls.NoZoom = false;
+            controls.NoPan = false;
+            controls.StaticMoving = true;
+            controls.DynamicDampingFactor = 0.3f;
 
 			scene = new Scene();
 
@@ -116,10 +120,8 @@ namespace Demo.WebGL
                 new PlaneGeometry( 2000, 2000, 8, 8 ),
                 new MeshBasicMaterial() { Color = Color.Black, Opacity = 0.25f, Transparent = true } 
             );
-			plane.Visible = false;
-            scene.Add(plane);
-
-			projector = new Projector();
+			plane.Visible = true;
+ //           scene.Add(plane);
 
 			renderer.SetClearColor( (Color)colorConvertor.ConvertFromString("#F0F0F0") );
 			renderer.SortObjects = false;
@@ -150,12 +152,12 @@ namespace Demo.WebGL
         /// <param name="here"></param>
         public override void MouseDown(Size clientSize, Point here)
         {
-			var vector = new Vector3( mouse.X, mouse.Y, 0.5f );
-			projector.UnprojectVector( vector, camera );
+            var vector = new Vector3(mouse.X, mouse.Y, 0.5f).Unproject(camera);
 
             var raycaster = new Raycaster(camera.Position, vector.Sub(camera.Position).Normalize());
 
             var intersects = raycaster.IntersectObjects(object3Ds);
+
 			if ( intersects.Count > 0 ) {
 
 				//controls.enabled = false;
@@ -169,6 +171,9 @@ namespace Demo.WebGL
 			}
        }
 
+
+        private Color currentHex;
+
         /// <summary>
         /// 
         /// </summary>
@@ -177,15 +182,13 @@ namespace Demo.WebGL
         public override void MouseMove(Size clientSize, Point here)
         {
             // Normalize mouse position
-            mouse.X = (here.X / (float)clientSize.Width) * 2 - 1;
+            mouse.X =  (here.X / (float)clientSize.Width) * 2 - 1;
             mouse.Y = -(here.Y / (float)clientSize.Height) * 2 + 1;
-            return;
 
-            var vector = new Vector3(mouse.X, mouse.Y, 0.5f);
-            projector.UnprojectVector(vector, camera);
+            var vector = new Vector3(mouse.X, mouse.Y, 0.5f).Unproject(camera);
 
             var raycaster = new Raycaster(camera.Position, vector.Sub(camera.Position).Normalize());
-
+/*
             if (null != SELECTED)
             {
                 var intersects2 = raycaster.IntersectObject(plane);
@@ -193,16 +196,18 @@ namespace Demo.WebGL
 
                 return;
             }
-
+*/
             var intersects = raycaster.IntersectObjects(object3Ds);
+
 			if ( intersects.Count > 0 ) {
 
 				if ( INTERSECTED != intersects[ 0 ].Object3D ) {
 
-		//			if (null != INTERSECTED ) INTERSECTED.Material.Color.setHex( INTERSECTED.currentHex );
+					if (null != INTERSECTED )
+                        ((MeshLambertMaterial)INTERSECTED.Material).Color = currentHex;
 
                     INTERSECTED = intersects[0].Object3D;
-		//			INTERSECTED.currentHex = INTERSECTED.Material.Color.getHex();
+                    currentHex = ((MeshLambertMaterial)INTERSECTED.Material).Color;
 
 					plane.Position.Copy( INTERSECTED.Position );
 					plane.LookAt( camera.Position );
@@ -211,9 +216,11 @@ namespace Demo.WebGL
 
 			//	container.style.cursor = 'pointer';
 
-			} else {
-
-	//			if ( INTERSECTED ) INTERSECTED.Material.color.setHex( INTERSECTED.currentHex );
+			} 
+            else
+			{
+			    if (INTERSECTED != null)
+                    ((MeshLambertMaterial)INTERSECTED.Material).Color = currentHex;
 
 				INTERSECTED = null;
 
@@ -247,6 +254,8 @@ namespace Demo.WebGL
         /// </summary>
         public override void Render()
         {
+            //controls.update();
+
             renderer.Render(scene, camera);
         }
 

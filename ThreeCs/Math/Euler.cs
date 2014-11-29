@@ -47,6 +47,40 @@
             this.Order = order;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="c"></param>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public Euler set(float a, float b, float c)
+        {
+            return set(a, b, c, RotationOrder.XYZ);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="c"></param>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        public Euler set(float a, float b, float c, RotationOrder o)
+        {
+            this.X = a;
+            this.Y = b;
+            this.Z = c;
+            this.Order = o;
+
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public float X
         {
             get
@@ -100,6 +134,142 @@
         {
             return value.Clamp(min, max);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public Euler SetFromRotationMatrix(Matrix4 m)
+        {
+            return SetFromRotationMatrix(m, this.Order);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public Euler SetFromRotationMatrix (Matrix4 m, RotationOrder order)
+        {
+
+		    // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+
+		    var te = m.elements;
+            var m11 = te[0]; var m12 = te[ 4 ]; var m13 = te[ 8 ];
+            var m21 = te[1]; var m22 = te[ 5 ]; var m23 = te[ 9 ];
+            var m31 = te[2]; var m32 = te[ 6 ]; var m33 = te[ 10 ];
+
+		    if ( order == RotationOrder.XYZ) {
+
+			    this.y = (float)System.Math.Asin( Mat.Clamp( m13, - 1, 1 ) );
+
+			    if ( System.Math.Abs( m13 ) < 0.99999 ) {
+
+				    this.x = (float)System.Math.Atan2( - m23, m33 );
+				    this.z = (float)System.Math.Atan2( - m12, m11 );
+
+			    } else {
+
+				    this.x = (float)System.Math.Atan2( m32, m22 );
+				    this.z = 0;
+
+			    }
+
+		    } else if ( order == RotationOrder.YXZ )
+		    {
+		        this.x = (float)System.Math.Asin(- Mat.Clamp(m23, - 1, 1));
+
+			    if ( System.Math.Abs( m23 ) < 0.99999 ) {
+
+				    this.y = (float)System.Math.Atan2( m13, m33 );
+				    this.z = (float)System.Math.Atan2( m21, m22 );
+
+			    } else {
+
+				    this.y = (float)System.Math.Atan2( - m31, m11 );
+				    this.z = 0;
+
+			    }
+
+		    } else if ( order == RotationOrder.ZXY ) {
+
+			    this.x = (float)System.Math.Asin( Mat.Clamp( m32, - 1, 1 ) );
+
+			    if ( System.Math.Abs( m32 ) < 0.99999 ) {
+
+				    this.y = (float)System.Math.Atan2( - m31, m33 );
+				    this.z = (float)System.Math.Atan2( - m12, m22 );
+
+			    } else {
+
+				    this.y = 0;
+				    this.z = (float)System.Math.Atan2( m21, m11 );
+
+			    }
+
+		    } else if ( order == RotationOrder.ZYX ) {
+
+			    this.y = (float)System.Math.Asin( - Mat.Clamp( m31, - 1, 1 ) );
+
+			    if ( System.Math.Abs( m31 ) < 0.99999 ) {
+
+				    this.x = (float)System.Math.Atan2( m32, m33 );
+				    this.z = (float)System.Math.Atan2( m21, m11 );
+
+			    } else {
+
+				    this.x = 0;
+				    this.z = (float)System.Math.Atan2( - m12, m22 );
+
+			    }
+
+		    } else if ( order == RotationOrder.YZX ) {
+
+			    this.z = (float)System.Math.Asin( Mat.Clamp( m21, - 1, 1 ) );
+
+			    if ( System.Math.Abs( m21 ) < 0.99999 ) {
+
+				    this.x = (float)System.Math.Atan2( - m23, m22 );
+				    this.y = (float)System.Math.Atan2( - m31, m11 );
+
+			    } else {
+
+				    this.x = 0;
+				    this.y = (float)System.Math.Atan2( m13, m33 );
+
+			    }
+
+		    } else if ( order == RotationOrder.XZY ) {
+
+			    this.z = (float)System.Math.Asin( - Mat.Clamp( m12, - 1, 1 ) );
+
+			    if ( System.Math.Abs( m12 ) < 0.99999 ) {
+
+				    this.x = (float)System.Math.Atan2( m32, m22 );
+				    this.y = (float)System.Math.Atan2( m13, m11 );
+
+			    } else {
+
+				    this.x = (float)System.Math.Atan2( - m23, m33 );
+				    this.y = 0;
+
+			    }
+
+		    } else {
+
+			    Trace.TraceInformation( "THREE.Euler: .setFromRotationMatrix() given unsupported order: " + order );
+
+		    }
+
+            this.Order = order;
+
+            this.OnPropertyChanged();
+
+		    return this;
+
+	    }
 
         /// <summary>
         /// 

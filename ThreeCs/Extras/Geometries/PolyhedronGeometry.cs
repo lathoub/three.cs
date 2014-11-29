@@ -25,6 +25,7 @@
         /// </summary>
         protected PolyhedronGeometry()
         {
+            this.type = "PolyhedronGeometry";
         }
 
         /// <summary>

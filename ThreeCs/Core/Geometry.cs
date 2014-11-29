@@ -294,7 +294,7 @@
 		    for (int i = 0; i < faces2.Count; i ++ )
 		    {
 
-		        var face = faces2[i];//, faceCopy, normal, color;
+		        var face = faces2[i];
 		        var faceVertexNormals = face.VertexNormals;
 			    var faceVertexColors = face.VertexColors;
 

@@ -16,7 +16,7 @@
         /// <param name="height"></param>
         /// <param name="widthSegments"></param>
         /// <param name="heightSegments"></param>
-        public PlaneGeometry(int width, int height, int widthSegments = 1, int heightSegments = 1)
+        public PlaneGeometry(float width, float height, int widthSegments = 1, int heightSegments = 1)
         {
             Debug.Assert(this.FaceVertexUvs.Count == 1, "Should only be 1 element at this stage");
 

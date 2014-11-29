@@ -18,7 +18,7 @@
 
     public abstract class TextureMapping { }
 
-    public class Texture : ICloneable
+    public class Texture : ITexture, ICloneable, IDisposable
     {
         #region Static Fields
 
@@ -28,11 +28,13 @@
 
         #region Fields
 
+        private bool _disposed = false;
+
         public bool __webglInit = false;
 
-        public int __webglTexture;
+        public int __webglTexture { get; set; }
 
-        public int Anisotropy = 1;
+        public int Anisotropy { get; set; }
 
         public int __oldAnisotropy = -1;
 
@@ -48,7 +50,7 @@
 
         public string SourceFile;
 
-        public bool NeedsUpdate = false;
+        public bool NeedsUpdate { get; set; }
 
         public Bitmap Image;
 
@@ -56,17 +58,17 @@
 
         public TextureMapping Mapping; // !== undefined ? mapping : Three.Texture.DEFAULT_MAPPING;
 
-        public int WrapS = Three.ClampToEdgeWrapping;
+        public int WrapS { get; set; }
 
-        public int WrapT = Three.ClampToEdgeWrapping;
+        public int WrapT { get; set; }
 
-        public int MagFilter = Three.LinearFilter;
+        public int MagFilter { get; set; }
 
-        public int MinFilter = Three.LinearMipMapLinearFilter;
+        public int MinFilter { get; set; }
 
         public int Format = Three.RGBAFormat;
 
-        public int Type = Three.UnsignedByteType;
+        public int Type { get; set; }
         
         public Vector2 Offset = new Vector2(0, 0);
 
@@ -81,19 +83,23 @@
 
         #endregion
 
-        //this.onUpdate = null;
-
         #region Constructors and Destructors
 
         protected Texture()
         {
-            
+            this.Anisotropy = 1;
+            this.WrapS = Three.ClampToEdgeWrapping;
+            this.WrapT = Three.ClampToEdgeWrapping;
+            this.MagFilter = Three.LinearFilter;
+            this.MinFilter = Three.LinearMipMapLinearFilter;
+            this.Type = Three.UnsignedByteType;
+            this.NeedsUpdate = false;
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public Texture(Bitmap image = null, TextureMapping mapping = null, int wrapS = 0, int wrapT = 0, int magFilter = 0, int minFilter = 0, int format = 0, int type = 0, int anisotropy = 1)
+        public Texture(Bitmap image = null, TextureMapping mapping = null, int wrapS = 0, int wrapT = 0, int magFilter = 0, int minFilter = 0, int format = 0, int type = 0, int anisotropy = 1) : this()
         {
             this.Image = image;
 
@@ -110,13 +116,13 @@
 
         #endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Update()
-        {
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //public void Update()
+        //{
             
-        }
+        //}
 
         /// <summary>
         /// 
@@ -127,8 +133,63 @@
             return string.Format("id: {0}, filename: {1}, size = {2}", this.Id, Path.GetFileNameWithoutExtension(this.SourceFile), this.Image.Size);
         }
 
+        #region IDisposable Members
+        /// <summary>
+        /// Implement the IDisposable interface
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            // This object will be cleaned up by the Dispose method.
+            // Therefore, you should call GC.SupressFinalize to
+            // take this object off the finalization queue 
+            // and prevent finalization code for this object
+            // from executing a second time.
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this._disposed)
+            {
+                try
+                {
+                    this._disposed = true;
+
+                    this.RaiseDisposed();
+                }
+                finally
+                {
+                    //base.Dispose(true);           // call any base classes
+                }
+            }
+        }
+        #endregion
+
         #region Public Events
 
+        public event EventHandler<EventArgs> Disposed;
+
+        public event EventHandler<EventArgs> Updated;
+
+        protected virtual void RaiseDisposed()
+        {
+            var handler = this.Disposed;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        protected virtual void RaiseUpdated()
+        {
+            var handler = this.Updated;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
 
         #endregion
 

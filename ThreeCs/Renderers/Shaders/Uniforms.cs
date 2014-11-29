@@ -1,5 +1,6 @@
 ﻿namespace ThreeCs.Renderers.Shaders
 {
+    using System.Collections;
     using System.Collections.Generic;
 
     public class Uniforms : Dictionary<string, Uniform>
@@ -17,6 +18,23 @@
             {
                 entry["value"] = value;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="original"></param>
+        /// <returns></returns>
+        public Uniforms Copy(Uniforms original)
+        {
+            var destination = new Uniforms();
+
+            foreach (var entry in original)
+            {
+                destination.Add(entry.Key, new Uniform().Copy(entry.Value));
+            }
+
+            return destination;
         }
 
     }

@@ -308,7 +308,7 @@
 			    }
 
 			    var mat = new MeshLambertMaterial();
-			    mat.name = obj.Material.name;
+			    mat.Name = obj.Material.name;
 
 			    var mesh = new Mesh( buffergeometry, mat );
 			    mesh.Name = obj.name;

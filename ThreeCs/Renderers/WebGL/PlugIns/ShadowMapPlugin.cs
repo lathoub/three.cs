@@ -9,7 +9,7 @@
 
     class ShadowMapPlugin
     {
-        private OpenTKRenderer _renderer;
+        private WebGLRenderer _renderer;
         
         /// <summary>
         /// Constructor
@@ -18,7 +18,7 @@
         /// <param name="lights"></param>
         /// <param name="webglObjects"></param>
         /// <param name="webglObjectsImmediate"></param>
-        public ShadowMapPlugin(OpenTKRenderer renderer, LightCollection lights, Dictionary<int, List<WebGlObject>> webglObjects, List<WebGlObject> webglObjectsImmediate)
+        public ShadowMapPlugin(WebGLRenderer renderer, LightCollection lights, Dictionary<int, List<WebGlObject>> webglObjects, List<WebGlObject> webglObjectsImmediate)
         {
             this._renderer = renderer;
         }

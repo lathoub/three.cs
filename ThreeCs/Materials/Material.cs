@@ -9,11 +9,13 @@
     using ThreeCs.Renderers.WebGL;
     using ThreeCs.Textures;
 
-    public class Material : ICloneable
+    public class Material : ICloneable, IDisposable
     {
-        private static int MaterialIdCount;
+        private static int materialIdCount;
 
-        public int id = MaterialIdCount++;
+        private bool _disposed;
+
+        public int Id = materialIdCount++;
 
         public Guid Uuid = Guid.NewGuid();
 
@@ -23,7 +25,7 @@
 
         public WebGlProgram program;
 
-        public string name;
+        public string Name;
 
         public string type = "Material";
 
@@ -139,6 +141,51 @@
         {
             return new Material(this);
         }
+
+        public event EventHandler<EventArgs> Disposed;
+
+        protected virtual void RaiseDisposed()
+        {
+            var handler = this.Disposed;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        #region IDisposable Members
+        /// <summary>
+        /// Implement the IDisposable interface
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            // This object will be cleaned up by the Dispose method.
+            // Therefore, you should call GC.SupressFinalize to
+            // take this object off the finalization queue 
+            // and prevent finalization code for this object
+            // from executing a second time.
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this._disposed)
+            {
+                try
+                {
+                    this._disposed = true;
+
+                    this.RaiseDisposed();
+                }
+                finally
+                {
+                    //base.Dispose(true);           // call any base classes
+                }
+            }
+        }
+        #endregion
 
     }
 }

@@ -60,7 +60,7 @@ namespace Three.Core
 		    if ( recursive )
 		    {
 		        var children = object3D.Children;
-		        foreach (Object3D t in children)
+		        foreach (var t in children)
 		            this.IntersectObject( t, raycaster, ref intersects, true );
 		    }
         }

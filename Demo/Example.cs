@@ -9,7 +9,7 @@
 
     abstract class Example
     {
-        protected OpenTKRenderer renderer;
+        protected WebGLRenderer renderer;
 
         protected readonly Random random = new Random();
 
@@ -25,7 +25,7 @@
         {
             Debug.Assert(null != control);
 
-            this.renderer = new OpenTKRenderer(control);
+            this.renderer = new WebGLRenderer(control);
 
             stopWatch.Start();
         }

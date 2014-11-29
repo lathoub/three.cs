@@ -25,7 +25,7 @@
 
         #endregion
 
-            #region Constructors and Destructors
+        #region Constructors and Destructors
 
         /// <summary>
         ///     Constructor

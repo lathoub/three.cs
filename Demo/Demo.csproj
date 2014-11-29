@@ -55,13 +55,28 @@
     <Compile Include="examples\cs\loaders\DDSLoader.cs" />
     <Compile Include="examples\cs\loaders\OBJLoader.cs" />
     <Compile Include="examples\cs\loaders\VTKLoader.cs" />
+    <Compile Include="examples\cs\postprocessing\ClearMaskPass.cs" />
+    <Compile Include="examples\cs\postprocessing\EffectComposer.cs" />
+    <Compile Include="examples\cs\postprocessing\IPass.cs" />
+    <Compile Include="examples\cs\postprocessing\MaskPass.cs" />
+    <Compile Include="examples\cs\postprocessing\RenderPass.cs" />
+    <Compile Include="examples\cs\postprocessing\ShaderPass.cs" />
+    <Compile Include="examples\cs\shaders\CopyShader.cs" />
+    <Compile Include="examples\cs\shaders\DotScreenShader.cs" />
+    <Compile Include="examples\cs\shaders\RGBShiftShader.cs" />
+    <Compile Include="examples\webgl_interactive_cubes.cs" />
+    <Compile Include="examples\webgl_interactive_cubes_ortho.cs" />
     <Compile Include="examples\webgl_interactive_lines.cs" />
     <Compile Include="examples\webgl_loader_obj.cs" />
+    <Compile Include="examples\webgl_rtt.cs" />
     <Compile Include="examples\webgl_lod.cs" />
     <Compile Include="examples\webgl_custom_attributes_particles3.cs" />
     <Compile Include="examples\webgl_geometry_hierarchy2.cs" />
     <Compile Include="examples\webgl_materials_texture_anisotropy.cs" />
     <Compile Include="examples\webgl_materials_texture_compressed.cs" />
+    <Compile Include="examples\webgl_postprocessing.cs" />
+    <Compile Include="examples\webgl_test_memory2.cs" />
+    <Compile Include="examples\webgl_test_memory.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -209,6 +224,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="examples\textures\UV_Grid_Sm.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="examples\obj\male02\01_-_Default1noCulling.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -237,11 +257,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="examples\obj\male02\readme.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="examples\textures\UV_Grid_Sm.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -31,10 +31,10 @@ namespace ThreeCs.Math
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Scalar"></param>
-        public Vector3(float Scalar)
+        /// <param name="scalar"></param>
+        public Vector3(float scalar)
         {
-            this.X = this.Y = this.Z = Scalar;
+            this.X = this.Y = this.Z = scalar;
         }
 
         /// <summary>
@@ -48,6 +48,16 @@ namespace ThreeCs.Math
             this.X = x;
             this.Y = y;
             this.Z = z;
+        }
+
+        ///
+        public Vector3 set(float a, float b, float c)
+        {
+            this.X = a;
+            this.Y = b;
+            this.Z = c;
+
+            return this;
         }
 
         /// <summary>

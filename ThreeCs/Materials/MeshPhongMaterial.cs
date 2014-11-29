@@ -6,7 +6,7 @@
     using ThreeCs.Math;
     using ThreeCs.Textures;
 
-    public class MeshPhongMaterial : Material, IWireframe, IMap
+    public class MeshPhongMaterial : Material, IWireframe, IMap, IMorphTargets
     {
         public Color Color = Color.White; // diffuse
 
@@ -73,7 +73,7 @@
 
         public bool Skinning = false;
 
-        public bool MorphTargets = false;
+        public bool MorphTargets { get; set; }
 
         public bool MorphNormals = false;
 

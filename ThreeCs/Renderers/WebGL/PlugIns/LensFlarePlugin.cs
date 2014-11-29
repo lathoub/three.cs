@@ -10,7 +10,7 @@
 
     class LensFlarePlugin
     {
-        private OpenTKRenderer _renderer;
+        private WebGLRenderer _renderer;
 
         private IList<Object3D> _flares;
 
@@ -19,7 +19,7 @@
         /// </summary>
         /// <param name="renderer"></param>
         /// <param name="flares"></param>
-        public LensFlarePlugin(OpenTKRenderer renderer, IList<Object3D> flares)
+        public LensFlarePlugin(WebGLRenderer renderer, IList<Object3D> flares)
         {
             this._renderer = renderer;
             this._flares = flares;

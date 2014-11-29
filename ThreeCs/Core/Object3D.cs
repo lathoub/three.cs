@@ -1,8 +1,7 @@
-﻿using ThreeCs.Math;
-
-namespace ThreeCs.Core
+﻿namespace ThreeCs.Core
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
 
@@ -14,8 +13,10 @@ namespace ThreeCs.Core
     using ThreeCs.Math;
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
+    using ThreeCs.Textures;
 
-    public class Object3D : ICloneable, IDisposable
+    [DebuggerDisplay("Object3D")]
+    public class Object3D : Hashtable, ICloneable, IDisposable
     {
         #region Static Fields
 
@@ -33,9 +34,9 @@ namespace ThreeCs.Core
 
         public float[] __webglMorphTargetInfluences;
 
-        public Matrix4 ModelViewMatrix;
+        public Matrix4 _modelViewMatrix;
 
-        public Matrix3 NormalMatrix;
+        public Matrix3 _normalMatrix;
 
         public Vector3 DefaultUp = new Vector3( 0, 1, 0 );
 
@@ -127,6 +128,28 @@ namespace ThreeCs.Core
         #endregion
 
         #region Public Events
+
+        public event EventHandler<EventArgs> Added;
+
+        public event EventHandler<EventArgs> Removed;
+
+        protected virtual void RaiseAdded()
+        {
+            var handler = this.Added;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        protected virtual void RaiseRemoved()
+        {
+            var handler = this.Removed;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
 
         #endregion
 
@@ -360,6 +383,8 @@ namespace ThreeCs.Core
         /// </summary>
         /// <param name="scene"></param>
         /// <param name="camera"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         public void Render(Scene scene, Camera camera, int width, int height)
         {
             
@@ -446,32 +471,26 @@ namespace ThreeCs.Core
 
 		    if ( object3D == this ) 
             {
-
 			    Trace.TraceError( "THREE.Object3D.add:", object3D, "can't be added as a child of itself." );
-
 		    }
 
 		    if ( object3D is Object3D )
             {
 
-			    if ( object3D.Parent != null ) 
-                {
-
-				    object3D.Parent.Remove( object3D );
-
+			    if ( object3D.Parent != null )
+			    {
+			        object3D.Parent.Remove(object3D);
 			    }
 
 			    object3D.Parent = this;
-			//    object3D.dispatchEvent( { type: 'added' } );
 
-			    this.Children.Add( object3D );
+                RaiseAdded();
 
-		    } 
+                this.Children.Add(object3D);
+            } 
             else
             {
-
                 Trace.TraceError("THREE.Object3D.add: {0} is not an instance of THREE.Object3D.", object3D);
-		
 		    }
         }
 
@@ -491,7 +510,8 @@ namespace ThreeCs.Core
 		    if ( index != - 1 ) {
 
 			    object3D.Parent = null;
-			//    object3D.dispatchEvent( { type: 'removed' } );
+
+                object3D.RaiseRemoved();
 
 			    this.Children.RemoveAt( index );
 
@@ -662,6 +682,7 @@ namespace ThreeCs.Core
             // from executing a second time.
             GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.

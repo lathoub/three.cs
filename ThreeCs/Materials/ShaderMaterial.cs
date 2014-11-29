@@ -5,7 +5,7 @@
 
     using ThreeCs.Renderers.Shaders;
 
-    public class ShaderMaterial : Material, IWireframe, IAttributes, IUniforms
+    public class ShaderMaterial : Material, IWireframe, IAttributes, IUniforms, IMorphTargets
     {
         public Hashtable defines = new Hashtable();
 
@@ -40,7 +40,7 @@
 
         public bool Skinning = false; // set to use skinning attribute streams
 
-        public bool MorphTargets = false; // set to use morph targets
+        public bool MorphTargets { get; set; }  // set to use morph targets
 
         public bool MorphNormals = false; // set to use morph normals
 

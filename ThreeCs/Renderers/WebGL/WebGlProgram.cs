@@ -120,7 +120,7 @@
         /// <param name="code"></param>
         /// <param name="material"></param>
         /// <param name="parameters"></param>
-        public WebGlProgram(OpenTKRenderer renderer, string code, Material material, Hashtable parameters)
+        public WebGlProgram(WebGLRenderer renderer, string code, Material material, Hashtable parameters)
         {
             Debug.Assert(null != material);
             Debug.Assert(null != material.Defines);

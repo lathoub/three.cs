@@ -201,6 +201,37 @@ namespace ThreeCs.Math
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public Matrix4 ExtractRotation (Matrix4 m) {
+
+		    var v1 = new Vector3();
+
+			var te = this.elements;
+			var me = m.elements;
+
+            var scaleX = 1 / v1.set(me[0], me[1], me[2]).Length;
+            var scaleY = 1 / v1.set(me[4], me[5], me[6]).Length;
+            var scaleZ = 1 / v1.set(me[8], me[9], me[10]).Length;
+
+			te[ 0 ] = me[ 0 ] * scaleX;
+			te[ 1 ] = me[ 1 ] * scaleX;
+			te[ 2 ] = me[ 2 ] * scaleX;
+
+			te[ 4 ] = me[ 4 ] * scaleY;
+			te[ 5 ] = me[ 5 ] * scaleY;
+			te[ 6 ] = me[ 6 ] * scaleY;
+
+			te[ 8 ] = me[ 8 ] * scaleZ;
+			te[ 9 ] = me[ 9 ] * scaleZ;
+			te[ 10 ] = me[ 10 ] * scaleZ;
+
+			return this;
+		}
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="te"></param>
         /// <param name="s"></param>
         /// <returns></returns>
@@ -254,15 +285,29 @@ namespace ThreeCs.Math
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Left"></param>
-        /// <param name="Right"></param>
-        /// <param name="Top"></param>
-        /// <param name="Bottom"></param>
-        /// <param name="p5"></param>
-        /// <param name="p6"></param>
-        public void MakeOrthographic(float Left, float Right, float Top, float Bottom, float p5, float p6)
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="top"></param>
+        /// <param name="bottom"></param>
+        /// <param name="near"></param>
+        /// <param name="far"></param>
+        public Matrix4 MakeOrthographic(float left, float right, float top, float bottom, float near, float far)
         {
-            throw new NotImplementedException();
+            var te = this.elements;
+            var w = right - left;
+            var h = top - bottom;
+            var p = far - near;
+
+            var x = (right + left) / w;
+            var y = (top + bottom) / h;
+            var z = (far + near) / p;
+
+            te[0] = 2 / w; te[4] = 0; te[8] = 0; te[12] = -x;
+            te[1] = 0; te[5] = 2 / h; te[9] = 0; te[13] = -y;
+            te[2] = 0; te[6] = 0; te[10] = -2 / p; te[14] = -z;
+            te[3] = 0; te[7] = 0; te[11] = 0; te[15] = 1;
+
+            return this;
         }
 
         /// <summary>

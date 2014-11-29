@@ -10,7 +10,7 @@
 
     class SpritePlugin
     {
-        private OpenTKRenderer _renderer;
+        private WebGLRenderer _renderer;
 
         private IList<Object3D> _sprites;
 
@@ -19,7 +19,7 @@
         /// </summary>
         /// <param name="renderer"></param>
         /// <param name="sprites"></param>
-        public SpritePlugin(OpenTKRenderer renderer, IList<Object3D> sprites)
+        public SpritePlugin(WebGLRenderer renderer, IList<Object3D> sprites)
         {
             this._renderer = renderer;
             this._sprites = sprites;

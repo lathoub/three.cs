@@ -5,7 +5,7 @@
 
     using ThreeCs.Textures;
 
-    public class MeshBasicMaterial : Material, IWireframe, IMap
+    public class MeshBasicMaterial : Material, IWireframe, IMap, IMorphTargets
     {
 
         // IMap
@@ -53,7 +53,7 @@
 
         public bool Skinning;
 
-        public bool MorphTargets;
+        public bool MorphTargets { get; set; }
 
         public int NumSupportedMorphTargets;
 
@@ -91,7 +91,6 @@
 	        this.WireframeLinejoin = "round";
 
 	        this.Skinning = false;
-	        this.MorphTargets = false;
 
             this.SetValues(parameters);
         }

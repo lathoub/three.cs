@@ -2,6 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
+
+    using ThreeCs.Math;
+    using ThreeCs.Textures;
 
     public class UniformsUtils
     {
@@ -30,11 +34,9 @@
         /// 
         /// </summary>
         /// <returns></returns>
-        public object Clone(List<Uniforms> uniforms)
+        public static object Clone(Uniforms uniforms)
         {
-            throw new NotImplementedException();
-            return null;
+            return new Uniforms().Copy(uniforms);
         }
-
     }
 }

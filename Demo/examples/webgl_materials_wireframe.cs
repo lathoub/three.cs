@@ -111,7 +111,12 @@
             };
             SetupAttributes( mixedGeometry, (List<List<Vector3>>)attributesMixed["center"]["value"] );
 
-            var materialMixed = new ShaderMaterial() { Attributes = attributesMixed, VertexShader = VertexShader, FragmentShader = FragmentShader };
+            var materialMixed = new ShaderMaterial() 
+            { 
+                Attributes = attributesMixed,
+                VertexShader = VertexShader, 
+                FragmentShader = FragmentShader 
+            };
 
             meshMixed = new Mesh( mixedGeometry, materialMixed );
             meshMixed.Position.X = -150;

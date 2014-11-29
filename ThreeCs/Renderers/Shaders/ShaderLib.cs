@@ -186,7 +186,7 @@
                                     new Uniforms { { "wrapRGB",  new Uniform() { {"type", "v3"}, {"value", new Vector3(1,1,1)} }}}});
             #endregion
 
-            #region construct vertexShader source
+            #region construct VertexShader source
             var vs = new List<string>();
 
             vs.Add("#define LAMBERT");
