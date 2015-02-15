@@ -147,6 +147,7 @@
     <Compile Include="Renderers\Shaders\Attribute.cs" />
     <Compile Include="Renderers\Shaders\Attributes.cs" />
     <Compile Include="Renderers\Shaders\IUniforms.cs" />
+    <Compile Include="Renderers\Shaders\Shader.cs" />
     <Compile Include="Renderers\Shaders\Uniform.cs" />
     <Compile Include="Renderers\WebGL\PlugIns\LensFlarePlugin.cs" />
     <Compile Include="Renderers\WebGL\PlugIns\ShadowMapPlugin.cs" />
@@ -162,7 +163,6 @@
     <Compile Include="Objects\Skeleton.cs" />
     <Compile Include="Objects\SkinnedMesh.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Renderers\IRenderer.cs" />
     <Compile Include="Renderers\WebGLRenderer.cs" />
     <Compile Include="Renderers\WebGLRenderTargetCube.cs" />
     <Compile Include="Renderers\WebGLRenderTarget.cs" />

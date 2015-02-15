@@ -1,11 +1,6 @@
 ﻿namespace ThreeCs.Renderers.Shaders
 {
-    using System;
     using System.Collections.Generic;
-    using System.Drawing;
-
-    using ThreeCs.Math;
-    using ThreeCs.Textures;
 
     public class UniformsUtils
     {

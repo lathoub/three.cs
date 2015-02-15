@@ -2,8 +2,6 @@
 {
     using System;
 
-    using ThreeCs.Core;
-
     public class Ray : ICloneable, IEquatable<Ray>
     {
         public Vector3 Origin = new Vector3();

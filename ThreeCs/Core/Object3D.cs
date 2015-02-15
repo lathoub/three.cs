@@ -13,7 +13,6 @@
     using ThreeCs.Math;
     using ThreeCs.Objects;
     using ThreeCs.Scenes;
-    using ThreeCs.Textures;
 
     [DebuggerDisplay("Object3D")]
     public class Object3D : Hashtable, ICloneable, IDisposable

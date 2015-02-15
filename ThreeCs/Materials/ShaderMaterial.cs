@@ -1,7 +1,6 @@
 ﻿namespace ThreeCs.Materials
 {
     using System.Collections;
-    using System.Drawing;
 
     using ThreeCs.Renderers.Shaders;
 

@@ -7,7 +7,6 @@
     using System.IO;
 
     using ThreeCs.Math;
-    using ThreeCs.Renderers.WebGL;
 
     public class ShaderLib : Hashtable
     {
@@ -57,9 +56,9 @@
         /// <summary>
         /// basic
         /// </summary>
-        private WebGlShader BasicShader()
+        private Shader BasicShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -167,9 +166,9 @@
         /// <summary>
         /// lambert
         /// </summary>
-        private WebGlShader LambertShader()
+        private Shader LambertShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -307,9 +306,9 @@
         /// <summary>
         /// 
         /// </summary>
-        private WebGlShader PhongShader()
+        private Shader PhongShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -442,9 +441,9 @@
         /// <summary>
         /// 
         /// </summary>
-        private WebGlShader ParticleBasicShader()
+        private Shader ParticleBasicShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -528,9 +527,9 @@
         /// <summary>
         /// 
         /// </summary>
-        private WebGlShader DashedShader()
+        private Shader DashedShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -574,9 +573,9 @@
         /// <summary>
         /// 
         /// </summary>
-        private WebGlShader DepthShader()
+        private Shader DepthShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -617,9 +616,9 @@
         /// <summary>
         /// 
         /// </summary>
-        private WebGlShader NormalShader()
+        private Shader NormalShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -680,9 +679,9 @@
         /// <summary>
         /// 
         /// </summary>
-        private WebGlShader NormalMapShader()
+        private Shader NormalMapShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -723,9 +722,9 @@
         /// <summary>
         /// 
         /// </summary>
-        private WebGlShader CubeShader()
+        private Shader CubeShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 
@@ -766,9 +765,9 @@
         /// <summary>
         /// 
         /// </summary>
-        private WebGlShader DepthRGBAShader()
+        private Shader DepthRGBAShader()
         {
-            var shader = new WebGlShader();
+            var shader = new Shader();
 
             #region construct uniform variables
 

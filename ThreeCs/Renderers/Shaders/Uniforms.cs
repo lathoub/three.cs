@@ -1,6 +1,5 @@
 ﻿namespace ThreeCs.Renderers.Shaders
 {
-    using System.Collections;
     using System.Collections.Generic;
 
     public class Uniforms : Dictionary<string, Uniform>

@@ -60,6 +60,5 @@
             }
             return string.Join( "\n", lines );
         }
-
     }
 }

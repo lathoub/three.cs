@@ -1,8 +1,5 @@
 ﻿namespace ThreeCs.Extras
 {
-    using System;
-    using System.Collections;
-
     using ThreeCs.Core;
 
     public class PlaneBufferGeometry : BufferGeometry

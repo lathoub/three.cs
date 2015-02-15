@@ -2816,7 +2816,7 @@
 
             if (!string.IsNullOrEmpty(shaderId))
             {
-                var shader =  (WebGlShader)this.shaderLib[shaderId];
+                var shader =  (Shader)this.shaderLib[shaderId];
 
                 material.__webglShader  = new WebGlShader();
                 

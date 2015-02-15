@@ -1,9 +1,5 @@
 ﻿namespace ThreeCs.Extras.Geometries
 {
-    using System;
-
-    using ThreeCs.Core;
-
     public class IcosahedronGeometry : PolyhedronGeometry
     {
         //public float Radius;
