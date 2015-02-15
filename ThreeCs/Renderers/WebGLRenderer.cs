@@ -2589,11 +2589,11 @@
         private void DeallocateMaterial(Material material)
         {
             Debug.Assert(null != material);
-            Debug.Assert(null != material.program);
+            Debug.Assert(null != material["program"]);
 
-            int program = material.program.Program;
+            int program = ((WebGlProgram)material["program"]).Program;
 
-            material.program = null;
+            (material["program"]) = null;
 
             // only deallocate GL program if this was the last use of shared program
             // assumed there is only single copy of any program in the _programs list
@@ -2818,17 +2818,17 @@
             {
                 var shader =  (Shader)this.shaderLib[shaderId];
 
-                material.__webglShader  = new WebGlShader();
+                material["__webglShader"] = new WebGlShader();
                 
                 // TODO: good enough as Clone?
-                material.__webglShader.Uniforms = new Uniforms();
+                ((WebGlShader)material["__webglShader"]).Uniforms = new Uniforms();
                 foreach (var e in shader.Uniforms)
-                    material.__webglShader.Uniforms.Add(e.Key, e.Value);
+                    ((WebGlShader)material["__webglShader"]).Uniforms.Add(e.Key, e.Value);
 
-                material.__webglShader.VertexShader = shader.VertexShader;
-                material.__webglShader.FragmentShader = shader.FragmentShader;
-                
-                if (null == material.__webglShader)
+                ((WebGlShader)material["__webglShader"]).VertexShader = shader.VertexShader;
+                ((WebGlShader)material["__webglShader"]).FragmentShader = shader.FragmentShader;
+
+                if (null == material["__webglShader"])
                 {
                     Trace.TraceError("Shader '{0}' could not be found. Check if it was created in UniformsLib", shaderId);
                     return;
@@ -2838,7 +2838,7 @@
             {
                 var sm = material as ShaderMaterial;
 
-                material.__webglShader = new WebGlShader
+                material["__webglShader"] = new WebGlShader
                 {
                     Uniforms = sm.Uniforms,
                     VertexShader = sm.VertexShader,
@@ -3031,9 +3031,9 @@
                 this.Info.memory.Programs = this._programs.Count;
             }
 
-            material.program = program;
+            material["program"] = program;
 
-            var attributes = material.program.Attributes;
+            var attributes = ((WebGlProgram)material["program"]).Attributes;
 
             if (null != meshBasicMaterial && meshBasicMaterial.MorphTargets) 
             {
@@ -3070,12 +3070,12 @@
 
             material.UniformsList = new List<UniformLocation>();
 
-            foreach (var u in material.__webglShader.Uniforms)
+            foreach (var u in ((WebGlShader)material["__webglShader"]).Uniforms)
             {
-                var location = material.program.Uniforms[u.Key];
+                var location = ((WebGlProgram)material["program"]).Uniforms[u.Key];
                 if (location != null)
                 {
-                    var uniform = material.__webglShader.Uniforms[u.Key];
+                    var uniform = ((WebGlShader)material["__webglShader"]).Uniforms[u.Key];
                     material.UniformsList.Add(new UniformLocation() { Uniform = uniform, Location = (int)location });
                 }
             }
@@ -5308,7 +5308,7 @@
 
             if (material.NeedsUpdate)
             {
-                if (material.program != null)
+                if (material["program"] != null)
                 {
                     this.DeallocateMaterial(material);
                 }
@@ -5330,9 +5330,9 @@
             var refreshMaterial = false;
             var refreshLights = false;
 
-            var program = material.program;
+            var program = ((WebGlProgram)material["program"]);
             var uniformsLocation = program.Uniforms;
-            var m_uniforms = material.__webglShader.Uniforms;
+            var m_uniforms = ((WebGlShader)material["__webglShader"]).Uniforms;
 
             object uniformLocation = null;
 

@@ -124,18 +124,18 @@
         {
             Debug.Assert(null != material);
             Debug.Assert(null != material.Defines);
-            Debug.Assert(null != material.__webglShader);
-            Debug.Assert(null != material.__webglShader.Uniforms);
-            Debug.Assert(null != material.__webglShader.VertexShader);
-            Debug.Assert(null != material.__webglShader.FragmentShader);
+            Debug.Assert(null != material["__webglShader"]);
+            Debug.Assert(null != ((WebGlShader)material["__webglShader"]).Uniforms);
+            Debug.Assert(null != ((WebGlShader)material["__webglShader"]).VertexShader);
+            Debug.Assert(null != ((WebGlShader)material["__webglShader"]).FragmentShader);
 
             var _this = renderer;
 
             var defines = material.Defines;
-            var uniforms = material.__webglShader.Uniforms;
+            var uniforms = ((WebGlShader)material["__webglShader"]).Uniforms;
 
-            var vertexShader   = material.__webglShader.VertexShader;
-            var fragmentShader = material.__webglShader.FragmentShader;
+            var vertexShader = ((WebGlShader)material["__webglShader"]).VertexShader;
+            var fragmentShader = ((WebGlShader)material["__webglShader"]).FragmentShader;
 
             string index0AttributeName = null;
             if (null != material as ShaderMaterial)

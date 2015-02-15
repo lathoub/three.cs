@@ -9,7 +9,7 @@
     using ThreeCs.Renderers.WebGL;
     using ThreeCs.Textures;
 
-    public class Material : ICloneable, IDisposable
+    public class Material : Hashtable, ICloneable, IDisposable
     {
         private static int materialIdCount;
 
@@ -19,11 +19,7 @@
 
         public Guid Uuid = Guid.NewGuid();
 
-        public WebGlShader __webglShader;
-
         public Hashtable Defines = new Hashtable();
-
-        public WebGlProgram program;
 
         public string Name;
 
