@@ -68,7 +68,7 @@
             // model
 
             var modelLoader = new OBJLoader(manager);
-            modelLoader.Load(@"examples/obj/male02/male02.obj", object3D => {
+            modelLoader.Load(@"examples/objs/male02/male02.obj", object3D => {
                 object3D.Traverse( child => {
                     if (child is Mesh) {
                         ((IMap)child.Material).Map = texture;

@@ -1,4 +1,6 @@
-﻿namespace ThreeCs.Renderers.Shaders
+﻿using System.Linq;
+
+namespace ThreeCs.Renderers.Shaders
 {
     using System;
     using System.Collections;
@@ -8,7 +10,7 @@
 
     using ThreeCs.Math;
 
-    public class ShaderLib : Hashtable
+    public sealed class ShaderLib : Hashtable
     {
         public readonly UniformsLib UniformsLib = new UniformsLib();
 
@@ -20,12 +22,10 @@
         public ShaderLib()
         {
             // cache files in Dictionary
-            var glslFiles = Directory.EnumerateFiles(@"C:\Users\Bart\Documents\GitHub\three.cs\Demo\bin\Debug\Renderers\shaders\ShaderChunk", "*.glsl");
-   //         var glslFiles = Directory.EnumerateFiles(@"renderers\shaders\ShaderChunk", "*.glsl");
-            if (null == glslFiles)
+            var glslFiles = Directory.EnumerateFiles(@".\Renderers\shaders\ShaderChunk", "*.glsl");
+            if (glslFiles.Count() <= 0)
             {
                 throw new FileNotFoundException(".glsl files not found - check the path in ShaderLib.cs, line 25");
-                return;
             }
 
             foreach (var path in glslFiles)

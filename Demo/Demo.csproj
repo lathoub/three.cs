@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Demo</RootNamespace>
     <AssemblyName>Demo</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -122,18 +123,10 @@
     <None Include="examples\models\vtk\bunny.vtk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="examples\obj\male02\male02.mtl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\male02.obj">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\Male02_bin.bin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\male02_dds.mtl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="examples\objs\male02\male02.mtl" />
+    <None Include="examples\objs\male02\male02.obj" />
+    <None Include="examples\objs\male02\Male02_bin.bin" />
+    <None Include="examples\objs\male02\male02_dds.mtl" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -229,36 +222,16 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="examples\obj\male02\01_-_Default1noCulling.dds">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\01_-_Default1noCulling.JPG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\male-02-1noCulling.dds">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\male-02-1noCulling.JPG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\Male02_bin.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\Male02_dds.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\Male02_slim.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\orig_02_-_Defaul1noCulling.dds">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\orig_02_-_Defaul1noCulling.JPG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="examples\obj\male02\readme.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Content Include="examples\objs\male02\01_-_Default1noCulling.dds" />
+    <Content Include="examples\objs\male02\01_-_Default1noCulling.JPG" />
+    <Content Include="examples\objs\male02\male-02-1noCulling.dds" />
+    <Content Include="examples\objs\male02\male-02-1noCulling.JPG" />
+    <Content Include="examples\objs\male02\Male02_bin.js" />
+    <Content Include="examples\objs\male02\Male02_dds.js" />
+    <Content Include="examples\objs\male02\Male02_slim.js" />
+    <Content Include="examples\objs\male02\orig_02_-_Defaul1noCulling.dds" />
+    <Content Include="examples\objs\male02\orig_02_-_Defaul1noCulling.JPG" />
+    <Content Include="examples\objs\male02\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
