@@ -1,4 +1,4 @@
-three.cs
+three.cs - code no longer maintained
 ========
 
 C# and OpenTK implementation of Three.js
